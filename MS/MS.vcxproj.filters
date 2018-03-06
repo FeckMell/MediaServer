@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MAIN">
+      <UniqueIdentifier>{e6ce733b-e863-47b8-89ff-02f19e3d8011}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{16530519-626b-4a91-90cc-42d4540678c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Functional">
+      <UniqueIdentifier>{a6ff2f8e-0902-4dce-9099-b93b074ca0b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utils">
+      <UniqueIdentifier>{a59e81ec-3f56-4cb5-b1f8-4728e4da4fe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Functional\FAnn">
+      <UniqueIdentifier>{c89fe080-d44b-434e-ab09-438f379ac6e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Functional\FCnf">
+      <UniqueIdentifier>{4698a2e2-76ee-46c9-bc09-28f48613ded0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\MGCP">
+      <UniqueIdentifier>{b5b47c5f-3542-43d9-9714-23d0e158db29}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\MGCP\LAnn">
+      <UniqueIdentifier>{a292d1b9-edc5-433b-a54b-d78e46ddfa5f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\MGCP\LCnf">
+      <UniqueIdentifier>{e77e964f-c008-48cf-a29c-13f15f22682b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib">
+      <UniqueIdentifier>{298075d8-8fb1-428e-a32f-3c6e9bfd95e9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Basic">
+      <UniqueIdentifier>{38328227-ae48-45fc-8295-011a0f5537bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Interfaces">
+      <UniqueIdentifier>{ef98d7dd-0d9b-487c-bf71-be63f9f0ef01}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Protocols">
+      <UniqueIdentifier>{ea96d107-2df5-4676-8f5e-877c8fc6d88e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>MAIN</Filter>
+    </ClCompile>
+    <ClCompile Include="MS.cpp">
+      <Filter>MAIN</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FAnn\FAnn.cpp">
+      <Filter>Functional\FAnn</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FAnn\FAnn_Music.cpp">
+      <Filter>Functional\FAnn</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FAnn\FAnn_Point.cpp">
+      <Filter>Functional\FAnn</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FCnf\FCnf.cpp">
+      <Filter>Functional\FCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FCnf\FCnf_Filter.cpp">
+      <Filter>Functional\FCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FCnf\FCnf_Mixer.cpp">
+      <Filter>Functional\FCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FCnf\FCnf_Point.cpp">
+      <Filter>Functional\FCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Functional\FCnf\FCnf_Room.cpp">
+      <Filter>Functional\FCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LMGCP.cpp">
+      <Filter>Logic\MGCP</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LAnn\LMGCP_LAnn.cpp">
+      <Filter>Logic\MGCP\LAnn</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LAnn\LMGCP_LAnnPoint.cpp">
+      <Filter>Logic\MGCP\LAnn</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnf.cpp">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnfPoint.cpp">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnfRoom.cpp">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\All.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\DTMF.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\IPL.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\MGCP.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\RTP.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\SDP.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\SIP.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Caller.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Communication.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Config.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Socket.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Basic.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\FFmpeg.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Functions.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Jitter.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Timer.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Logs.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>MAIN</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FAnn\FAnn.h">
+      <Filter>Functional\FAnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FAnn\FAnn_Music.h">
+      <Filter>Functional\FAnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FAnn\FAnn_Point.h">
+      <Filter>Functional\FAnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FCnf\FCnf.h">
+      <Filter>Functional\FCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FCnf\FCnf_Filter.h">
+      <Filter>Functional\FCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FCnf\FCnf_Mixer.h">
+      <Filter>Functional\FCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FCnf\FCnf_Point.h">
+      <Filter>Functional\FCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Functional\FCnf\FCnf_Room.h">
+      <Filter>Functional\FCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LMGCP.h">
+      <Filter>Logic\MGCP</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LAnn\LMGCP_LAnn.h">
+      <Filter>Logic\MGCP\LAnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LAnn\LMGCP_LAnnPoint.h">
+      <Filter>Logic\MGCP\LAnn</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnf.h">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnfPoint.h">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnfRoom.h">
+      <Filter>Logic\MGCP\LCnf</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\All.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\DTMF.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\IPL.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\MGCP.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\RTP.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\SDP.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\SIP.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Caller.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Communication.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Config.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Socket.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Basic.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\FFmpeg.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Functions.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Jitter.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Timer.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Logs.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
