@@ -2,90 +2,34 @@
 #include "stdafx.h"
 #include "CMixInit.h"
 #include "Functions.h"
-#define newout
 
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
 void CMixInit::loggit(string a)
 {
 	time_t rawtime;
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
-	string time = "";
-	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
-	CLogger.AddToLog(4, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
+	steady_clock::time_point t1 = steady_clock::now();
+	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	result += " ID=" + to_string(ID_) + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
+	CLogger.AddToLog(4, "\n" + result + a); 
 }
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::FirstInit()
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+CMixInit::CMixInit(vector<AVCodecContext*>iccx, vector<AVCodecContext*>out_iccx, int ID) :iccx_(iccx), out_iccx_(out_iccx), tracks(iccx.size()), ID_(ID)
 {
-	loggit("int CMixInit::FirstInit()");
+	loggit("init for tracks=" + to_string(tracks));
+	int err;
 	av_log_set_level(0);
 	av_register_all();
 	avcodec_register_all();
 	avfilter_register_all();
 	avformat_network_init();
+	data.afcx.resize(tracks);
 	for (int i = 0; i < tracks; ++i)
-	{
-		AVFormatContext *input_format_context = NULL;
-		AVCodecContext *input_codec_context = NULL;
-		AVFormatContext *output_format_context = NULL;
-		AVCodecContext *output_codec_context = NULL;
-		SSource a;
-
-		for (int j = 0; j < tracks - 1; ++j)
-		{
-			AVFilterContext* src = NULL;
-			a.src.push_back(src);
-		}
-		data.ifcx.push_back(input_format_context);
-		data.iccx.push_back(input_codec_context);
-		data.out_ifcx.push_back(output_format_context);
-		data.out_iccx.push_back(output_codec_context);
-		data.afcx.push_back(a);
-	}
-	loggit("int CMixInit::FirstInit() ENDED");
-	return 1;
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::init(vector<string> input_SDPs)
-{
-	loggit("int CMixInit::init(vector<string> SDP)");
-	loggit("sizes =" + to_string(data.afcx.size()) + to_string(data.ifcx.size()));
-	int err;
-	string logSDP = "";
-	string logSocket = "";
-	FirstInit();
-	for (int i = 0; i < tracks; ++i)
-	{
-		logSDP += input_SDPs[i] + "\n";
-		logSocket += "\nrtp://" + net_.IPs[i] + ":" + to_string(net_.remote_ports[i]) + " -> " + to_string(net_.my_ports[i]);
-	}
-	loggit("SDPs in filter:\n" + logSDP + "addresses:" + logSocket);
-
-	for (int i = 0; i < tracks; ++i)
-	{
-		if (open_input_file(input_SDPs[i].c_str(), i) < 0)
-		{
-			loggit("Error while opening file " + to_string(i));
-			system("pause");
-		}
-		//av_dump_format(data.ifcx[i], 0, input_SDPs[i].c_str(), 0);
-		char out[100];
-		//snprintf(out, sizeof(out), "output%d.wav", i);
-		err = open_output_file(out, i);
-		
-
-		/*if (write_output_file_header(data.out_ifcx[i]) < 0)
-		{
-			loggit("Error while writing header outputfile  " + boost::to_string(err));
-			system("pause");
-		}*/
-		loggit("Opening input and output for i = " + to_string(i) + "good");
-	}
+		data.afcx[i].src.resize(tracks - 1);
 
 	for (int i = 0; i < tracks; ++i)
 	{
@@ -96,67 +40,9 @@ int CMixInit::init(vector<string> input_SDPs)
 			system("pause");
 		}
 	}
-	return 0;
 }
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::write_output_file_header(AVFormatContext *output_format_context)
-{
-	loggit("int CRTPReceive::write_output_file_header");
-	int error;
-	if ((error = avformat_write_header(output_format_context, NULL)) < 0)
-	{
-		string s(get_error_text(error));
-		loggit("Could not write output file header (error " + s);
-		av_log(NULL, AV_LOG_ERROR, "Could not write output file header (error '%s')\n",
-			get_error_text(error));
-		return error;
-	}
-	loggit("int CRTPReceive::write_output_file_header END");
-	return 0;
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::write_output_file_trailer(AVFormatContext *output_format_context)
-{
-	loggit("int CRTPReceive::write_output_file_trailer");
-	int error;
-	if ((error = av_write_trailer(output_format_context)) < 0)
-	{
-		string s(get_error_text(error));
-		loggit("Could not write output file trailer (error " + s);
-		av_log(NULL, AV_LOG_ERROR, "Could not write output file trailer (error '%s')\n",
-			get_error_text(error));
-		return error;
-	}
-	loggit("int CRTPReceive::write_output_file_trailer END");
-	return 0;
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options) /*noexcept*/
-{
-	loggit("int CRTPReceive::sdp_open");
-	assert(pctx);
-	*pctx = avformat_alloc_context();
-	assert(*pctx);
-
-	const size_t avioBufferSize = 4096;
-	auto avioBuffer = static_cast<uint8_t*>(av_malloc(avioBufferSize));
-	auto opaque = new SdpOpaque();
-	opaque->data = SdpOpaque::Vector(data, data + strlen(data));
-	opaque->pos = opaque->data.begin();
-
-	auto pbctx = avio_alloc_context(avioBuffer, avioBufferSize, 0, opaque, &sdp_read, nullptr, nullptr);
-	assert(pbctx);
-	(*pctx)->pb = pbctx;
-
-	auto infmt = av_find_input_format("sdp");
-	loggit("int CRTPReceive::sdp_open DONE");
-	return avformat_open_input(pctx, "memory.sdp", /*nullptr*/infmt, nullptr/*options*/);
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
 int CMixInit::init_filter_graph(int ForClient)
 {
 	loggit("int CRTPReceive::init_filter_graph");
@@ -195,13 +81,13 @@ int CMixInit::init_filter_graph(int ForClient)
 		}
 		/*источник буффера: раскодированные фреймы из декодера будут в здесь*/
 		/* buffer audio source: the decoded frames from the decoder will be inserted here. */
-		if (!data.iccx[i]->channel_layout)
+		if (!iccx_[i]->channel_layout)
 		{
-			data.iccx[i]->channel_layout = av_get_default_channel_layout(data.iccx[i]->channels);
+			iccx_[i]->channel_layout = av_get_default_channel_layout(iccx_[i]->channels);
 
 		}
 		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%"PRIx64,
-			data.iccx[i]->sample_rate, av_get_sample_fmt_name(data.iccx[i]->sample_fmt), data.iccx[i]->channel_layout);
+			iccx_[i]->sample_rate, av_get_sample_fmt_name(iccx_[i]->sample_fmt), iccx_[i]->channel_layout);
 		//snprintf(arg, sizeof(arg), "src%d-%d", ForClient, i);
 		snprintf(arg, sizeof(arg), "src");
 		//разбиение индекса для SSource.
@@ -330,98 +216,8 @@ int CMixInit::init_filter_graph(int ForClient)
 	loggit("int CRTPReceive::init_filter_graph END");
 	return 0;
 }
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::open_input_file(const char * SDP, int i)
-{
-	loggit("int CRTPReceive::open_input_file");
-	AVCodec *input_codec;
-	int error;
-
-	/** Open the input file to read from it. */
-	error = sdp_open(&data.ifcx[i], SDP, nullptr);
-	if (error < 0)
-	{
-		string s(get_error_text(error));
-		loggit("Could not open input file (error: " + s + ")");
-		av_log(NULL, AV_LOG_ERROR, "Could not open input file '%s' (error '%s')\n",
-			SDP, get_error_text(error));
-		data.ifcx[i] = NULL;
-		return error;
-	}
-	/** Get information on the input file (number of streams etc.). */
-	/*if ((error = avformat_find_stream_info(ifcx[i], NULL)) < 0)
-	{
-	string s(get_error_text(error));
-	av_log(NULL, AV_LOG_ERROR, "Could not open find stream info (error '%s')\n",
-	get_error_text(error));
-	avformat_close_input(&ifcx[i]);
-	return error;
-	}*/
-	/** Make sure that there is only one stream in the input file. */
-	if ((data.ifcx[i])->nb_streams != 1)
-	{
-		loggit("Expected one audio input stream, but found " + (data.ifcx[i])->nb_streams);
-		av_log(NULL, AV_LOG_ERROR, "Expected one audio input stream, but found %d\n",
-			(data.ifcx[i])->nb_streams);
-		avformat_close_input(&data.ifcx[i]);
-		return AVERROR_EXIT;
-	}
-	/** Find a decoder for the audio stream. */
-	if (!(input_codec = avcodec_find_decoder((data.ifcx[i])->streams[0]->codec->codec_id)))
-	{
-		loggit("Could not find input codec");
-		av_log(NULL, AV_LOG_ERROR, "Could not find input codec\n");
-		avformat_close_input(&data.ifcx[i]);
-		return AVERROR_EXIT;
-	}
-	/** Open the decoder for the audio stream to use it later. */
-	if ((error = avcodec_open2((data.ifcx[i])->streams[0]->codec, input_codec, NULL)) < 0)
-	{
-		string s(get_error_text(error));
-		loggit("Could not open input codec (error " + s);
-		av_log(NULL, AV_LOG_ERROR, "Could not open input codec (error '%s')\n",
-			get_error_text(error));
-		avformat_close_input(&data.ifcx[i]);
-		return error;
-	}
-
-	/** Save the decoder context for easier access later. */
-	data.iccx[i] = (data.ifcx[i])->streams[0]->codec;
-	loggit("int CRTPReceive::open_input_file END");
-
-
-	return 0;
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
-int CMixInit::open_output_file(const char *filename, int i)
-{
-
-	auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%") % net_.IPs[i] % net_.remote_ports[i]  % (net_.my_ports[i] - 1000));
-	//out << "\nrtp to: " << strRTP;
-	avformat_alloc_output_context2(&data.out_ifcx[i], nullptr, "rtp", strRTP.c_str());
-	avio_open(&data.out_ifcx[i]->pb, strRTP.c_str(), AVIO_FLAG_WRITE);
-
-	AVCodecID idCodec = AV_CODEC_ID_PCM_ALAW;
-	AVCodec *output_codec = avcodec_find_encoder(idCodec);
-
-	auto strmOut = avformat_new_stream(data.out_ifcx[i], output_codec);
-	strmOut->time_base = { 1, 8000 };
-	data.out_iccx[i] = strmOut->codec;
-
-	data.out_iccx[i]->channels = 1;
-	data.out_iccx[i]->channel_layout = av_get_default_channel_layout(data.out_iccx[i]->channels);
-	data.out_iccx[i]->sample_fmt = output_codec->sample_fmts[0];
-	data.out_iccx[i]->sample_rate = 8000;
-	data.out_iccx[i]->bit_rate = 8000;
-	data.out_iccx[i]->time_base = { 1, data.out_iccx[i]->sample_rate };
-
-	avcodec_open2(strmOut->codec, output_codec, nullptr);
-return 0;
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
 void CMixInit::FreeSockFFmpeg()
 {
 	loggit("Destroing filter");//
@@ -429,24 +225,9 @@ void CMixInit::FreeSockFFmpeg()
 	{
 		avfilter_graph_free(&e);
 	}
-	for (auto &e : data.ifcx)
-	{ 
-		avformat_close_input(&e);
-		avformat_free_context(e);
-		e = NULL;
-	}
-	for (auto &e : data.out_iccx)
-	{
-		avcodec_close(e);//
-		avcodec_free_context(&e);
-	}
-	for (auto &e : data.out_ifcx)
-	{
-		avio_close(e->pb);
-	}
 
-	for (int i = 0; i < tracks; ++i)
-	{
+	//for (int i = 0; i < tracks; ++i)
+	//{
 		//avcodec_close(data.out_iccx[i]);//
 		//avformat_close_input(&data.ifcx[i]);
 		//data.ifcx[i] = NULL;
@@ -456,20 +237,14 @@ void CMixInit::FreeSockFFmpeg()
 		//avformat_free_context(data.ifcx[i]);
 		
 
-		net_.input_SDPs[i].clear();
-		net_.IPs[i].clear();
 		//---------------------------------------------------------------
 		//avformat_free_context(data.out_ifcx[i]);
-		//avcodec_close(data.iccx[i]);
+		//avcodec_close(iccx_[i]);
 		//avcodec_close(data.out_iccx[i]);
-		//avcodec_free_context(&data.iccx[i]);
-	}
-	net_.input_SDPs.clear();
-	net_.IPs.clear();
-	net_.my_ports.clear();
-	net_.remote_ports.clear();
+		//avcodec_free_context(&iccx_[i]);
+	//}
 	loggit("Destroing filter DONE!");//
 }
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
 

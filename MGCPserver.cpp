@@ -33,6 +33,8 @@ CMGCPServer::CMGCPServer(const TArgs& args)
 void CMGCPServer::Run()
 {
 	loggit("Server.Run()");
+	boost::thread th(&CMGCPServer::proceedReceiveBuffer, this);
+	th.detach();
 	while (true)
 	{
 		loggit("Waiting for Callagent request...");
@@ -44,6 +46,9 @@ void CMGCPServer::Run()
 		loggit(str(boost::format("Client %1% sent:\n%2%") % mgcp.sender % mgcp.mes));
 
 		mutex_.lock();
+		Que.push(mgcp);
+		mutex_.unlock();
+		/*mutex_.lock();
 		if (Que.size() == 0)
 		{
 			Que.push(mgcp);
@@ -55,38 +60,43 @@ void CMGCPServer::Run()
 		{
 			Que.push(mgcp);
 			mutex_.unlock();
-		}
+		}*/
 	}
 }
 //-*/----------------------------------------------------------
 void CMGCPServer::reply(const string& strr, const udp::endpoint& udpTO)
 {
-	socket_.send_to(asio::buffer(strr), udpTO);
-	loggit("CMGCPServer reply to " + str(boost::format("%1%") %udpTO) +":\n" + strr);
+//	if (socket_.available())
+//	{
+		socket_.send_to(asio::buffer(strr), udpTO);
+		loggit("CMGCPServer reply to " + str(boost::format("%1%") % udpTO) + ":\n" + strr);
+	//}
 }
 //-*/----------------------------------------------------------
 void CMGCPServer::proceedReceiveBuffer()
 {
-	while (Que.size() > 0)
+	while (true)
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		if (Que.size() > 0)
+		{
+			auto mgcp = Que.front();
+			mutex_.lock();
+			Que.pop();
+			mutex_.unlock();
+			auto tp1 = steady_clock::now();
+			mgcp.Parse(true);
+			auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - tp1);
+			loggit("\nParsing duration: " + to_string(duration.count()) + "milliseconds");
+			cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx << boost::format(" Parsing duration: %1% milliseconds\n") % duration.count();
 
-		auto mgcp = Que.front();
-		mutex_.lock();
-		Que.pop();
-		mutex_.unlock();
-		auto tp1 = steady_clock::now();
-		mgcp.Parse(true);
-		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - tp1);
-		loggit("\nParsing duration: " + to_string(duration.count()) + "milliseconds");
-		cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx << boost::format(" Parsing duration: %1% milliseconds\n") % duration.count();
-		
-		if (mgcp.error == -1) { reply("Not MGCP", mgcp.sender); return; }
-		if (mgcp.CMD == "CRCX"){ Conference->proceedCRCX(mgcp); }
-		else if (mgcp.CMD == "MDCX"){ Conference->proceedMDCX(mgcp); }
-		else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp); }
-		else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp); }
-		else { reply("error 504 Unknown or unsupported command", mgcp.sender); }
+			if (mgcp.error == -1) { reply("Not MGCP", mgcp.sender); }
+			else if (mgcp.CMD == "CRCX"){ Conference->proceedCRCX(mgcp); }
+			else if (mgcp.CMD == "MDCX"){ Conference->proceedMDCX(mgcp); }
+			else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp); }
+			else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp); }
+			else { reply("error 504 Unknown or unsupported command", mgcp.sender); }
+		}
 	}
 }
 //-*/----------------------------------------------------------

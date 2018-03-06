@@ -70,7 +70,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp)
 			auto Port = GetFreePort();
 			loggit("creating Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
 			auto my_SDP = GenSDP(Port, mgcp);
-			Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
+			Room->NewPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
 			mgcp.EventNum = boost::to_string(Room->GetRoomID());
 			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, mgcp.sender);
 			loggit("Conf created");
@@ -88,7 +88,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp)
 			auto Port = GetFreePort();
 			loggit("join Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
 			auto my_SDP = GenSDP(Port, mgcp);
-			Room->NewInitPoint("", my_SDP, mgcp.paramC, Port);
+			Room->NewPoint("", my_SDP, mgcp.paramC, Port);
 			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, mgcp.sender);
 			loggit("Conf joined");
 			return;
@@ -200,13 +200,16 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 		SetFreePort(Point->my_port_);
 		loggit("Deleted point with ID=" + mgcp.paramC + " and port=" + boost::to_string(Point->my_port_));
 		Room->DeletePoint(mgcp.paramC);
+		loggit("Delete DONE");
 		if (Room->GetNumCllPoints() == 0)
 		{
+			loggit("delete room:");
 			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), Room->GetRoomID()), RoomsID_.end());
 			RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), Room), RoomsVec_.end());
-			loggit("Deleted Room with ID=" + Room->GetRoomID());
-			Room.reset();
+			//loggit(" Deleted Room with ID=" + Room->GetRoomID());
+			//Room.reset();
 		}
+		loggit("didnt delete room");
 		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender);
 		return;
 	}//case MGCP::cnf
@@ -259,6 +262,7 @@ void ConfControl::proceedRQNT(MGCP &mgcp)
 	boost::thread my_thread(&Ann::Send, Ann, filepath);
 	my_thread.detach();
 	server->reply(mgcp.ResponseOK(200, ""), mgcp.sender);
+	return;
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------

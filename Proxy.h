@@ -5,7 +5,8 @@
 #include "Functions.h"
 
 extern Logger CLogger;
-
+using namespace std;
+using namespace std::chrono;
 class Proxy
 {
 public:

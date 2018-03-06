@@ -4,15 +4,14 @@
 
 void Proxy::loggit(string a)
 {
-	using namespace std;
 	time_t rawtime;
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
-	string time = "";
-	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
-	CLogger.AddToLog(7, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
+	steady_clock::time_point t1 = steady_clock::now();
+	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	result += " ID=" + ID_ + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
+	CLogger.AddToLog(7, "\n" + result + a);
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------

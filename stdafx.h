@@ -26,7 +26,7 @@
 
 //file
 //#include <iostream>
-//#include <fstream>//
+#include <fstream>//
 //#include <ostream>
 
 //utils

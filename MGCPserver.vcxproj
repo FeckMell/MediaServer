@@ -108,6 +108,7 @@
     <ClInclude Include="CMixInit.h" />
     <ClInclude Include="Conf.h" />
     <ClInclude Include="ConfControl.h" />
+    <ClInclude Include="ConfPoint.h" />
     <ClInclude Include="CRTPReceive.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Logger.h" />
@@ -123,6 +124,7 @@
     <ClCompile Include="CMixInit.cpp" />
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="ConfControl.cpp" />
+    <ClCompile Include="ConfPoint.cpp" />
     <ClCompile Include="CRTPReceive.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />

@@ -36,20 +36,13 @@ private:
 /*Первичная обработка команд*/
 	void proceedReceiveBuffer();
 
-	//TArgs	m_args;
 	udp::socket socket_;
 	udp::endpoint sender_endpoint_;
 	enum { max_length = 2048 };
-	//char data_[max_length + 1];
 
 	std::mutex  mutex_;
 	asio::io_service& io_service__;
 	
 	std::queue<MGCP> Que;
-	//SHP_MGCP mgcp;
-	//std::queue<MGCP> StringQue;
-
-	//boost::scoped_ptr<std::thread> ThreadAddPoint;
-
 };
 

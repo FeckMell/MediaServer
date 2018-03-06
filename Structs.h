@@ -3,7 +3,6 @@
 #include <boost/circular_buffer.hpp>
 
 typedef std::shared_ptr<udp::socket> SHP_Socket;
-typedef std::unique_ptr<udp::socket> UHP_Socket;
 
 struct SSource
 {
@@ -13,14 +12,7 @@ struct SSource
 //-*/----------------------------------------------------------
 struct Initing
 {
-	std::vector<AVFormatContext *> out_ifcx;
-	std::vector<AVCodecContext *> out_iccx;
-
-	std::vector<AVFormatContext *> ifcx;
-	std::vector<AVCodecContext *> iccx;
-
 	std::vector<SSource> afcx;
-
 	std::vector<AVFilterGraph *> graphVec;
 	std::vector<AVFilterContext *> sinkVec;
 };
@@ -113,7 +105,7 @@ struct Data
 {
 	~Data(){ free(); }
 	uint8_t* data = new uint8_t[8000];
-	int size;
+	int size = 160;
 	void free()
 	{
 		delete[] data;
@@ -165,8 +157,8 @@ struct Config
 class CThreadedCircular
 {
 public:
-
-	CThreadedCircular(size_t sz) : buffer_(sz){ ; }
+	CThreadedCircular() : buffer_(7){  }
+	CThreadedCircular(size_t sz) : buffer_(sz){  }
 	CThreadedCircular(const CThreadedCircular &obj)
 	{
 		buffer_ = obj.buffer_;
@@ -219,14 +211,3 @@ private:
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-/*struct RequestQue
-{
-	RequestQue(string a, udp::endpoint* s) :mess(a), sender(s){}
-	~RequestQue()
-	{
-		delete[] sender;
-	}
-	udp::endpoint* sender;
-	string mess;
-};
-*/

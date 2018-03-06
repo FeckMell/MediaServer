@@ -3,15 +3,14 @@
 
 void Ann::loggit(string a)
 {
-	using namespace std;
 	time_t rawtime;
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
-	string time = "time:";
-	chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
-	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
-	CLogger.AddToLog(5, "\n" + time + " User=" + CallID_ + "       " + a);
+	steady_clock::time_point t1 = steady_clock::now();
+	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	result += " ID=" + CallID_ + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
+	CLogger.AddToLog(5, "\n" + result + a);
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -27,9 +26,7 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	running = true;
 	CallID_ = CallID;
 	remote_ip_ = MakeRemoteIP(SDP);
-	//out << "\nip=" << remote_ip_;
 	remote_port_ = stoi(MakeRemotePort(SDP));
-	//out << "     port=" << remote_port_;
 	my_port_ = my_port;
 	rtp_hdr.rtp_config();
 	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_)+"_");
@@ -48,10 +45,6 @@ void Ann::openFile(string filename)
 	loggit("Ann::openFile err=" + boost::to_string(err));
 	err = avformat_find_stream_info(ifcx, NULL);
 	loggit("Ann::openFile stream err=" + boost::to_string(err));
-	//Выбор индекса потока
-	/*for (unsigned i = 0; idxStream_ == -1 && i < ifcx->nb_streams; ++i)
-	idxStream_ = ifcx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO
-	? i : -1;*/
 	AVCodec *input_codec = avcodec_find_decoder(ifcx->streams[0]->codec->codec_id);
 	avcodec_open2(ifcx->streams[0]->codec, input_codec, nullptr);
 	if (!ifcx->streams[0]->codec->channel_layout)
