@@ -37,7 +37,6 @@ private:
 /*Первичная обработка команд*/
 	void proceedReceiveBuffer();
 	SHP_Socket socket_;
-	//udp::socket socket_;
 	udp::endpoint sender_endpoint_;
 	enum { max_length = 2048 };
 

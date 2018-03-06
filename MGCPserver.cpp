@@ -64,8 +64,8 @@ void CMGCPServer::Run()
 //-*/----------------------------------------------------------
 void CMGCPServer::reply(const string& strr, const udp::endpoint& udpTO)
 {
-		socket_->send_to(asio::buffer(strr), udpTO);
-		loggit("CMGCPServer reply to " + str(boost::format("%1%") % udpTO) + ":\n" + strr);
+    socket_->send_to(asio::buffer(strr), udpTO);
+	loggit("CMGCPServer reply to " + str(boost::format("%1%") % udpTO) + ":\n" + strr);
 }
 //-*/----------------------------------------------------------
 void CMGCPServer::proceedReceiveBuffer()

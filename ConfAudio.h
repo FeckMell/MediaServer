@@ -42,6 +42,7 @@ private:
 	//void init_packet(AVPacket *packet);
 
 	int decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
+	SHP_CAVFrame decode(SHP_CAVPacket, int);
 	int encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
 	
 	

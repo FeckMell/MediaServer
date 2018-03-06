@@ -92,12 +92,12 @@ private:
 typedef shared_ptr<CAVFrame> SHP_CAVFrame;
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-class CAVPacket2
+class CAVPacket
 {
 public:
-	CAVPacket2(){ av_init_packet(&packet); packet.data = nullptr; packet.size = 0; }
-	CAVPacket2(size_t sz){ if (sz > 0)av_new_packet(&packet, sz); }
-	~CAVPacket2(){ av_free_packet(&packet); }
+	CAVPacket(){ av_init_packet(&packet); packet.data = nullptr; packet.size = 0; }
+	CAVPacket(size_t sz){ if (sz > 0)av_new_packet(&packet, sz); }
+	~CAVPacket(){ av_free_packet(&packet); }
 
 	AVPacket* get(){ return &packet; }
 	int size(){ return packet.size; }
@@ -107,37 +107,7 @@ public:
 private:
 	AVPacket packet;
 };
-typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
-//-*/----------------------------------------------------------
-//-*/----------------------------------------------------------
-/*struct CAVPacket : AVPacket
-{
-	CAVPacket() : AVPacket()
-	{
-		av_init_packet(this);
-		data = nullptr;
-		size = 0;
-	}
-	CAVPacket(size_t sz) : CAVPacket()
-	{
-		if (sz > 0)
-			av_new_packet(this, sz);
-	}
-	int grow_by(int by)
-	{
-		return av_grow_packet(this, by);
-	}
-	void shrink_to(int to)
-	{
-		av_shrink_packet(this, to);
-	}
-	void free(){ av_free_packet(this); }
-	~CAVPacket(){ av_free_packet(this); }
-
-	operator bool()const{ return data != nullptr; }
-	//void free(){ av_free_packet(this); }
-};
-typedef shared_ptr<CAVPacket> SHP_CAVPacket;*/
+typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
 struct Data
@@ -206,16 +176,16 @@ public:
 	}
 	~CThreadedCircular(){ free(); }
 	//-*/----------------------------------------------------------------------
-	void push(SHP_CAVPacket2 val)
+	void push(SHP_CAVFrame val)
 	{
 		mutex_.lock();
 		buffer_.push_back(val);
 		mutex_.unlock();
 	}
 	//-*/----------------------------------------------------------------------
-	SHP_CAVPacket2 pop()
+	SHP_CAVFrame pop()
 	{
-		SHP_CAVPacket2 result;
+		SHP_CAVFrame result;
 		mutex_.lock();
 		result = buffer_.front();
 		buffer_.pop_front();
@@ -248,7 +218,7 @@ public:
 	}
 private:
 	std::mutex  mutex_;
-	boost::circular_buffer<SHP_CAVPacket2>	buffer_;
+	boost::circular_buffer<SHP_CAVFrame>	buffer_;
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------

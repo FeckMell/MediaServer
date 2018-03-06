@@ -46,13 +46,17 @@ void ConfAudio::receive_h(boost::system::error_code ec, size_t szPack, int i)
 	{
 		if (szPack > 12)
 		{
-			SHP_CAVPacket2 shpPacket = std::make_shared<CAVPacket2>(szPack - 12);
+			SHP_CAVPacket shpPacket = std::make_shared<CAVPacket>(szPack - 12);
 			memcpy(shpPacket->data(), callers_[i]->RawBuf.data + 12, szPack - 12);
 			callers_[i]->RawBuf.data[0] = 0;
 			callers_[i]->RawBuf.size = szPack - 12;
 			shpPacket->make_size(szPack - 12);
 			loggit("sz=" + to_string(szPack) + " reseive " + to_string(i) + " buf.size=" + to_string(callers_[i]->FrameBuf.size()));
-			callers_[i]->FrameBuf.push(shpPacket);
+			
+			callers_[i]->FrameBuf.push(decode(shpPacket, i));
+
+
+			//callers_[i]->FrameBuf.push(shpPacket);
 		}
 		if (process_all_finishing == false)
 		{
@@ -81,24 +85,31 @@ void ConfAudio::receive()
 	}
 }
 //*/------------------------------------------------------------------------------------------
+SHP_CAVFrame ConfAudio::decode(SHP_CAVPacket packet, int i)
+{
+	SHP_CAVFrame frame = std::make_shared<CAVFrame>();
+	int mark = 0;
+	avcodec_decode_audio4(callers_[i]->iccx, frame->get(), &mark, packet->get());
+	return frame;
+}
 //*/------------------------------------------------------------------------------------------
 int ConfAudio::decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i)
 {
-	SHP_CAVPacket2 shpPacket;
-	if (callers_[i]->FrameBuf.empty())
-	{
+	SHP_CAVPacket shpPacket;
+	//if (callers_[i]->FrameBuf.empty())
+	//{
 		loggit("Creating silent frame for ip=" + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
 		string str = "";
 		for (int k = 0; k < callers_[i]->RawBuf.size / 8; ++k) str += "aaaaaaaa";
-		shpPacket.reset(new CAVPacket2(160));
+		shpPacket.reset(new CAVPacket(160));
 		memcpy(shpPacket->data(), str.c_str(), 160);
 		
-	}
-	else
+	//}
+	/*else
 	{
 		shpPacket = callers_[i]->FrameBuf.pop();
 		loggit("decode_audio_frame bytes =" + to_string(shpPacket->size()) + "from ip=" + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
-	}
+	}*/
 	avcodec_decode_audio4(callers_[i]->iccx, frame->get(), data_present, shpPacket->get());
 	//shpPacket->free();
 	return 0;
@@ -108,7 +119,7 @@ int ConfAudio::decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i)
 int ConfAudio::encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i)
 {
 	int error;
-	SHP_CAVPacket2 output_packet = std::make_shared<CAVPacket2>();
+	SHP_CAVPacket output_packet = std::make_shared<CAVPacket>();
 
 	if ((error = avcodec_encode_audio2(callers_[i]->out_iccx, output_packet->get(), frame->get(), data_present)) < 0)
 	{
@@ -118,7 +129,7 @@ int ConfAudio::encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i)
 
 	try
 	{
-		SHP_CAVPacket2 send = std::make_shared<CAVPacket2>(output_packet->size() + 12);
+		SHP_CAVPacket send = std::make_shared<CAVPacket>(output_packet->size() + 12);
 		callers_[i]->rtp.rtp_modify();
 		memcpy(send->data(), (uint8_t*)&callers_[i]->rtp.header, 12);
 		memcpy(send->data() + 12, output_packet->data(), output_packet->size());
@@ -140,11 +151,11 @@ void ConfAudio::add_missing_frame(int i, int j)
 	loggit("add missing frame");
 	int data_present = 0;
 	string str = "";
-	SHP_CAVPacket2 shpPacket;
+	SHP_CAVPacket shpPacket;
 	SHP_CAVFrame frame = std::make_shared<CAVFrame>();
 
 	for (int k = 0; k < callers_[i]->RawBuf.size/8; ++k) str += "aaaaaaaa";
-	shpPacket.reset(new CAVPacket2(callers_[i]->RawBuf.size));
+	shpPacket.reset(new CAVPacket(callers_[i]->RawBuf.size));
 	memcpy(shpPacket->data(), str.c_str(), callers_[i]->RawBuf.size);//+12
 	
 	avcodec_decode_audio4(callers_[i]->iccx, frame->get(), &data_present, shpPacket->get());
@@ -204,8 +215,6 @@ void ConfAudio::new_process()
 		add_to_filter(i, frame);
 
 		av_frame_unref(filt_frame->get());
-		//filt_frame->free();
-		//frame->free();
 	}
 	loggit("PRE add to filter DONE");
 	while (process_all_finishing == false)
@@ -225,14 +234,14 @@ void ConfAudio::new_process()
 			SHP_CAVFrame filt_frame = std::make_shared<CAVFrame>();
 			int data_present = 0;
 
-			decode_audio_frame(frame, &data_present, i);
+			//decode_audio_frame(frame, &data_present, i);
+			if (!callers_[i]->FrameBuf.empty())
+				frame = callers_[i]->FrameBuf.pop();
 			add_to_filter(i, frame);
 			get_last_buffer_frame(filt_frame, i);
 			encode_audio_frame(filt_frame, &data_present, i);
 
 			av_frame_unref(filt_frame->get());
-			//filt_frame->free();
-			//frame->free();
 		}
 	}
 	Mut_pr.unlock();

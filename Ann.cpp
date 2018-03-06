@@ -32,7 +32,7 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	sock->bind(udp::endpoint(udp::v4(), my_port_));
 	
 	endpt = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
-	left_data.reset(new CAVPacket2());
+	left_data.reset(new CAVPacket());
 	loggit("Ann construct DONE");
 }
 //------------------------------------------------------------------------------------------
@@ -50,7 +50,7 @@ Ann::Ann(SHP_CConfPoint Point)
 	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_) + "_");
 	sock = Point->Sock;
 	endpt = Point->Endpoint;
-	left_data.reset(new CAVPacket2());
+	left_data.reset(new CAVPacket());
 	filename_ = "";
 	openFile(MusicPath + "\\music_alaw.wav");
 	out_iccx = Point->out_iccx;
@@ -139,14 +139,14 @@ void Ann::Run()
 int Ann::decode_audio_frame(SHP_CAVFrame frame, int *data_present)
 {
 	int error;
-	SHP_CAVPacket2 input_packet = std::make_shared<CAVPacket2>();
+	SHP_CAVPacket input_packet = std::make_shared<CAVPacket>();
 	if ((error = av_read_frame(ifcx, input_packet->get())) < 0) 
 	{
 		loggit("Ann::decode_audio_frame error read");
 		return -1;
 	}
 
-	SHP_CAVPacket2 send = std::make_shared<CAVPacket2>(input_packet->size());
+	SHP_CAVPacket send = std::make_shared<CAVPacket>(input_packet->size());
 	memcpy(send->data(), input_packet->data(), input_packet->size());
 	avcodec_decode_audio4(ifcx->streams[0]->codec, frame->get(), data_present, send->get());
 	return 0;
@@ -156,7 +156,7 @@ int Ann::decode_audio_frame(SHP_CAVFrame frame, int *data_present)
 int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 {
 	//loggit("Ann::encode_audio_frame");
-	SHP_CAVPacket2 output_packet = std::make_shared<CAVPacket2>();
+	SHP_CAVPacket output_packet = std::make_shared<CAVPacket>();
 	
 
 	avcodec_encode_audio2(out_iccx, output_packet->get(), frame->get(), data_present);
@@ -165,7 +165,7 @@ int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 		int i = 0;
 		while ((i + 1) * 160 <= output_packet->size())
 		{
-			SHP_CAVPacket2 send = std::make_shared<CAVPacket2>(172);
+			SHP_CAVPacket send = std::make_shared<CAVPacket>(172);
 			rtp_hdr.rtp_modify();
 			memcpy(send->data(), (uint8_t*)&rtp_hdr.header, 12);
 			memcpy(send->data() + 12, output_packet->data() + i * 160, 160);
@@ -175,14 +175,14 @@ int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 			++i;
 		}
 		//сохраняем остатки для следующего прогона
-		left_data.reset(new CAVPacket2(output_packet->size() - i * 160));
+		left_data.reset(new CAVPacket(output_packet->size() - i * 160));
 		memcpy(left_data->data(), output_packet->data() + i * 160, output_packet->size() - i * 160);
 		//loggit("data left = " + boost::to_string(left_data->size()));
 	}
 	else
 	{
 		//копируем остатки
-		SHP_CAVPacket2 send = std::make_shared<CAVPacket2>(172);
+		SHP_CAVPacket send = std::make_shared<CAVPacket>(172);
 		rtp_hdr.rtp_modify();
 		memcpy(send->data(), (uint8_t*)&rtp_hdr.header, 12);
 		memcpy(send->data() + 12, left_data->data(), left_data->size());
@@ -195,7 +195,7 @@ int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 		int i = 0;
 		while ((i + 1) * 160 + (160 - left_data->size()) < output_packet->size())
 		{
-			send.reset(new CAVPacket2(172));
+			send.reset(new CAVPacket(172));
 			rtp_hdr.rtp_modify();
 			memcpy(send->data(), (uint8_t*)&rtp_hdr.header, 12);
 			memcpy(send->data() + 12, output_packet->data() + i * 160 + (160 - left_data->size()), 160);
@@ -205,7 +205,7 @@ int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 			++i;
 		}
 		//копируем остатки
-		left_data.reset(new CAVPacket2(output_packet->size() - i * 160));
+		left_data.reset(new CAVPacket(output_packet->size() - i * 160));
 		memcpy(left_data->data(), output_packet->data() + i * 160, output_packet->size() - i * 160);
 		//loggit("data left = " + boost::to_string(left_data->size()));
 	}

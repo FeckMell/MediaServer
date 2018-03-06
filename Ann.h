@@ -42,7 +42,7 @@ private:
 	RTP_struct rtp_hdr;
 	SHP_Socket sock;
 	udp::endpoint endpt;
-	SHP_CAVPacket2 left_data;
+	SHP_CAVPacket left_data;
 
 	AVFormatContext* ifcx = nullptr;
 	AVFormatContext* out_ifcx = nullptr;
