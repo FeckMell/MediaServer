@@ -1,17 +1,13 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
+#include "../SharedSource/InnerParser.h"
 #include "CnfPoint.h"
 #include "Audio.h"
-#include "InnerParser.h"
-using namespace std;
 
 extern SHP_IPar init_Params;
 
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class Cnf
 {
 public:

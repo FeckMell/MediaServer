@@ -1,12 +1,11 @@
-#include "stdafx.h"
 #include "Server.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-InnerServer::InnerServer()
+InnerServer::InnerServer(int num_, string name_)
 {
 	BOOST_LOG_SEV(lg, trace) << "InnerServer::InnerServer() call to iplManagement = make_shared<Control>();";
 	iplManagement = make_shared<Control>();
+	IPL::thisName = name_;
+	IPL::thisNum = num_;
 	BOOST_LOG_SEV(lg, trace) << "InnerServer::InnerServer(): DONE";
 }
 //*///------------------------------------------------------------------------------------------

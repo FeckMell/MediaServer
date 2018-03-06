@@ -1,6 +1,6 @@
-#include "stdafx.h"
-#include "Functions.h"
-#include "Structs.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Functions.h"
+#include "../SharedSource/Structs.h"
 #include "Server.h"
 
 //*///------------------------------------------------------------------------------------------
@@ -8,6 +8,9 @@
 SHP_IPar init_Params;
 SHP_NETDATA net_Data;
 src::severity_logger<severity_level> lg;
+string modulname = "mgcp";
+int modulnum = 1;
+string version = "mgcp v.2.0.1, build 10.11.2016 17:15";
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
@@ -18,10 +21,10 @@ int main(int argc, char* argv[])
 						Инициализация
 ************************************************************************/
 		setlocale(LC_ALL, "Russian");
-		init_Params.reset(new IPar(argv));
-		LogsInit();
-		BOOST_LOG_SEV(lg, fatal) << init_Params->GetParams()<<"\nIniting net services.";
-		net_Data.reset(new NETDATA());
+		init_Params.reset(new IPar(argv, modulname));
+		LogsInit(modulname);
+		BOOST_LOG_SEV(lg, fatal) << version << "\n" << init_Params->GetParams() << "\nIniting net services.";
+		net_Data.reset(new NETDATA(modulnum));
 /************************************************************************
 					 Запуск MGCP-сервера
 ************************************************************************/

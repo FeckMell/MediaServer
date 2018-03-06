@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "Cnf.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 Cnf::Cnf(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...) eventNum=" << mgcp_->data[MGCP::EventNum];
@@ -16,7 +13,7 @@ void Cnf::CRCX(SHP_MGCP mgcp_, string server_sdp_, string server_port_)
 	SHP_CallerBase new_point = make_shared<CallerBase>(CallerBase(mgcp_, server_sdp_, server_port_));
 	vecCallerBase.push_back(new_point);
 	BOOST_LOG_SEV(lg, error) << "Created Added point to CNF ID=" << eventNum << " with params:" << "\n1)ID=" << new_point->callID << "\n2)IP=" << new_point->clientIP << "\n3)Port=" << new_point->clientPort << "\n4)ServerPort=" << new_point->serverPort;
-	ReplyClient(mgcp_, mgcp_->ResponseOK(200, "add event type") + "\n\n" + server_sdp_);
+	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, "add event type") + "\n\n" + server_sdp_);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -26,7 +23,7 @@ void Cnf::MDCX(SHP_MGCP mgcp_)
 	SHP_CallerBase found_point = FindCallerBase(mgcp_);
 	if (found_point==nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found.3"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found.3"));
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "Cnf::MDCX(...): next call: found_point->ModifyCallerBase";
@@ -36,19 +33,19 @@ void Cnf::MDCX(SHP_MGCP mgcp_)
 		if (ActivePoints() >= 3) state = true;
 		SendToCnfModulCR(); //true-false inside
 		BOOST_LOG_SEV(lg, error) << "Point with ID=" << found_point->callID << " is now active (Sent SDP)";
-		ReplyClient(mgcp_, mgcp_->ResponseOK(200, ""));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, ""));
 		return;
 	}
 	else if (action_result == "1") //client changed SDP
 	{
 		BOOST_LOG_SEV(lg, error) << "Point with ID=" << found_point->callID << " changed SDP:mode=" << found_point->state;
-		ReplyClient(mgcp_, mgcp_->ResponseOK(200, "") + "\n\n" + found_point->serverSDP);
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, "") + "\n\n" + found_point->serverSDP);
 		return;
 	}
 	else // some error
 	{
 		BOOST_LOG_SEV(lg, fatal) << "Cnf::MDCX(...): default error:" << action_result;
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, action_result));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, action_result));
 		return;
 	}
 
@@ -61,7 +58,7 @@ string Cnf::DLCX(SHP_MGCP mgcp_)
 	SHP_CallerBase found_point = FindCallerBase(mgcp_);
 	if (found_point == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found."));
 		return "";
 	}
 	string action_result = found_point->serverPort;
@@ -74,7 +71,7 @@ string Cnf::DLCX(SHP_MGCP mgcp_)
 	}
 
 	SendToCnfModulMD_DL(found_point);
-	ReplyClient(mgcp_, mgcp_->ResponseOK(250, ""));
+	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(250, ""));
 	return action_result;
 }
 //*///------------------------------------------------------------------------------------------
@@ -141,7 +138,7 @@ void Cnf::SendToCnfModulCR()
 		result += "clientPort=" + clientPort + "\n";
 		result += "serverPort=" + serverPort + "\n";
 		result += "eventID=" + eventNum + "\n";
-		SendModul(NETDATA::cnf, result);
+		net_Data->SendModul(NETDATA::cnf, result);
 	}
 }
 //*///------------------------------------------------------------------------------------------
@@ -156,7 +153,7 @@ void Cnf::SendToCnfModulMD_DL(SHP_CallerBase point_)
 		result += "clientPort=" + point_->clientPort + "\n";
 		result += "serverPort=" + point_->serverPort + "\n";
 		result += "eventID=" + eventNum + "\n";
-		SendModul(NETDATA::cnf, result);
+		net_Data->SendModul(NETDATA::cnf, result);
 	}
 	else
 	{
@@ -166,7 +163,7 @@ void Cnf::SendToCnfModulMD_DL(SHP_CallerBase point_)
 			result += "eventType=dl\n";
 			result += "eventID=" + eventNum + "\n";
 			deleted = true;
-			SendModul(NETDATA::cnf, result);
+			net_Data->SendModul(NETDATA::cnf, result);
 		}
 	}
 	return;

@@ -1,15 +1,12 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "MusicStore.h"
 #include "Ann.h"
-using namespace std;
 
 extern SHP_IPar init_Params;
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class Control
 {
 public:

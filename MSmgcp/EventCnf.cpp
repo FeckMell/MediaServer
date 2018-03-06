@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "EventCnf.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 void EventCnf::CRCX(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "EventCnf::CRCX(...) for " << mgcp_->data[MGCP::EventNum];
@@ -11,7 +8,7 @@ void EventCnf::CRCX(SHP_MGCP mgcp_)
 	{
 		if (action_result != "-1") // client with same callID already in cnf
 		{
-			ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client already exists."));
+			mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client already exists."));
 			return;
 		}
 		mgcp_->data[MGCP::EventNum] = ReserveEventNum();
@@ -24,7 +21,7 @@ void EventCnf::CRCX(SHP_MGCP mgcp_)
 
 	if (action_result == "-2") // Error in data
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be created.4"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be created.4"));
 		return;
 	}
 
@@ -32,7 +29,7 @@ void EventCnf::CRCX(SHP_MGCP mgcp_)
 	BOOST_LOG_SEV(lg, trace) << "EventCnf::CRCX(...): SHP_Cnf cnf_found = FindCnf(mgcp_); DONE";
 	if (cnf_found == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be created.5"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be created.5"));
 		return;
 	}
 	string server_port = ReservePort();
@@ -50,14 +47,14 @@ void EventCnf::MDCX(SHP_MGCP mgcp_)
 	string action_result = CheckExistance(mgcp_);
 	if (action_result == "-1" || action_result == "-2")
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found."));
 		return;
 	}
 	SHP_Cnf cnf_found = FindCnf(mgcp_);
 	BOOST_LOG_SEV(lg, trace) << "EventCnf::MDCX(...): SHP_Cnf cnf_found = FindCnf(mgcp_); DONE";
 	if (cnf_found == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found."));
 		return;
 	}
 	cnf_found->MDCX(mgcp_);
@@ -71,7 +68,7 @@ void EventCnf::DLCX(SHP_MGCP mgcp_)
 	string action_result = CheckExistance(mgcp_);
 	if (action_result == "-1") // not found 
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found.1"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found.1"));
 		return;
 	}
 
@@ -79,7 +76,7 @@ void EventCnf::DLCX(SHP_MGCP mgcp_)
 	BOOST_LOG_SEV(lg, trace) << "EventCnf::DLCX(...): SHP_Cnf cnf_found = FindCnf(mgcp_); DONE";
 	if (cnf_found == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found.2"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found.2"));
 		return;
 	}
 	action_result = cnf_found->DLCX(mgcp_);

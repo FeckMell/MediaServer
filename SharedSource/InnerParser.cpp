@@ -1,11 +1,12 @@
-#include "stdafx.h"
 #include "InnerParser.h"
 
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-vector<string> IPL::paramNamesStr = 
-	{ "modulName", "eventType", "clientIP", "clientPort", "serverPort", "fileName", "eventID", "maxParamNames" };
-vector<string> IPL::eventTypeStr = { "cr", "dl", "maxEventType" };
+vector<string> IPL::paramNamesStr =
+{ "modulName", "eventType", "clientIP", "clientPort", "serverPort", "eventID", "fileName", "maxParamNames" };
+vector<string> IPL::eventTypeStr = { "cr", "md", "dl", "maxEventType" };
+string IPL::thisName = "";
+int IPL::thisNum = -1;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 IPL::IPL(char* rawMes_, boost::asio::ip::udp::endpoint sender_) : stringIPL(rawMes_), sender(sender_)
@@ -17,9 +18,9 @@ IPL::IPL(char* rawMes_, boost::asio::ip::udp::endpoint sender_) : stringIPL(rawM
 //*///------------------------------------------------------------------------------------------
 void IPL::Parse()
 {
-	for (int i = modulName; i < maxParamNames; ++i) 
-		data[i] = get_substr(stringIPL, EnumToStr(0,i)+"=", "\n");
-	if (data[modulName] != "ann") error = "wrong modul";
+	for (int i = modulName; i < maxParamNames; ++i)
+		data[i] = get_substr(stringIPL, EnumToStr(0, i) + "=", "\n");
+	if (data[modulName] != thisName) error = "wrong modul";
 
 	if ((type = StrToEnum(data[eventType])) == -1) error = "wrong event type";
 }
@@ -65,8 +66,8 @@ int IPL::StrToEnum(string name_)
 string IPL::PrintAll()
 {
 	string result = "\nAll:\n1) Struct event: ";
-	result += "\nMessage to modul: " + EnumToStr(0, modulName);
-	result += "\nEvent: " + EnumToStr(1, eventType);
+	result += "\nMessage to " + EnumToStr(0, modulName) + ": " + data[modulName];
+	result += "\nEvent: " + EnumToStr(1, type);
 	result += "\n2) Struct data:\n";
 	for (int i = 0; i < maxParamNames; ++i)
 		result += "_" + EnumToStr(0, i) + "=_" + data[i] + "_;\n";

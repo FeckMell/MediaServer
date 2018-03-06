@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "Ann.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 {
 	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...) for ann " << ipl_->data[IPL::eventID];
@@ -14,7 +11,7 @@ Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 		init_Params->data[IPar::outerIP], //my IP
 		stoi(ipl_->data[IPL::serverPort]), // my port
 		ioAnn));
-	endPoint = udp::endpoint(
+	endPoint = EP(
 		boost::asio::ip::address::from_string(ipl_->data[IPL::clientIP]),
 		stoi(ipl_->data[IPL::clientPort])
 		);

@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "CnfPoint.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_, boost::asio::io_service& ioCnf_)
 	: ioCnf(ioCnf_), clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
@@ -11,7 +8,7 @@ CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_, b
 		serverIP, //my IP
 		stoi(serverPort), // my port
 		ioCnf));
-	endPoint = udp::endpoint(
+	endPoint = EP(
 		boost::asio::ip::address::from_string(clientIP),
 		stoi(clientPort)
 		);

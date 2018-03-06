@@ -1,8 +1,9 @@
 #include "stdafx.h"
 #include "Structs.h"
 
-IPar::IPar(char* argv_[])
+IPar::IPar(char** argv_, string modulnamestr_)
 {
+	modulName = modulnamestr_;
 	data.resize(maxParamNames);
 	for (int i = 1; i <= maxParamNames; ++i)
 		data[i - 1] = argv_[i];
@@ -81,17 +82,17 @@ RTP RTP_struct::Get()
 //*///------------------------------------------------------------------------------------------
 CAVPacket::CAVPacket()
 {
-	av_init_packet(&packet); 
-	packet.data = nullptr; 
+	av_init_packet(&packet);
+	packet.data = nullptr;
 	packet.size = 0;
 }
 //*///------------------------------------------------------------------------------------------
 CAVPacket::CAVPacket(size_t sz)
 {
-	if (sz > 0) 
+	if (sz > 0)
 		av_new_packet(&packet, sz);
-	else 
-	{ 
+	else
+	{
 		av_init_packet(&packet);
 		packet.data = nullptr;
 		packet.size = 0;
@@ -133,15 +134,15 @@ void CAVPacket::MakeSize(int n)
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 CAVFrame::CAVFrame()
-{ 
+{
 	frame = av_frame_alloc();
 	empty = false;
 }
 //*///------------------------------------------------------------------------------------------
 CAVFrame::CAVFrame(bool a)
 {
-	frame = av_frame_alloc(); 
-	empty = true; 
+	frame = av_frame_alloc();
+	empty = true;
 }
 //*///------------------------------------------------------------------------------------------
 CAVFrame::~CAVFrame()
@@ -160,7 +161,7 @@ void CAVFrame::Free()
 }
 //*///------------------------------------------------------------------------------------------
 bool CAVFrame::Empty()
-{ 
+{
 	return empty;
 }
 //*///------------------------------------------------------------------------------------------
@@ -168,7 +169,7 @@ bool CAVFrame::Empty()
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-NETDATA::NETDATA()
+NETDATA::NETDATA(int mymodulnameint_)
 {
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): sockets.resize=" << maxS;
 	sockets.resize(maxS);
@@ -177,10 +178,7 @@ NETDATA::NETDATA()
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): ios.resize=" << maxS;
 	ios.resize(maxS);
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): resize DONE";
-	for (int i = 0; i < maxS; ++i)
-	{
-		ios[i].reset(new IO());
-	}
+	for (int i = 0; i < maxS; ++i) ios[i].reset(new IO());
 	sockets[out].reset(new Socket(
 		init_Params->data[IPar::outerIP],
 		stoi(init_Params->data[IPar::outerPort]),
@@ -189,17 +187,17 @@ NETDATA::NETDATA()
 	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::outerIP] << " Port=" << stoi(init_Params->data[IPar::outerPort]);
 	sockets[in].reset(new Socket(
 		init_Params->data[IPar::innerIP],
-		stoi(init_Params->data[IPar::innerPort]) + 2,//2-cnf
+		stoi(init_Params->data[IPar::innerPort]) + mymodulnameint_ - 1,
 		GI(in)
 		));
-	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]) + 1;
+	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]) + mymodulnameint_ - 1;
 	for (int i = 0; i < maxE; ++i)
 	{
 		endPoints[i] = EP(
 			boost::asio::ip::address::from_string(init_Params->data[IPar::innerIP]),
 			stoi(init_Params->data[IPar::innerPort]) + i - 1
 			);
-		BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA():Created EndPoint for IP=" << init_Params->data[IPar::innerIP] << " port=" << stoi(init_Params->data[IPar::innerPort]) + i - 1;
+		BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA():Created EndPoint for IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]) + i - 1;
 	}
 }
 SHP_Socket NETDATA::GS(int s_)
@@ -232,6 +230,15 @@ IO& NETDATA::GI(int io_)
 		exit(-1);
 	}
 }
+void NETDATA::SendModul(int where_, string what_)
+{
+	BOOST_LOG_SEV(lg, warning) << "SendModul=" << where_ << ":\n" << what_;
+	GS(NETDATA::in)->s.send_to(boost::asio::buffer(what_), GE(where_));
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

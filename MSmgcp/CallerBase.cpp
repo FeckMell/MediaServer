@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "CallerBase.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 CallerBase::CallerBase(SHP_MGCP mgcp_, string server_sdp_, string server_port_)
 {
 	BOOST_LOG_SEV(lg, trace) << "CallerBase::CallerBase(...) for CallID=" << mgcp_->data[MGCP::ParamC];

@@ -1,15 +1,12 @@
-#include "stdafx.h"
 #include "EventAnn.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 void EventAnn::CRCX(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "EventAnn::CRCX(...) for eventNum=" << mgcp_->data[MGCP::EventNum];
 	string action_result = CheckExistance(mgcp_);
 	if (action_result != "-1") // if ann found for some reason
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client already exists (0)."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client already exists (0)."));
 		return;
 	}
 	string server_port = ReservePort();
@@ -28,14 +25,14 @@ void EventAnn::RQNT(SHP_MGCP mgcp_)
 	string action_result = CheckExistance(mgcp_);
 	if (action_result == "-1" || action_result == "-2")
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found (1)."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found (1)."));
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "EventAnn::RQNT(...): call to SHP_Ann found_ann = FindAnn(mgcp_);";
 	SHP_Ann found_ann = FindAnn(mgcp_);
 	if (found_ann == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found (2)."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found (2)."));
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "EventAnn::RQNT(...): call to found_ann->RQNT(mgcp_);";
@@ -49,14 +46,14 @@ void EventAnn::DLCX(SHP_MGCP mgcp_)
 	string action_result = CheckExistance(mgcp_);
 	if (action_result == "-1" || action_result == "-2")
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found (4)."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found (4)."));
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "EventAnn::DLCX(...): call to SHP_Ann found_ann = FindAnn(mgcp_);";
 	SHP_Ann found_ann = FindAnn(mgcp_);
 	if (found_ann == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found (5)."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found (5)."));
 		return;
 	}
 	BOOST_LOG_SEV(lg, error) << "DELETED Ann with params:\n1)ID=" << found_ann->callID << "\n2)IP=" << found_ann->clientIP << "\n3)Port=" << found_ann->clientPort << "\n4)ServerPort=" << found_ann->serverPort;

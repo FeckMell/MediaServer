@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "MusicStore.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 MediaFile::MediaFile(string filename_)
 {
 	BOOST_LOG_SEV(lg, debug) << "MediaFile::MediaFile(...): filename=" << filename_;

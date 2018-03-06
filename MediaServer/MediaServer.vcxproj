@@ -44,9 +44,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Projects\LIBS\Boost(old)\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost(old)\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <ReferencePath>
+    </ReferencePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
     <IntDir>$(OutDir)OBJ\$(ProjectName)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -64,12 +65,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost(old);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
       <SDLCheck>false</SDLCheck>
       <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -78,7 +80,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;C:\Projects\LIBS\Boost(old)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>

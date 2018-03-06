@@ -1,11 +1,9 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
 extern SHP_IPar init_Params;
-
 
 class CnfPoint
 {
@@ -25,7 +23,7 @@ public:
 	AVCodecContext* occx;
 	SHP_Socket socket;
 	RTP_struct rtp;
-	udp::endpoint endPoint;
+	EP endPoint;
 	IO& ioCnf;
 
 private:

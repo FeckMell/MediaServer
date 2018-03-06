@@ -1,18 +1,11 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
 
-
-
-
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class MGCP
 {
 public:
@@ -36,6 +29,7 @@ public:
 	MGCP(char*, boost::asio::ip::udp::endpoint);
 	string ResponseOK(int, string);
 	string ResponseBAD(int, string);
+	void ReplyClient(SHP_Socket, string);
 
 	/*sub functions to make string names from enumed params and back*/
 	string EnumToStr(int, int);

@@ -17,14 +17,3 @@ int main(int argc, char* argv[])
 	system("pause");
 	return 0;
 }
-/*
-data[RTPPort] = "20000";
-data[outerPort] = "2427";
-data[innerPort] = "2427";
-data[innerIP] = "127.0.0.1";
-data[MaxTimeAnn] = "90";
-data[MaxTimeCnf] = "1";
-data[MaxTimePrx] = "1";
-data[LogLevel] = "100";
-data[MediaPath] = "MediaFiles";
-*/

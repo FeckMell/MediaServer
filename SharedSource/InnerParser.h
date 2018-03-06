@@ -2,7 +2,6 @@
 #include "stdafx.h"
 #include "Structs.h"
 #include "Functions.h"
-using namespace std;
 
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -12,7 +11,7 @@ public:
 	/*Enum struct data*/
 	enum ParamNames
 	{//             int type
-		modulName, eventType, clientIP, clientPort, serverPort, eventID,
+		modulName, eventType, clientIP, clientPort, serverPort, eventID, fileName,
 		maxParamNames
 	};
 	enum EventType { cr, md, dl,  maxEventType };
@@ -35,6 +34,9 @@ public:
 	string stringIPL;
 	boost::asio::ip::udp::endpoint sender;
 	string error = "";
+
+	static string thisName;
+	static int thisNum;
 
 private:
 	/*Parsing functions*/

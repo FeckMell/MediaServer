@@ -1,8 +1,5 @@
-#include "stdafx.h"
 #include "Audio.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 Audio::Audio(vector<SHP_CnfPoint> points_) : vecPoints(points_)
 {
 	BOOST_LOG_SEV(lg, trace) << "Audio::Audio(...) call to filter.reset(new  Filter(vecPoints));";

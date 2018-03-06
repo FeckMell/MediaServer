@@ -1,8 +1,6 @@
-#include "stdafx.h"
 #include "Filter.h"
 //TODO: logs
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
+
 Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
 {
 	tracks = cnfPoints.size();

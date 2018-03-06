@@ -1,11 +1,9 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
+#include "../SharedSource/InnerParser.h"
 #include "MusicStore.h"
-#include "InnerParser.h"
-using namespace std;
-using boost::asio::ip::udp;
 
 extern SHP_IPar init_Params;
 
@@ -24,10 +22,10 @@ private:
 	bool state = true;
 	SHP_thread th;
 
-	boost::asio::io_service ioAnn;
+	IO ioAnn;
 	SHP_Socket outerSocket;
 	RTP_struct rtpHDR;
 	SHP_MediaFile mediaFile;
-	udp::endpoint endPoint;
+	EP endPoint;
 };
 typedef shared_ptr<Ann> SHP_Ann;
