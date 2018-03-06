@@ -28,10 +28,8 @@ void CMixInit::loggit(string a)
 	time(&rawtime);
 	t = localtime(&rawtime);
 	string time = "";
-	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000) + "\n          ";
-	//fprintf(FileLogMixerInit, ("\n" + time + "       " + a/* + "\n//-------------------------------------------------------------------"*/).c_str());
-	//fflush(FileLogMixerInit);
-	CLogger.AddToLog(4, "\n" + time + "       " + a);
+	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000);
+	CLogger.AddToLog(4, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -97,7 +95,7 @@ int CMixInit::init(vector<string> input_SDPs)
 
 		/*if (write_output_file_header(data.out_ifcx[i]) < 0)
 		{
-			loggit("Error while writing header outputfile  " + std::to_string(err));
+			loggit("Error while writing header outputfile  " + boost::to_string(err));
 			system("pause");
 		}*/
 		loggit("Opening input and output for i = " + to_string(i) + "good");

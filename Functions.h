@@ -4,7 +4,7 @@
 #include "Logger.h"
 #include <boost/type_index.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
-
+class Logger;
 extern boost::gregorian::date Date;
 extern string DateStr;
 extern string PathEXE;
@@ -12,7 +12,7 @@ extern Logger CLogger;
 
 
 //----------------------------------------------------------------------------
-void GetDate();
+std::string GetDate();
 //----------------------------------------------------------------------------
 string GetTime();
 //----------------------------------------------------------------------------

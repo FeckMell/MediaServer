@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+extern string DateStr;
+
 struct MGCP
 {
 	MGCP(string req)
@@ -13,18 +15,18 @@ struct MGCP
 	//-------------------------------------------------------------------------------------
 	string ResponseOK(int code, string end)
 	{
-		auto response = std::to_string(code) + " " + std::to_string(stoi(MessNum) + 1) + " OK";
+		auto response = boost::to_string(code) + " " + /*boost::to_string(stoi(MessNum) + 1)*/MessNum + " OK";
 		if (end != "")
 		{
 			response += "\nZ: " + end + EventNum+ EventEx.substr(EventEx.find("@"));
-			response += "\nI: " + std::to_string(rand() % 100000);
+			response += "\nI: " + boost::to_string(rand() % 1000);
 		}
 		return response;
 	}
 	//-------------------------------------------------------------------------------------
 	std::string ResponseBAD(int code, string message)
 	{
-		auto response = std::to_string(code) + " " + std::to_string(stoi(MessNum) + 1) + " BAD";
+		auto response = boost::to_string(code) + " " + boost::to_string(stoi(MessNum) + 1) + " BAD";
 		if (message != "")
 		{
 			response += "\nZ: " + message;
@@ -34,6 +36,7 @@ struct MGCP
 	//-------------------------------------------------------------------------------------
 	void Parse()
 	{
+		Remove();
 		parseCMD();
 		EventP();
 		ParamM();
@@ -42,6 +45,7 @@ struct MGCP
 		ParamZ();
 		ParamC();
 		ParamS();
+		//CLogger.AddToLog(0, "\nCMD_" + CMD + "_M_" + paramM + "_L_" + paramL + "_C_" + paramC + "_I_" + paramI + "_Z_" + paramZ + "_S_" + paramS + "_Event_"+EventEx+"_");
 		auto fd = mgcp.find("v=0");
 		if (fd != std::string::npos){ SDP = mgcp.substr(fd); }
 	}
@@ -81,6 +85,8 @@ struct MGCP
 	{
 		if (mgcp.find("confrnce") != std::string::npos){ paramM = "confrnce"; }
 		else if (mgcp.find("inactive") != std::string::npos){ paramM = "inactive"; }
+		else if (mgcp.find("sendrecv") != std::string::npos){ paramM = "sendrecv"; }
+
 	}
 	//-------------------------------------------------------------------------------------
 	void ParamL()
@@ -138,6 +144,34 @@ struct MGCP
 			paramS = mgcp.substr(fd + 3, mgcp.find("\n", fd) - fd - 3);
 		}
 		else { paramS = ""; }
+	}
+	//-------------------------------------------------------------------------------------
+	void Remove()
+	{
+		auto fd = mgcp.find("\r");
+		while (fd != std::string::npos)
+		{
+			mgcp.erase(mgcp.begin() + fd);
+			fd = mgcp.find("\r");
+		}
+		/*fd = mgcp.find("\v");
+		while (fd != std::string::npos)
+		{
+			mgcp.erase(mgcp.begin() + fd);
+			fd = mgcp.find("\v");
+		}
+		fd = mgcp.find("\t");
+		while (fd != std::string::npos)
+		{
+			mgcp.erase(mgcp.begin() + fd);
+			fd = mgcp.find("\t");
+		}
+		fd = mgcp.find("\a");
+		while (fd != std::string::npos)
+		{
+			mgcp.erase(mgcp.begin() + fd);
+			fd = mgcp.find("\a");
+		}*/
 	}
 	//-------------------------------------------------------------------------------------
 	bool Valid(){ if (error == -1) return false; else return true; }

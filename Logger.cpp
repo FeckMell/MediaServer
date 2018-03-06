@@ -4,9 +4,83 @@
 void Logger::OpenLogFiles()
 {
 	using namespace boost;
-	gregorian::date TODAY = gregorian::day_clock::local_day();
-	std::string date = to_string(TODAY.day().as_number()) + "-" + to_string(TODAY.month().as_number()) + "-" + to_string(TODAY.year()) + "_";
-	std::string tempPath = PathEXE + date;
+	reinit();
+	for (unsigned i = 0; i < file.size(); ++i)
+	{
+		std::vector<std::string> buf;
+		buffer.push_back(buf);
+	}
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+void Logger::Run()
+{
+	while (true)
+	{
+		for (unsigned i = 0; i < buffer.size(); ++i)
+		{
+			int size = buffer[i].size();
+			if (size>0)
+			{
+				for (int k = 0; k < size; ++k)
+				{
+					output(pop(i, k), i);
+				}
+			}
+		}
+		if (DateStr != GetDate())
+		{
+			Clean();
+			reinit();
+		}
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+	}
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+void Logger::output(std::string text, int i)
+{
+	WriteFile(file[i], (text).c_str(), (text).size(), &filesize[i], NULL);
+	filesize[i] += (text).size();
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+std::string Logger::pop(int i, int j)
+{
+	std::string text;
+	mutex_.lock();
+	text = buffer[i][0];//
+	buffer[i].erase(buffer[i].begin());
+	mutex_.unlock();
+	return text;
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+void Logger::AddToLog(unsigned type, std::string text)
+{
+	if (buffer.size() < type){ std::cout << "size!"; return; }
+	mutex_.lock();
+	buffer[type].push_back(text);
+	mutex_.unlock();
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+void Logger::Clean()
+{
+	for (auto& e : file)
+	{
+		CloseHandle(e);
+	}
+	filesize.clear();
+	file.clear();
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+void Logger::reinit()
+{
+	using namespace boost;
+	DateStr = GetDate();
+	std::string tempPath = PathEXE + DateStr + "_";
 
 	std::vector<std::string> path;
 	/*0*/path.push_back(tempPath + "LOGS_main.txt");
@@ -33,55 +107,7 @@ void Logger::OpenLogFiles()
 		t = localtime(&rawtime);
 		std::string time = "";
 		std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-		time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+		time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 		output("Logs created on: " + time, i);
-		std::vector<std::string> buf;
-		buffer.push_back(buf);
 	}
-}
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-void Logger::Run()
-{
-	while (true)
-	{
-		for (unsigned i = 0; i < buffer.size(); ++i)
-		{
-			int size = buffer[i].size();
-			if (size>0)
-			{
-				for (int k = 0; k < size; ++k)
-				{
-					output(pop(i, k), i);
-				}
-			}
-		}
-	}
-}
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-void Logger::output(std::string text, int i)
-{
-	WriteFile(file[i], (text).c_str(), (text).size(), &filesize[i], NULL);
-	filesize[i] += (text).size();
-}
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-std::string Logger::pop(int i, int j)
-{
-	std::string text;
-	text = buffer[i][j];
-	mutex_.lock();
-	buffer[i].erase(buffer[i].begin());
-	mutex_.unlock();
-	return text;
-}
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-void Logger::AddToLog(unsigned type, std::string text)
-{
-	if (buffer.size() < type){ std::cout << "size!"; return; }
-	mutex_.lock();
-	buffer[type].push_back(text);
-	mutex_.unlock();
 }

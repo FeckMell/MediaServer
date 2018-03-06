@@ -20,10 +20,10 @@ using boost::asio::ip::udp;
 using namespace boost::asio;
 using namespace std;
 
-extern FILE *FileLogMixerInit;
+extern string DateStr;
 extern Logger CLogger;
+
 struct Initing;
-//struct SSource;
 struct NetworkData;
 
 //typedef shared_ptr<CAVPacket> SHP_CAVPacket;

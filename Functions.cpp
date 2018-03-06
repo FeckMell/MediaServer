@@ -2,15 +2,10 @@
 #include "Functions.h"
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-void GetDate()
+std::string GetDate()
 {
 	boost::gregorian::date Today = boost::gregorian::day_clock::local_day();
-	if (Today != Date)
-	{
-		Date = Today;
-		DateStr = std::to_string(Today.day().as_number()) + "-" + std::to_string(Today.month().as_number()) + "-" + std::to_string(Today.year());
-		//OpenLogFiles();
-	}
+	return boost::to_string(Today.year()) + "-" + boost::to_string(Today.month().as_number()) + "-" + boost::to_string(Today.day().as_number());
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -19,7 +14,7 @@ string GetTime()
 	//using namespace boost::posix_time;
 	boost::posix_time::ptime t = boost::posix_time::second_clock::local_time();
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + std::to_string(t1.time_since_epoch().count() % 1000);
+	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
 	
 }
 //----------------------------------------------------------------------------
@@ -115,8 +110,6 @@ Config ParseConfig(string path, Config parsed)
 void LogMain(string a)
 {
 	CLogger.AddToLog(0, "\n"+a);
-	//fprintf(FileLog, (a + "\n").c_str());
-	//fflush(FileLog);
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -153,7 +146,28 @@ string MakeRemoteIP(string SDP)
 {
 	std::size_t found = SDP.find("c=IN IP4");
 	if (found != std::string::npos)
-		return SDP.substr(found + 9, SDP.find("\n", found + 1) - found - 9);
+	{
+		std::string temp = SDP.substr(found + 9, SDP.find("\n", found + 1) - found - 9);
+		found = temp.find("\n");
+		if (found != std::string::npos)
+		{
+			temp = temp.substr(0, found);
+		}
+
+		string result = "";
+		auto fd = temp.find(".");
+		while (fd != std::string::npos)
+		{
+			string temp2 = temp.substr(0, fd);
+			temp.erase(temp.begin(), temp.begin() + fd + 1);
+			result += std::to_string(stoi(temp2)) + ".";
+			fd = temp.find(".");
+		}
+		result += std::to_string(stoi(temp));
+		temp = result;
+		return temp;
+	}
+		//return SDP.substr(found + 9, SDP.find("\n", found + 1) - found - 9);
 	return "";
 }
 //----------------------------------------------------------------------------
@@ -227,7 +241,7 @@ string time = GetTime();
 string filepath = PathEXE + "\\" + DateStr + "_" + classname + ".txt";
 //out << "\nfilepath=" << filepath;
 fopen_s(&file, filepath.c_str(), "a");
-fprintf(file, (time + " thread=" + std::to_string(thread) + "       " + a + "\n\n").c_str());
+fprintf(file, (time + " thread=" + boost::to_string(thread) + "       " + a + "\n\n").c_str());
 fflush(file);
 fclose(file);
 //out << "\nLOGIT DONE";

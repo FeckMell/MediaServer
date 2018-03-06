@@ -6,14 +6,11 @@ void Ann::loggit(string a)
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
-	string time = "";
+	string time = "time:";
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-	time += std::to_string(t->tm_year + 1900) + "." + std::to_string(t->tm_mon + 1) + "." + std::to_string(t->tm_mday) 
-		+ "/" + std::to_string(t->tm_hour) + ":" + std::to_string(t->tm_min) + ":" + std::to_string(t->tm_sec) + "/" 
-		+ std::to_string(t1.time_since_epoch().count() % 1000);
-
-	//fprintf(FileLogAnn, ("\n" + time + " User=" + CallID_ + "       " + a).c_str());
-	//fflush(FileLogAnn);
+	time += DateStr
+		+ "/" + boost::to_string(t->tm_hour) + ":" + boost::to_string(t->tm_min) + ":" + boost::to_string(t->tm_sec) + "/" 
+		+ boost::to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(5, "\n" + time + " User=" + CallID_ + "       " + a);
 }
 Ann::Ann(string SDP, int my_port, string CallID)
@@ -33,6 +30,7 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	//out << "     port=" << remote_port_;
 	my_port_ = my_port;
 	rtp_hdr.rtp_config();
+	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_)+"_");
 	sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
 	endpt = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
 	left_data.reset(new CAVPacket(0));
@@ -44,9 +42,9 @@ void Ann::openFile(string filename)
 	int err = 0;
 	
 	err = avformat_open_input(&ifcx, filename.c_str(), NULL, NULL);
-	loggit("Ann::openFile err=" + std::to_string(err));
+	loggit("Ann::openFile err=" + boost::to_string(err));
 	err = avformat_find_stream_info(ifcx, NULL);
-	loggit("Ann::openFile stream err=" + std::to_string(err));
+	loggit("Ann::openFile stream err=" + boost::to_string(err));
 	//Выбор индекса потока
 	/*for (unsigned i = 0; idxStream_ == -1 && i < ifcx->nb_streams; ++i)
 	idxStream_ = ifcx->streams[i]->codec->codec_type == AVMEDIA_TYPE_AUDIO
@@ -135,7 +133,7 @@ int Ann::decode_audio_frame(AVFrame *frame, int *data_present)
 	memcpy(send->data, input_packet.data, input_packet.size);
 	avcodec_decode_audio4(/*iccx*/ifcx->streams[0]->codec, frame, data_present, send.get());
 
-	loggit("Ann::decode_audio_frame DONE data readed=" + std::to_string(send->size));
+	loggit("Ann::decode_audio_frame DONE data readed=" + boost::to_string(send->size));
 	av_free_packet(&input_packet);
 	send->free();
 	return 0;
@@ -159,7 +157,7 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 			memcpy(send->data, (uint8_t*)&rtp_hdr.header, 12);
 			memcpy(send->data + 12, output_packet.data + i * 160, 160);
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
-			loggit("senting bytes = " + std::to_string(send->size));
+			loggit("senting bytes = " + boost::to_string(send->size));
 			sock->send_to(boost::asio::buffer(send->data, send->size), endpt);
 			send->free();
 			++i;
@@ -167,7 +165,7 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 		//сохраняем остатки для следующего прогона
 		left_data.reset(new CAVPacket(output_packet.size - i * 160));
 		memcpy(left_data->data, output_packet.data + i * 160, output_packet.size - i * 160);
-		loggit("data left = " + std::to_string(left_data->size));
+		loggit("data left = " + boost::to_string(left_data->size));
 	}
 	else
 	{
@@ -179,7 +177,7 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 		memcpy(send->data + 12 + left_data->size, output_packet.data, 160 - left_data->size);
 		output_packet.size = output_packet.size - left_data->size;
 		std::this_thread::sleep_for(std::chrono::milliseconds(20));
-		loggit("senting bytes = " + std::to_string(send->size));
+		loggit("senting bytes = " + boost::to_string(send->size));
 		sock->send_to(boost::asio::buffer(send->data, send->size), endpt);
 		send->free();
 		//теперь уже новый пакет
@@ -191,7 +189,7 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 			memcpy(send->data, (uint8_t*)&rtp_hdr.header, 12);
 			memcpy(send->data + 12, output_packet.data + i * 160 + (160 - left_data->size), 160);
 			std::this_thread::sleep_for(std::chrono::milliseconds(20));
-			loggit("senting bytes = " + std::to_string(send->size));
+			loggit("senting bytes = " + boost::to_string(send->size));
 			sock->send_to(boost::asio::buffer(send->data, send->size), endpt);
 			send->free();
 			++i;
@@ -199,7 +197,7 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 		//копируем остатки
 		left_data.reset(new CAVPacket(output_packet.size - i * 160));
 		memcpy(left_data->data, output_packet.data + i * 160, output_packet.size - i * 160);
-		loggit("data left = " + std::to_string(left_data->size));
+		loggit("data left = " + boost::to_string(left_data->size));
 	}
 	loggit("Ann::encode_audio_frame DONE");
 	av_free_packet(&output_packet);

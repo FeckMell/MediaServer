@@ -7,8 +7,7 @@
 //#include <boost/thread/thread.hpp>
 
 struct NetworkData;
-
-extern FILE *FileLogConfRoom;
+extern string DateStr;
 /************************************************************************
 	CConfPoint
 ************************************************************************/

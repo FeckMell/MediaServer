@@ -3,6 +3,7 @@
 #include "Structs.h"
 #include "Logger.h"
 extern Logger CLogger;
+extern string DateStr;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 class Ann
 {

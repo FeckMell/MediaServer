@@ -97,7 +97,7 @@
       <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>false</PreserveSbr>
+      <PreserveSbr>true</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>

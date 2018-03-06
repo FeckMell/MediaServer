@@ -8,6 +8,7 @@
 #include "Conf.h"
 #include "Ann.h"
 extern Logger CLogger;
+extern string DateStr;
 
 class CMGCPServer;
 class ConfControl
@@ -20,6 +21,8 @@ public:
 	void proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO);
 	void proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO);
 	void proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO);
+private:
+	void loggit(string a);
 
 	int SetRoomID();
 	SHP_CConfRoom CreateNewRoom();
@@ -28,17 +31,16 @@ public:
 	SHP_CConfRoom FindRoom(string ID);
 	int SDPFindMode(string SDP);
 	SHP_Ann FindAnn(string ID);
+	std::string GenSDP(int Port, MGCP &mgcp);
 
-private:
+
 	std::vector<SHP_CConfRoom> RoomsVec_; // вектор существующих комнат
 	std::vector<int> PortsinUse_; // вектор занятых портов
 	std::vector<int> RoomsID_;
 	std::vector<SHP_Ann> AnnVec_;
 	std::vector<int>AnnID_;
 
-	int countCRCX = 0;
-
-	//CMGCPServer* server;
+	std::mutex  mutex_;
 	
 };
 

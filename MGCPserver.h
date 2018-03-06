@@ -9,7 +9,7 @@
 	CMGCPServer
 ************************************************************************/
 class ConfControl;
-extern FILE *FileLogServer;
+extern string DateStr;
 extern Logger CLogger;
 class CMGCPServer
 {
@@ -27,11 +27,11 @@ public:
 	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
 	void Run();
 	void reply(const string&, const udp::endpoint&);
-	void loggit(string a);
+	void proceedReceiveBuffer(const char*, const udp::endpoint&);
 	TArgs	m_args;
 private:
 /*Отладка*/
-	//void loggit(string a);
+	void loggit(string a);
 
 	//void do_receive();
 	//void do_send(std::size_t length);
@@ -39,7 +39,7 @@ private:
 	//void reply(const string&, const udp::endpoint&);
 
 /*Первичная обработка команд*/
-	void proceedReceiveBuffer(const char*, const udp::endpoint&);
+	
 
 	//TArgs	m_args;
 	udp::socket socket_;

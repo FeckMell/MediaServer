@@ -115,10 +115,7 @@ void CConfRoom::loggit(string a)
 	t = localtime(&rawtime);
 	string time = "";
 	steady_clock::time_point t1 = steady_clock::now();
-	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
-
-	//fprintf(FileLogConfRoom, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
-	//fflush(FileLogConfRoom);
+	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(1, "\n" + time + "       " + a);
 }
 //--------------------------------------------------------------------------
@@ -214,7 +211,7 @@ void CConfRoom::Start()
 			Mixer.reset(new CRTPReceive(net));
 			boost::thread my_thread(&StartRoom, Mixer, net);
 			my_thread.detach();
-			loggit("mix->process_all() for " + std::to_string(net.input_SDPs.size()) + "clients");
+			loggit("mix->process_all() for " + boost::to_string(net.input_SDPs.size()) + "clients");
 		}
 	}
 	else
@@ -224,7 +221,7 @@ void CConfRoom::Start()
 		{
 			boost::thread my_thread(&AddCall, Mixer, net);
 			my_thread.detach();
-			loggit("mix->AddCall for " + std::to_string(net.input_SDPs.size()) + "clients");
+			loggit("mix->AddCall for " + boost::to_string(net.input_SDPs.size()) + "clients");
 		}
 	}
 }

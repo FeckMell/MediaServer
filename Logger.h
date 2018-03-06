@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
-
+#include "Functions.h"
+extern string DateStr;
 extern std::string PathEXE;
 
 class Logger
@@ -15,6 +16,8 @@ private:
 	void OpenLogFiles();
 	void output(std::string text, int i);
 	std::string pop(int i, int j);
+	void Clean();
+	void reinit();
 
 	//data
 	std::vector<std::vector<std::string>> buffer;
