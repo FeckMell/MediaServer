@@ -2,90 +2,56 @@
 #ifdef WIN32
 #include "Mmsystem.h"
 #endif
-#include "Structs.h"
 #include "Functions.h"
-#include "Logger.h"
-#include "MGCPserver.h"
-//#include "TimeAPI.h"
+#include "Structs.h"
+#include "Server.h"
 
-boost::gregorian::date Date;
-string DateStr;
-string PathEXE;
-string MusicPath;
-short int RTPport;
+//*///------------------------------------------------------------------------------------------
+//*///----Variables-----------------------------------------------------------------------------
+SHP_InitParams init_Params;
 
-Logger* CLogger = new Logger();
-void Runner()
-{
-	CLogger->Run();
-}
+boost::asio::io_service io_Server;
+boost::asio::io_service io_Apps;
+SHP_Socket outer_Socket;
+SHP_Socket inner_Socket;
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
 {
 	try
 	{
+/************************************************************************
+						Инициализация
+************************************************************************/
 #ifdef WIN32
-		timeBeginPeriod(1);
-		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+		timeBeginPeriod(1);//CPU timer 1ms
+		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);//Realtime priority in system
 #endif
-		DateStr = GetDate();
-		setlocale(LC_ALL, "Russian");
-		cout << "\nТЕСТ ВЕРСИЯ 1.50 (12.09.2016 / 12:08)";
-		GetPathExe(argv[0]);
-#ifdef __linux__
-		PathEXE.pop_back();
-		PathEXE.pop_back();
-		cout<<"\nPATH="<<PathEXE<<"\n";
-#endif
-		CLogger->Create();
-		boost::thread my_thread(&Runner);
-		my_thread.detach();
-		std::this_thread::sleep_for(std::chrono::microseconds(50));
+		setlocale(LC_ALL, "Russian");//Russia location
+		cout << "\nТЕСТ ВЕРСИЯ 2.0 (20.10.2016 / 12:08)\n";//Info about app.
+		init_Params.reset(new InitParams(argv[0])); //Create storage for init parametrs and parse init file
+		cout << init_Params->GetParams(); //show parametrs
 
-		LogMain("Using path: " + PathEXE);
-		/************************************************************************
-			Парсинг входящих параметров
-		************************************************************************/
-		string strConfigFile(PathEXE + "mgcpserver.cfg");
-		Config cfg;
-		cfg = ParseConfig(strConfigFile, cfg);
-		RTPport = cfg.RTPport;
-#ifdef __linux__
-		cfg.MediaPath = PathEXE+cfg.MediaPath;
-#endif
-		if (cfg.error == -1){ cout << "\nNO MEDIA " << cfg.error; system("pause"); return 0; }
-		if (cfg.error == 0)
-		{
-			cout << "\nparse end:\nUsing IP: " << cfg.IP << "\nMedia Path: " << cfg.MediaPath << "\nMGCPport: " << cfg.MGCPport << "\nSIPport: " << cfg.SIPport << "\nRTPPort: " << cfg.RTPport;
-			LogMain("\nparse end:\nUsing IP: " + cfg.IP + "\nMedia Path: " + cfg.MediaPath + "\nMGCPport: " + boost::to_string(cfg.MGCPport) + "\nSIPport: " + boost::to_string(cfg.SIPport) + "\nRTPPort: " + boost::to_string(cfg.RTPport));
-		}
-		//Инициализация адреса и порта сервера
-		boost::asio::io_service io_service;
-		const udp::endpoint MGCPep(boost::asio::ip::address::from_string(cfg.IP),cfg.MGCPport);
-		const udp::endpoint SIPep(boost::asio::ip::address::from_string(cfg.IP), cfg.SIPport);
-		///////////////////////////////////////////////////////////////////////////
-		av_log_set_level(0);
-		av_register_all();
-		avcodec_register_all();
-		avfilter_register_all();
-		avformat_network_init();
-		/************************************************************************
-			Запуск экземляра MGCP-сервера
-		************************************************************************/
-		CMGCPServer s({ io_service, MGCPep, SIPep, cfg.MediaPath });
-		LogMain("Запуск экземляра MGCP-сервера");
-		cout << "\n-------------------------------------------------------------------------------\n\n";
-		s.Run();
-		s.RunBuffer();
-		io_service.run();
+		//Init sockets for modules and server
+		outer_Socket.reset(new Socket(
+			init_Params->data[InitParams::outerIP],
+			stoi(init_Params->data[InitParams::outerPort]),
+			io_Server));
+		inner_Socket.reset(new Socket(
+			init_Params->data[InitParams::innerIP],
+			stoi(init_Params->data[InitParams::outerPort]),
+			io_Server));
+/************************************************************************
+					 Запуск MGCP-сервера
+************************************************************************/
+		MGCPServer server_outer;
+		server_outer.Run();
+		io_Server.run();
+
 	}
 	catch (std::exception& e)
 	{
-		LogMain("Exception:1" + boost::to_string(e.what()));
-		cerr << "Exception:2 " << e.what() << "\n";
-#ifdef WIN32
-		MessBox("Exception:3" + boost::to_string(e.what()));
-#endif
-		system("pause");
+		e;
 	}
 	return 0;
 }

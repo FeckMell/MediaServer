@@ -2,9 +2,9 @@
 #include "stdafx.h"
 #include "Structs.h"
 #include "Functions.h"
+#include "EventBase.h"
 #include "MGCPparser.h"
-#include "EventAnn.h"
-#include "EventCnf.h"
+#include "CallerAnn.h"
 
 using namespace std;
 
@@ -14,14 +14,18 @@ extern boost::asio::io_service io_Apps;
 extern SHP_Socket outer_Socket;
 extern SHP_Socket inner_Socket;
 
-class MGCPcontrol
+class EventAnn :EventBase
 {
 public:
-	MGCPcontrol();
+	void CRCX(SHP_MGCP);
+	void RQNT(SHP_MGCP);
+	void DLCX(SHP_MGCP);
 
-	void Preprocessing(SHP_MGCP);
 private:
-	SHP_EventAnn annControl;
-	SHP_EventCnf cnfControl;
+	string CheckExistance(SHP_MGCP);
+	SHP_CallerAnn FindAnn(SHP_MGCP);
+	void RemoveAnn(SHP_CallerAnn);
+
+	vector<SHP_CallerAnn> vecAnn;
 };
-typedef shared_ptr<MGCPcontrol> SHP_MGCPcontrol;
+typedef shared_ptr<EventAnn> SHP_EventAnn;

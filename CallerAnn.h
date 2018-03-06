@@ -3,25 +3,25 @@
 #include "Structs.h"
 #include "Functions.h"
 #include "MGCPparser.h"
-#include "EventAnn.h"
-#include "EventCnf.h"
-
-using namespace std;
+#include "CallerBase.h"
 
 extern SHP_InitParams init_Params;
+
 extern boost::asio::io_service io_Server;
 extern boost::asio::io_service io_Apps;
 extern SHP_Socket outer_Socket;
 extern SHP_Socket inner_Socket;
 
-class MGCPcontrol
+class CallerAnn : public CallerBase
 {
 public:
-	MGCPcontrol();
+	CallerAnn(SHP_MGCP, string, string);
 
-	void Preprocessing(SHP_MGCP);
+	void RQNT(SHP_MGCP);
+	void DLCX(SHP_MGCP);
+	string eventNum="";
 private:
-	SHP_EventAnn annControl;
-	SHP_EventCnf cnfControl;
+	string filename = "";
+	
 };
-typedef shared_ptr<MGCPcontrol> SHP_MGCPcontrol;
+typedef shared_ptr<CallerAnn> SHP_CallerAnn;
