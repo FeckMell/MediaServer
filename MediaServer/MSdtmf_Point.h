@@ -24,9 +24,7 @@ namespace dtmf
 		void SendModul();
 
 		SHP_thread th;
-		EP endPoint;
 		SHP_SOCK socket;
-		Data rawBuf;
 
 		string serverPort;
 		string clientPort;

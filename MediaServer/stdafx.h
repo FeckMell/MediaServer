@@ -33,6 +33,7 @@
 /* <\> BOOST*/
 #include <boost/asio.hpp>
 #include <boost/format.hpp>
+#include <boost/function.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/signals2.hpp>

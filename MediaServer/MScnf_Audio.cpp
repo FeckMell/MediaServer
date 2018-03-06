@@ -37,11 +37,7 @@ void Audio::Run()
 	state = true;
 	for (unsigned i = 0; i < vecPoints.size(); ++i)
 	{
-		vecPoints[i]->socket->s.async_receive_from(
-			boost::asio::buffer(rawBuf.data, 1000), 
-			vecPoints[i]->endPoint,
-			boost::bind(&Audio::Receive, this, _1, _2, i)
-			);
+		vecPoints[i]->socket->AsyncReceive(boost::bind(&Audio::Receive, this, _1, _2, i));
 	}
 
 	eventThread.reset(new thread(&Audio::RunIO, this));
@@ -62,15 +58,11 @@ void Audio::Receive(boost::system::error_code ec_, size_t size_, int i_)
 		if (size_ > 12)
 		{
 			SHP_PACKET shpPacket = std::make_shared<PACKET>(size_ - 12);
-			memcpy(shpPacket->Data(), rawBuf.data + 12, size_ - 12);
+			memcpy(shpPacket->Data(), vecPoints[i_]->socket->buffer + 12, size_ - 12);
 			vecPoints[i_]->StoreFrame(Decode(shpPacket, i_));
 			ProceedData(i_);
 		}
-		vecPoints[i_]->socket->s.async_receive_from(
-			boost::asio::buffer(rawBuf.data, 1000),
-			vecPoints[i_]->endPoint,
-			boost::bind(&Audio::Receive, this, _1, _2, i_)
-			);
+		vecPoints[i_]->socket->AsyncReceive(boost::bind(&Audio::Receive, this, _1, _2, i_));
 	}
 }
 //*///------------------------------------------------------------------------------------------
@@ -119,16 +111,11 @@ void Audio::EncodeAndSend(SHP_FRAME frame_, int i_)
 	SHP_PACKET output_packet = make_shared<PACKET>();
 	avcodec_encode_audio2(vecPoints[i_]->occx, output_packet->Get(), frame_->Get(), &mark);
 	SHP_PACKET send = make_shared<PACKET>(output_packet->Size() + 12);
-	memcpy(send->Data(), (uint8_t*)&(vecPoints[i_]->socket->rtp.Get()), 12);
+	memcpy(send->Data(), vecPoints[i_]->socket->GetRTP(), 12);
 	memcpy(send->Data() + 12, output_packet->Data(), output_packet->Size());
-	try
-	{
-		vecPoints[i_]->socket->s.send_to(boost::asio::buffer(send->Data(), send->Size()), vecPoints[i_]->endPoint);
-	}
-	catch (std::exception& e)
-	{
-		e;
-	}
+	
+	try{ vecPoints[i_]->socket->SendTo(send->Data(), send->Size()); }
+	catch (std::exception& e){ e; }
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

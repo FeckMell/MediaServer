@@ -32,7 +32,6 @@ namespace cnf
 		SHP_FRAME silentFrame;
 		SHP_thread eventThread;
 		bool state;
-		Data rawBuf;
 		SHP_Filter filter;
 		vector<SHP_Point> vecPoints;
 	};

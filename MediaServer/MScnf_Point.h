@@ -22,7 +22,6 @@ namespace cnf
 		AVCodecContext* iccx;
 		AVCodecContext* occx;
 		SHP_SOCK socket;
-		EP endPoint;
 
 	private:
 		void InitCodec(AVCodecContext**, bool);//true-decoder, false-encoder

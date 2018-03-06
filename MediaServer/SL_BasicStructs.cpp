@@ -24,6 +24,25 @@ void SOCK::ChangeIO(SHP_IO io_)
 		io = io_;
 	}
 }
+void SOCK::AsyncReceive(boost::function<void(boost::system::error_code ec_, size_t size_)> boostbind_)
+{
+	s.async_receive_from(
+		boost::asio::buffer(buffer, 2048), 
+		endPoint, 
+		boostbind_);
+}
+void SOCK::SetEndPoint(string ip_, string port_)
+{
+	endPoint = EP(boost::asio::ip::address::from_string(ip_), stoi(port_));
+}
+void SOCK::SendTo(uint8_t* what_, int size_)
+{
+	s.send_to(boost::asio::buffer(what_, size_), endPoint);
+}
+uint8_t* SOCK::GetRTP()
+{
+	return (uint8_t*)&rtp.Get();
+}
 SOCK::~SOCK()
 {
 	s.cancel();

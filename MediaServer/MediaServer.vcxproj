@@ -112,12 +112,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

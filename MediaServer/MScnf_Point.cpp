@@ -8,7 +8,8 @@ Point::Point(string c_port_, string s_port_, string c_IP_, string s_IP_)
 {
 	LOG::Log(LOG::info, "CNF", "MSCNF: Point created with id=" + serverPort);
 	socket = SSTORAGE::GetSocket(serverPort);
-	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
+	socket->SetEndPoint(clientIP, clientPort);
+	//socket->endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
 	
 	InitCodec(&iccx, true);
 	InitCodec(&occx, false);

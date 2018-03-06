@@ -1,6 +1,5 @@
 #pragma once
 #include "stdafx.h"
-//#include "SL_Logs.h"
 
 
 struct REQUEST
@@ -41,24 +40,27 @@ struct RTP_struct
 };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-struct Data
-{
-	uint8_t data[1000];
-	int size = 160;
-};
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class SOCK
 {
 public:
 	SOCK(string, int, SHP_IO);
-
-	void ChangeIO(SHP_IO);
 	~SOCK();
 
-	RTP_struct rtp;
+	void ChangeIO(SHP_IO);
+	void AsyncReceive(boost::function<void(boost::system::error_code, size_t)> boostbind_);
+	void SendTo(uint8_t*, int);
+	void SetEndPoint(string, string);
+	uint8_t* GetRTP();
+
+	EP endPoint;
+	uint8_t buffer[2048];
 	SHP_IO io;
 	boost::asio::ip::udp::socket s;
+
+private:
+
+	RTP_struct rtp;
+
 };
 typedef shared_ptr<SOCK> SHP_SOCK;
 //*///------------------------------------------------------------------------------------------
