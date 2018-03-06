@@ -33,8 +33,8 @@ int main(int argc, char* argv[])
 	NET::vecSigsIN[NET::INNER::sip].connect(boost::bind(&sip::Control::PreprocessingIN, &sip, _1));
 	NET::vecSigsIN[NET::INNER::mgcp].connect(boost::bind(&mgcp::Control::PreprocessingIN, &mgcp, _1));
 
-	NET::vecSigsOUT[NET::OUTER::sip_].connect(boost::bind(&sip::Control::PreprocessingOUT, &sip, _1));
-	NET::vecSigsOUT[NET::OUTER::mgcp_].connect(boost::bind(&mgcp::Control::PreprocessingOUT, &mgcp, _1));
+	NET::vecSigsOUT[NET::OUTER::sip_].connect(boost::bind(&sip::Control::PreprocessingOUT, &sip));
+	NET::vecSigsOUT[NET::OUTER::mgcp_].connect(boost::bind(&mgcp::Control::PreprocessingOUT, &mgcp));
 
 	Receiver receiver;
 	

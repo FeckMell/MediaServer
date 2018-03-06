@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "SL_SockStorage.h"
 #include "SL_BasicStructs.h"
 #include "SL_Config.h"
 

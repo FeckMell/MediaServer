@@ -11,10 +11,11 @@ namespace cnf
 		Point(string, string, string, string);
 		~Point();
 
-		void SetMaxTimesTook(int);
-		SHP_FRAME GetFrame();
-		void StoreFrame(SHP_FRAME);
+		void SetJitterSize(int);
+		void StoreFrame(SHP_FRAME, int);
+		SHP_FRAME GetFrame(int);
 
+		int ptime = 0; /* *10 */
 		string clientPort;
 		string clientIP;
 		string serverPort;
@@ -26,9 +27,8 @@ namespace cnf
 	private:
 		void InitCodec(AVCodecContext**, bool);//true-decoder, false-encoder
 
-		int timesTookMax = 0;
-		int timesTook = 0;
-		SHP_FRAME bufFrame = nullptr;
+		JITTER bufFrame;
+
 	};
 	typedef shared_ptr<Point> SHP_Point;
 }

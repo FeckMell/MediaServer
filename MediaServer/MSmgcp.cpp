@@ -25,11 +25,10 @@ void Control::PreprocessingIN(string message_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Control::PreprocessingOUT(REQUEST message_)
+void Control::PreprocessingOUT()
 {
-	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message_.data, message_.sender));
-	LOG::Log(LOG::info, "MGCP", "MSMGCP: message is:\n" + string(message_.data));
-	LOG::Log(LOG::info, "MGCP", "MSMGCP: message Paresed as:\n" + mgcp->PrintAll());
+	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(true));
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: message Parsed as:\n" + mgcp->PrintAll());
 	if (mgcp->outerError == "")
 	{
 		string cmd = mgcp->data["CMD"];

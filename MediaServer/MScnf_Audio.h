@@ -22,11 +22,13 @@ namespace cnf
 
 		/*Main activity*/
 		void Receive(boost::system::error_code, size_t, int);
+		void PrepareData(SHP_PACKET, int);
 		SHP_FRAME Decode(SHP_PACKET, int);
-		void ProceedData(int);
+		void ProceedData(SHP_PACKET, int);
 		void FillFilter(int);
-		void EncodeAndSend(SHP_FRAME, int);
+		void EncodeAndSend(int);
 		SHP_FRAME GetFrameFromFilter(int);
+		void SaveFrameToJitters(SHP_FRAME, int);
 
 		/*Data*/
 		SHP_FRAME silentFrame;

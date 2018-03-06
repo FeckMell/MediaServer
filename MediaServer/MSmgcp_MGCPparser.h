@@ -9,7 +9,7 @@ namespace mgcp
 	{
 	public:
 
-		MGCP(char*, EP);
+		MGCP(bool);
 
 		void ReplyClient();
 		void ReplyNTFY();

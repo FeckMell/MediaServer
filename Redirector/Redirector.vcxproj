@@ -10,82 +10,10 @@
       <Platform>Win32</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="MediaServer.cpp" />
-    <ClCompile Include="MSann_Ann.cpp" />
-    <ClCompile Include="MSann.cpp" />
-    <ClCompile Include="MSann_MusicStore.cpp" />
-    <ClCompile Include="MScnf_Audio.cpp" />
-    <ClCompile Include="MScnf_Cnf.cpp" />
-    <ClCompile Include="MScnf_Point.cpp" />
-    <ClCompile Include="MScnf.cpp" />
-    <ClCompile Include="MScnf_Filter.cpp" />
-    <ClCompile Include="MSdtmf.cpp" />
-    <ClCompile Include="MSdtmf_Point.cpp" />
-    <ClCompile Include="MSmgcp_Ann.cpp" />
-    <ClCompile Include="MSmgcp_Cnf.cpp" />
-    <ClCompile Include="MSmgcp.cpp" />
-    <ClCompile Include="MSmgcp_MGCPparser.cpp" />
-    <ClCompile Include="MSmgcp_Point.cpp" />
-    <ClCompile Include="MSreceiver.cpp" />
-    <ClCompile Include="MSsip_Cnf.cpp" />
-    <ClCompile Include="MSsip_Point.cpp" />
-    <ClCompile Include="MSsip.cpp" />
-    <ClCompile Include="MSsip_SIPparser.cpp" />
-    <ClCompile Include="SharedLib.cpp" />
-    <ClCompile Include="SL_BasicStructs.cpp" />
-    <ClCompile Include="SL_Config.cpp" />
-    <ClCompile Include="SL_FFMPEG.cpp" />
-    <ClCompile Include="SL_Functions.cpp" />
-    <ClCompile Include="SL_InnerParser.cpp" />
-    <ClCompile Include="SL_Logs.cpp" />
-    <ClCompile Include="SL_NetData.cpp" />
-    <ClCompile Include="SL_SDP.cpp" />
-    <ClCompile Include="SL_SockStorage.cpp" />
-    <ClCompile Include="SL_Time.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="MSann_Ann.h" />
-    <ClInclude Include="MSann.h" />
-    <ClInclude Include="MSann_MusicStore.h" />
-    <ClInclude Include="MScnf_Audio.h" />
-    <ClInclude Include="MScnf_Cnf.h" />
-    <ClInclude Include="MScnf_Point.h" />
-    <ClInclude Include="MScnf.h" />
-    <ClInclude Include="MScnf_Filter.h" />
-    <ClInclude Include="MSdtmf.h" />
-    <ClInclude Include="MSdtmf_Point.h" />
-    <ClInclude Include="MSmgcp_Ann.h" />
-    <ClInclude Include="MSmgcp_Cnf.h" />
-    <ClInclude Include="MSmgcp.h" />
-    <ClInclude Include="MSmgcp_MGCPparser.h" />
-    <ClInclude Include="MSmgcp_Point.h" />
-    <ClInclude Include="MSreceiver.h" />
-    <ClInclude Include="MSsip_Cnf.h" />
-    <ClInclude Include="MSsip_Point.h" />
-    <ClInclude Include="MSsip.h" />
-    <ClInclude Include="MSsip_SIPparser.h" />
-    <ClInclude Include="SharedLib.h" />
-    <ClInclude Include="SL_BasicStructs.h" />
-    <ClInclude Include="SL_Config.h" />
-    <ClInclude Include="SL_FFMPEG.h" />
-    <ClInclude Include="SL_Functions.h" />
-    <ClInclude Include="SL_InnerParser.h" />
-    <ClInclude Include="SL_Logs.h" />
-    <ClInclude Include="SL_NetData.h" />
-    <ClInclude Include="SL_SDP.h" />
-    <ClInclude Include="SL_SockStorage.h" />
-    <ClInclude Include="SL_Time.h" />
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4BD9C23A-0798-4FD6-9DFD-7DEF6AAD7DC6}</ProjectGuid>
+    <ProjectGuid>{6A8A7CF7-831D-447E-8A26-6D77CFC6F14C}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MediaServer</RootNamespace>
+    <RootNamespace>Redirector</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -125,7 +53,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalOptions>-Zm160 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -153,6 +81,20 @@
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Redirector.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

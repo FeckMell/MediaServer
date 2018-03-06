@@ -177,6 +177,9 @@
     <ClCompile Include="MediaServer.cpp">
       <Filter>MediaServer</Filter>
     </ClCompile>
+    <ClCompile Include="SL_Time.cpp">
+      <Filter>SharedLib\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedLib.h">
@@ -271,6 +274,9 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>MediaServer</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Time.h">
+      <Filter>SharedLib\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

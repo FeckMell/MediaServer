@@ -48,8 +48,40 @@ public:
 	std::vector<vector<AVFilterContext*>> afcx;
 	std::vector<AVFilterGraph*> graphVec;
 	std::vector<AVFilterContext*> sinkVec;
+
+	static SHP_PACKET AddToPacket(SHP_PACKET, SHP_PACKET);
+	static SHP_PACKET CreatePacket(uint8_t*, int);
 };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+class subjitter
+{
+public:
+	subjitter();
+
+	void Push(SHP_FRAME);
+	SHP_FRAME Pop();
+
+private:
+
+	boost::circular_buffer<SHP_FRAME> frames;
+
+};
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+class JITTER
+{
+public:
+	JITTER();
+
+	void Resize(int);
+	void Push(SHP_FRAME, int);
+	SHP_FRAME Pop(int);
+
+private:
+
+	vector<subjitter> buffers;
+
+};
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

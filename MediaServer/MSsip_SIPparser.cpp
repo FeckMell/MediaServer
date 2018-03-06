@@ -2,13 +2,13 @@
 #include "MSsip_SIPparser.h"
 using namespace sip;
 
-
-SIP::SIP(char* raw_mes_, EP sender_) : sender(sender_)
+SIP::SIP(bool parse_) : sender(NET::GS(NET::OUTER::sip_)->endPoint)
 {
+
 	clientSDP.reset(new SDP());
 	serverSDP.reset(new SDP());
 
-	string request(raw_mes_);
+	string request((char*)NET::GS(NET::OUTER::sip_)->buffer);
 	Remove(request);
 	SplitSIPandSDP(request);
 	ParseMain();

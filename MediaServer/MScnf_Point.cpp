@@ -9,7 +9,6 @@ Point::Point(string c_port_, string s_port_, string c_IP_, string s_IP_)
 	LOG::Log(LOG::info, "CNF", "MSCNF: Point created with id=" + serverPort);
 	socket = SSTORAGE::GetSocket(serverPort);
 	socket->SetEndPoint(clientIP, clientPort);
-	//socket->endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
 	
 	InitCodec(&iccx, true);
 	InitCodec(&occx, false);
@@ -45,22 +44,21 @@ void Point::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, false-e
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Point::SetMaxTimesTook(int t_)
+void Point::SetJitterSize(int size_)
 {
-	timesTookMax = t_ - 1;
+	bufFrame.Resize(size_);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-SHP_FRAME Point::GetFrame()
+void Point::StoreFrame(SHP_FRAME frame_, int which_)
 {
-	if (timesTook >= timesTookMax) return nullptr;
-	timesTook++;
-	return bufFrame;
+	bufFrame.Push(frame_, which_);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Point::StoreFrame(SHP_FRAME f_)
+SHP_FRAME Point::GetFrame(int which_)
 {
-	bufFrame = f_;
-	timesTook = 0;
+	return bufFrame.Pop(which_);
 }
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------

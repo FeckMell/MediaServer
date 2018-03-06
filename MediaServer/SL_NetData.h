@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "SL_SockStorage.h"
 #include "SL_Config.h"
 #include "SL_BasicStructs.h"
 
@@ -16,8 +17,7 @@ public:
 
 	static SHP_IO outerIO;
 	static vector<boost::signals2::signal<void(string)>> vecSigsIN;
-	static vector<boost::signals2::signal<void(REQUEST)>> vecSigsOUT;
-	//static vector<boost::signals2::signal<void()>> vecSigsOUT2;
+	static vector<boost::signals2::signal<void()>> vecSigsOUT;
 
 private:
 

@@ -57,7 +57,7 @@ void Ann::SendPacket(SHP_PACKET packet_to_send_)
 //*///------------------------------------------------------------------------------------------
 void Ann::DL()
 {
-	LOG::Log(LOG::info, "ANN", "MSANN: Ann::DL ann with id="+eventID+" finished");
+	LOG::Log(LOG::info, "ANN", "MSANN: Ann::DL ann with id=" + eventID + " finished");
 	state = false;
 	th->join();
 }

@@ -8,8 +8,7 @@ namespace sip
 	class SIP
 	{
 	public:
-
-		SIP(char*, EP);
+		SIP(bool);
 
 		void ReplyClient();
 

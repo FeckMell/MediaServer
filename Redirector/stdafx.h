@@ -42,7 +42,6 @@
 #include <boost/signals2.hpp>
 //#include <boost/date_time/gregorian/gregorian.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/circular_buffer.hpp>
 
 #undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
 /* </> BOOST */
