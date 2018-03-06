@@ -11,12 +11,12 @@ Control::Control()
 void Control::Preprocessing(string message_)
 {
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSDTMF: ipl=\n" << message_;
+	LOG::Log(LOG::info, "DTMF", "MSDTMF: ipl=\n" + message_);
 	if (ipl->data["EventType"] == "cr") { CR(ipl); }
 	else if (ipl->data["EventType"] == "dl") {DL(ipl);}
 	else
 	{
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSDTMF: ipl bad:\n" << ipl->ipl;
+		LOG::Log(LOG::fatal, "DTMF", "MSDTMF: ipl bad:\n" + ipl->ipl);
 	}
 }
 //*///------------------------------------------------------------------------------------------
@@ -34,7 +34,7 @@ void Control::DL(SHP_IPL ipl_)
 	SHP_Point found_point = FindPoint(ipl_->data["EventID"]);
 	if (found_point == nullptr)
 	{
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSDTMF: DL: point not found id=" << ipl_->data["EventID"];
+		LOG::Log(LOG::fatal, "DTMF", "MSDTMF: DL: point not found id=" + ipl_->data["EventID"]);
 		return;
 	}
 	RemovePoint(found_point);

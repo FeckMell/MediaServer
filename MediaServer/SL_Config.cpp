@@ -21,7 +21,8 @@ void CFG::Init(char* path_)
 	data["mediaPath"] = "MediaFiles";
 	data["sipPort"] = "5070";
 	data["logPath"] = data["homePath"] + slash + "MS_logs";
-	
+	data["logPort"] = "62975";
+
 	ParseConfigFile();
 	data["mediaPath"] = data["homePath"] + slash + data["mediaPath"];
 

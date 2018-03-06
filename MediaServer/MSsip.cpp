@@ -12,12 +12,12 @@ Control::Control()
 void Control::PreprocessingIN(string message_)
 {
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: ipl:\n" << message_;
+	LOG::Log(LOG::info, "SIP", "MSSIP: ipl:\n" + message_);
 
 	SHP_Point found_point = FindPoint(ipl->data["CallID"]);
 	if (found_point == nullptr)
 	{
-		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 1";
+		LOG::Log(LOG::fatal, "SIP", "MSSIP: Preproc ERROR 1");
 		exit(-1);
 	}
 	else if (ipl->data["From"] == "dtmf")
@@ -26,11 +26,11 @@ void Control::PreprocessingIN(string message_)
 	}
 	else if (ipl->data["From"] == "sql")
 	{
-		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 3";
+		LOG::Log(LOG::fatal, "SIP", "MSSIP: Preproc ERROR 3");
 	}
 	else
 	{
-		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 2";
+		LOG::Log(LOG::fatal, "SIP", "MSSIP: Preproc ERROR 2");
 		exit(-1);
 	}
 
@@ -41,7 +41,7 @@ void Control::PreprocessingIN(string message_)
 void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_SIP sip = make_shared<SIP>(SIP(message_.data, message_.sender));
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc sip:\n" << message_.data;
+	LOG::Log(LOG::info, "SIP", "MSSIP: Preproc sip:\n" + string(message_.data));
 
 	if (sip->outerError == "")
 	{

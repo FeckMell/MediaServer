@@ -11,7 +11,7 @@ Ann::Ann(SHP_Point point_, SHP_MGCP mgcp_) : point(point_), eventID(mgcp_->data[
 //*///------------------------------------------------------------------------------------------
 void Ann::Delete()
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: Ann Del with id=" << eventID;
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: Ann Del with id=" + eventID);
 	if (state == true) SendToAnnModul("dl"); 
 }
 //*///------------------------------------------------------------------------------------------

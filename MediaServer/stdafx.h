@@ -36,18 +36,10 @@
 #include <boost/thread/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/signals2.hpp>
+//#include <boost/date_time/gregorian/gregorian.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
-/* <\> BOOST LOGS */
-#include <boost/log/core.hpp>//
-#include <boost/log/trivial.hpp>
-#include <boost/log/expressions.hpp>//
-#include <boost/log/sinks/text_file_backend.hpp>//
-#include <boost/log/utility/setup/file.hpp>//
-#include <boost/log/utility/setup/common_attributes.hpp>//
-#include <boost/log/sources/severity_logger.hpp>
-#include <boost/log/sources/record_ostream.hpp>
-/* </> BOOST LOGS */
 /* </> BOOST */
 
 
@@ -79,11 +71,9 @@ extern "C"
 /* <\> GLOBAL TYPEDEFs */
 typedef boost::asio::io_service IO; // shortcut for io_service
 typedef boost::asio::ip::udp::endpoint EP; // shortcut for endpoint
-typedef boost::log::sources::severity_logger<boost::log::trivial::severity_level> BOOSTLOGGER; // shortcut for logger define
 
 typedef std::shared_ptr<boost::asio::io_service> SHP_IO;
 typedef std::shared_ptr<std::thread> SHP_thread;
 /* </> GLOBAL TYPEDEFs */
 
-using namespace boost::log::trivial; // change severity level to my struct.
 using namespace std;

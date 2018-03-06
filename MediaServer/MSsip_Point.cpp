@@ -5,7 +5,7 @@ using namespace sip;
 
 Point::Point(SHP_SIP sip_, string event_id_)
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Point created with id=" << sip_->data["CallID"];
+	LOG::Log(LOG::info, "SIP", "MSSIP: Point created with id="+sip_->data["CallID"]);
 	clientSDP = sip_->clientSDP;
 	serverSDP = sip_->serverSDP;
 	eventID = event_id_;
@@ -29,7 +29,7 @@ void Point::DTMFResult(SHP_IPL ipl_)
 	}
 	else
 	{
-		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Point ERROR 1";
+		LOG::Log(LOG::fatal, "SIP", "MSSIP: Point ERROR 1");
 		exit(-1);
 	}
 	
@@ -48,7 +48,7 @@ void Point::StopAll()
 //*///------------------------------------------------------------------------------------------
 void Point::PlayAnn(string file_name_)
 {	
-	if (playingAnn == true) { BOOST_LOG_SEV(LOG::GL(0), fatal) << "SIP playing ann ERROR 1"; }
+	if (playingAnn == true){ LOG::Log(LOG::fatal, "SIP", "SIP playing ann ERROR 1"); }
 	playingAnn = true;
 	string result = "";
 	result += "From=sip\n";
@@ -65,7 +65,7 @@ void Point::PlayAnn(string file_name_)
 //*///------------------------------------------------------------------------------------------
 void Point::StopAnn()
 {
-	if (playingAnn == false) { BOOST_LOG_SEV(LOG::GL(0), fatal) << "SIP playing ann ERROR 2"; }
+	if (playingAnn == false) { LOG::Log(LOG::fatal, "SIP", "SIP playing ann ERROR 2"); }
 	playingAnn = false;
 	string result = "";
 	result += "From=sip\n";

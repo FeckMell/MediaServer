@@ -7,13 +7,13 @@ Cnf::Cnf(SHP_Point point_, string event_id_)
 {
 	vecPoints.push_back(point_);
 	eventID = event_id_;
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: Cnf with id=" << eventID << " created";
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: Cnf with id=" + eventID + " created");
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::AddPoint(SHP_Point point_)
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: Cnf: Added point with id=" << point_->callID;
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: Cnf: Added point with id=" + point_->callID);
 	vecPoints.push_back(point_);
 	state = false;
 }
@@ -21,7 +21,7 @@ void Cnf::AddPoint(SHP_Point point_)
 //*///------------------------------------------------------------------------------------------
 bool Cnf::DeletePoint(SHP_Point point_)
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: Cnf: DL point with id=" << point_->callID;
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: Cnf: DL point with id=" + point_->callID);
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
 
 	if (vecPoints.size() == 0){ return true; }

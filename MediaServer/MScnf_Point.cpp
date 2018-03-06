@@ -6,7 +6,7 @@ using namespace cnf;
 Point::Point(string c_port_, string s_port_, string c_IP_, string s_IP_)
 	: clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Point created with id=" << serverPort;
+	LOG::Log(LOG::info, "CNF", "MSCNF: Point created with id=" + serverPort);
 	socket = SSTORAGE::GetSocket(serverPort);
 	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
 	
@@ -15,7 +15,7 @@ Point::Point(string c_port_, string s_port_, string c_IP_, string s_IP_)
 }
 Point::~Point()
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Point deleted with id=" << serverPort;
+	LOG::Log(LOG::info, "CNF", "MSCNF: Point deleted with id=" + serverPort);
 	avcodec_close(iccx);
 	avcodec_close(occx);
 	avcodec_free_context(&iccx);

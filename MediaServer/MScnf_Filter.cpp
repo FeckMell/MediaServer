@@ -16,7 +16,7 @@ Filter::Filter(vector<SHP_Point> points_) : vecPoints(points_)
 	{
 		if (InitFilterGraph(i) < 0)
 		{
-			BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSCNF: Filter ERROR";
+			LOG::Log(LOG::fatal, "CNF", "MSCNF: Filter ERROR");
 			system("pause");
 		}
 	}

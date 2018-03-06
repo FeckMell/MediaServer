@@ -6,13 +6,13 @@ using namespace cnf;
 Cnf::Cnf(SHP_IPL ipl_)
 {
 	eventID = ipl_->data["EventID"];
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Cnf create room with id=" << eventID;
+	LOG::Log(LOG::info, "CNF", "MSCNF: Cnf create room with id=" + eventID);
 	ParsePoints(ipl_);
 	mixerAudio.reset(new Audio(vecPoints));
 }
 Cnf::~Cnf()
 {
-	BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSCNF: Cnf with id=" << eventID << " delete";
+	LOG::Log(LOG::fatal, "CNF", "MSCNF: Cnf with id=" + eventID + " delete");
 	mixerAudio.reset();
 	vecPoints.clear(); 
 }
@@ -26,7 +26,7 @@ void Cnf::ParsePoints(SHP_IPL ipl_)
 	string log_points = "";
 	for (int i = 0; i < (int)client_ports.size(); ++i)
 		log_points += "\n" + to_string(i) + ") cp=" + client_ports[i] + " ci=" + client_ips[i] + " sp=" + server_ports[i];
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Cnf points:\n" << log_points;
+	LOG::Log(LOG::info, "CNF", "MSCNF: Cnf points:\n"+log_points);
 	CreatePoints({ client_ports, server_ports, client_ips });
 }
 //*///------------------------------------------------------------------------------------------

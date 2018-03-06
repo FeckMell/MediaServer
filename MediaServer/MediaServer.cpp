@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
 	CFG::Init(argv[0]);
 	LOG::Init();
 	NET::Init();
-	BOOST_LOG_SEV(LOG::GL(0), fatal) << "MAIN Init done with params:\n" << CFG::GetParams();
+	LOG::Log(LOG::fatal, "MAIN", "MAIN Init done with params:\n" + CFG::GetParams());
 	cout << "\nINIT DONE";
 	
 	ann::Control ann;

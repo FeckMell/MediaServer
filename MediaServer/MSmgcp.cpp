@@ -18,8 +18,8 @@ void Control::PreprocessingIN(string message_)
 void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message_.data, message_.sender));
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: message is:\n" << message_.data;
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: message Paresed as:\n" << mgcp->PrintAll();
+	//LOG::Log(LOG::info, "MGCP", "MSMGCP: message is:\n" + message_.data);
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: message Paresed as:\n" + mgcp->PrintAll());
 	if (mgcp->outerError == "")
 	{
 		string cmd = mgcp->data["CMD"];

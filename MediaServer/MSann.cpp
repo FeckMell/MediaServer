@@ -13,14 +13,14 @@ void Control::CR(SHP_IPL ipl_)
 {
 	if (FindAnn(ipl_->data["EventID"]) != nullptr)
 	{
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSANN: CR ERROR 1";
+		LOG::Log(LOG::fatal, "ANN", "MSANN: CR ERROR 1");
 		return;
 	}
 	
 	SHP_MediaFile media_file = musicStore->GetFile(ipl_->data["FileName"]);
 	if (media_file == nullptr) 
 	{ 
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSANN: CR ERROR 2";
+		LOG::Log(LOG::fatal, "ANN", "MSANN: CR ERROR 2");
 		return;
 	}
 	
@@ -34,7 +34,7 @@ void Control::DL(SHP_IPL ipl_)
 	SHP_Ann found_ann = FindAnn(ipl_->data["EventID"]);
 	if (found_ann == nullptr)
 	{
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSANN: DL ERROR 1";
+		LOG::Log(LOG::fatal, "ANN", "MSANN: DL ERROR 1");
 		return;
 	}
 	
@@ -45,14 +45,14 @@ void Control::DL(SHP_IPL ipl_)
 //*///------------------------------------------------------------------------------------------
 void Control::Preprocessing(string message_)
 {
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSANN: IPL=\n" << message_;
+	LOG::Log(LOG::info, "ANN", "MSANN: IPL=\n" + message_);
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
 
 	if (ipl->data["EventType"] == "cr") CR(ipl);
 	else if (ipl->data["EventType"] == "dl") DL(ipl);
 	else
 	{
-		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSANN: Preprocess ERROR 1";
+		LOG::Log(LOG::fatal, "ANN", "MSANN: Preprocess ERROR 1");
 		return;
 	} 
 }
