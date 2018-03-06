@@ -4,6 +4,7 @@
 //#include "Utils.h"
 //#include "ISrcFusion.h"
 #include "SrcCash.h"
+#include "Structs.h"
 
 class ISrcFusion;
 typedef std::shared_ptr<ISrcFusion> SHP_ISrcFusion;
@@ -84,7 +85,7 @@ private:
 		assert(ctxFormat_->nb_streams > 0);
 		return ctxFormat_->streams[0]->codec;
 	}
-	int  _writeRTPpacket(time_point& tp, CAVPacket& pktRTP);
+	int  _writeRTPpacket(time_point& tp, CAVPacket2& pktRTP);
 	int  _encode_audio_frame(AVFrame *frame, int *data_present);
 	int  _initGraph();
 	int  _initMixFilter();
@@ -107,7 +108,7 @@ private:
 	CAVFilterGraph		filtGraf_;
 	std::thread*		pRTPThread_ = nullptr;
 	std::vector<TSrcRef> cllSrcRefs_;
-	CThreadedCircular<SHP_CAVPacket> buffRTP_{ 5 };
+	CThreadedCircular<SHP_CAVPacket2> buffRTP_{ 5 };
 };
 
 

@@ -82,6 +82,7 @@ struct CAVPacket2 : AVPacket
 	operator bool()const{ return data != nullptr; }
 	//void free(){ av_free_packet(this); }
 };
+typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 //-----------------------------------------------------------
 //-----------------------------------------------------------
 struct Data

@@ -15,7 +15,7 @@ void CRTPReceive::loggit(string a, int thread)
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
-	string time="";
+	string time = "";
 	steady_clock::time_point t1 = steady_clock::now();
 	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000 );
 	
@@ -123,7 +123,7 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-int CRTPReceive::process_all()
+int CRTPReceive::process_all(NetworkData net)
 {
 	for (unsigned i = 0; i < vecSock.size(); ++i)
 	{
@@ -140,9 +140,6 @@ void CRTPReceive::add_track(NetworkData net)
 	loggit("CRTPReceive::add_track " + to_string(net.my_ports.size()), 9999);
 	process_all_finishing = true;
 
-	loggit("went to sleep", 9999);
-	//boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-	loggit("i`m awake AWARE!", 9999);
 	for (unsigned i = 0; i < vecSock.size(); ++i)
 	{
 		receive_threads[i]->join();
@@ -157,7 +154,7 @@ void CRTPReceive::add_track(NetworkData net)
 	reinit_sockets(true);
 	loggit("CRTPReceive::add_track END + process_all starter", 9999);
 	process_all_finishing = false;
-	process_all();
+	process_all(net);
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -240,9 +237,6 @@ void CRTPReceive::destroy_all()
 {
 	loggit("CRTPReceive::destroy_all", 9999);
 	process_all_finishing = true;
-	loggit("went to sleep", 9999);
-	//boost::this_thread::sleep_for(boost::chrono::milliseconds(100));
-	loggit("i`m awake AWARE!", 9999);
 	for (unsigned i = 0; i < vecSock.size(); ++i)
 	{
 		vecSock[i]->close();

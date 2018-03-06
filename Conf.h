@@ -8,50 +8,22 @@
 
 struct NetworkData;
 
-extern FILE *FileLogConfPoint;
 extern FILE *FileLogConfRoom;
 /************************************************************************
 	CConfPoint
 ************************************************************************/
 
-class CConfPoint : public boost::noncopyable
+struct CConfPoint
 {
-public:
-	CConfPoint(){ loggit("Point construct"); }
-
-	void SetSDP(string SDP){ SDP_ = SDP; }
-	string GetSDP(){ return SDP_; }
-
-	//void Set_output_addr(string addr){ output_addr = addr; }
-	//string Get_output_addr(){ return output_addr; }
-
-	void SetID(string ID) { idPoint = ID; }
-	string GetID() { return idPoint; }
-
-	void SetMyPort(int port) { my_port_ = port; }
-	int GetMyPort() { return my_port_; }
-
-	void SetRemotePort(int port) { remote_port_ = port; }
-	int GetRemotePort() { return remote_port_; }
-
-	void SetRemoteIP(string IP) { remote_ip_ = IP; }
-	string GetRemoteIP() { return remote_ip_; }
-
-
-	
 	void ModifySDP(int a);
-	bool mode = true;
-private:
-	friend class CConfRoom;
+	bool mode = true; // active, inactive (hold)
 	void loggit(string a);
-	string SDP_;
-	string idPoint; // CALLID поинта
+	string SDP_; // sdp для ffmpeg
+	string SDP_for_client; 
+	string CallID_; // CALLID поинта
 	int my_port_; // приписанный этому поинту порт
 	int remote_port_; // порт клиента
 	string remote_ip_;// ip клиента
-	
-
-	
 };
 
 typedef std::shared_ptr<CConfPoint> SHP_CConfPoint;
@@ -60,7 +32,7 @@ typedef std::shared_ptr<CConfPoint> SHP_CConfPoint;
 /************************************************************************
 	CConfRoom
 ************************************************************************/
-class CConfRoom : public boost::noncopyable
+class CConfRoom
 {
 public:
 	CConfRoom(){ on = false; loggit("Room construct"); }
@@ -73,7 +45,7 @@ public:
 	int GetNumCllPoints(){ return cllPoints_.size(); }
 	string Make_addr_from_SDP(string output_SDP);
 	SHP_CConfPoint FindPoint(string CallID);
-	string GetPointID(int i){ return cllPoints_[i]->GetID(); }
+	string GetPointID(int i){ return cllPoints_[i]->SDP_; }
 
 	string MakeRemotePort(string SDP);
 	string MakeRemoteIP(string SDP);

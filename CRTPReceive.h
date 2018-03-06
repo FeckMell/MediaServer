@@ -52,7 +52,7 @@ public:
 		cout << "~CRTPReceive()";
 	}
 	void add_track(NetworkData net);
-	int process_all();
+	int process_all(NetworkData net);
 	void receive(int i);
 	void destroy_all();
 	

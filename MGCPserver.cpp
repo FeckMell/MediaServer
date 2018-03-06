@@ -5,7 +5,7 @@
 #include "Utils.h"
 extern boost::gregorian::date Date;
 extern string DateStr;
-extern string PathEXE0;
+extern string PathEXE;
 
 static ThreadedSet<unsigned> thsetAnnIdInUse;
 static ThreadedSet<unsigned> thsetCnfIdInUse;
@@ -68,7 +68,7 @@ void CMGCPServer::Run()
 	{
 		udp::endpoint sender_endpoint;
 		loggit("Waiting for Callagent request...");
-		cout << "Waiting for Callagent request...\n";
+		cout << "\nWaiting for Callagent request...\n";
 
 		size_t bytes_recvd = socket_.receive_from(
 			asio::buffer(data_, max_length), sender_endpoint);//
@@ -232,21 +232,23 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 				reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
 				return;
 			}
-			auto confparams = FindClient(mgcp.getCallID());
-
-			if (DestRoom->DeletePoint(mgcp.getCallID()) == -1)
+			string CallID = mgcp.getCallID();
+			auto confparams = FindClient(CallID);
+			int err = DestRoom->DeletePoint(CallID);
+			loggit("error while deliting point=" + boost::to_string(err));
+			if (err == -1)
 			{
 				loggit("going to delete whole room");
 				for (int i = 0; i < DestRoom->GetNumCllPoints(); ++i)
 				{
 					loggit("deleting point with IP=" + DestRoom->GetPointID(i) + "\ndeleting port=" 
-						+ to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort()));
-					SetFreePort(DestRoom, DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort());
-					loggit("port deleted " + to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort()));
+						+ to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_));
+					SetFreePort(DestRoom, DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_);
+					loggit("port deleted " + to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_));
 					SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(DestRoom->GetPointID(i))), 
 						SDPforCRCX_.end());
 				}
-				loggit("deleting point with IP=" + mgcp.getCallID() + "\ndeleting port=" + to_string(confparams->my_port));
+				loggit("deleting point with IP=" + CallID + "\ndeleting port=" + to_string(confparams->my_port));
 				SetFreePort(DestRoom, confparams->my_port);
 				loggit("port deleted");
 				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());
@@ -255,7 +257,7 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 			}
 			else
 			{
-				loggit("deleting point with IP=" + mgcp.getCallID() + "\ndeleting port=" + to_string(confparams->my_port));
+				loggit("deleting point with IP=" + CallID + "\ndeleting port=" + to_string(confparams->my_port));
 				SetFreePort(DestRoom, confparams->my_port);
 				loggit("port deleted, room size=" + to_string(DestRoom->GetNumCllPoints()));
 				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());	
@@ -427,7 +429,7 @@ void CMGCPServer::proceedCRCX_CNF_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpT
 	loggit("room->NewInitPoint(mgcp.SDP);");
 
 	confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-	room->NewInitPoint(/*mgcp.SDP*/confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
+	room->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
 	strResponse = mgcp.ResponseOK() + confparams->SDPresponse;
 	reply(strResponse, udpTO);//
 }

@@ -24,7 +24,7 @@ struct Initing;
 //struct SSource;
 struct NetworkData;
 
-typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
+//typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 
 class CMixInit
 {

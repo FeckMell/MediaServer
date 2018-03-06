@@ -1,6 +1,6 @@
 #pragma once
 //#include "PackMGCP.h"
-//#include "Functions.h"
+#include "Functions.h"
 #include "Connection.h"
 #include "MGCPparser.h"
 #include "Conf.h"

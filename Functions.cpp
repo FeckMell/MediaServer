@@ -9,6 +9,7 @@ void GetDate()
 	{
 		Date = Today;
 		DateStr = boost::to_string(Today.day().as_number()) + "-" + boost::to_string(Today.month().as_number()) + "-" + boost::to_string(Today.year());
+		OpenLogFiles();
 	}
 }
 //----------------------------------------------------------------------------
@@ -19,6 +20,7 @@ string GetTime()
 	boost::posix_time::ptime t = boost::posix_time::second_clock::local_time();
 	boost::chrono::steady_clock::time_point t1 = boost::chrono::steady_clock::now();
 	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
+	
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -106,8 +108,41 @@ Config ParseConfig(string path, Config parsed)
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+void LogMain(string a)
+{
 
-
+	fprintf(FileLog, (a + "\n").c_str());
+	fflush(FileLog);
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+void OpenLogFiles()
+{
+	using namespace boost;
+	gregorian::date TODAY = gregorian::day_clock::local_day();
+	string date = to_string(TODAY.day().as_number()) + "-" + to_string(TODAY.month().as_number()) + "-" + to_string(TODAY.year()) + "_";
+	string tempPath = PathEXE + date;
+	fopen_s( &FileLog,           (tempPath + "LOGS.txt"          ).c_str(),"w");
+	fopen_s( &FileLogConfPoint,  (tempPath + "LOGS_ConfPoint.txt").c_str(),"w");
+	fopen_s( &FileLogConfRoom,   (tempPath + "LOGS_ConfRoom.txt" ).c_str(),"w");
+	fopen_s( &FileLogMixer,      (tempPath + "LOGS_Mixer.txt"    ).c_str(),"w");
+	fopen_s( &FileLogServer,     (tempPath + "LOGS_Server.txt"   ).c_str(),"w");
+	fopen_s( &FileLogMixerInit,  (tempPath + "LOGS_MixerInit.txt").c_str(),"w");
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
+inline void MessBoxHelper(string text)
+{
+	//MessageBox(NULL, L"Лалалал", L"Error", MB_OK);
+	MessageBoxA(NULL, text.c_str(), "Error", MB_OK);
+}
+void MessBox(string mess)
+{
+	boost::thread my_thread(&MessBoxHelper, mess);
+	my_thread.detach();
+}
+//----------------------------------------------------------------------------
+//----------------------------------------------------------------------------
 
 
 

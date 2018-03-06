@@ -6,7 +6,7 @@ extern const AVFilter* gl_abuffer;
 extern const AVFilter* gl_abuffersink;
 extern const AVFilter* gl_amix;
 
-struct CAVPacket : AVPacket
+/*struct CAVPacket : AVPacket
 {
 	CAVPacket() : AVPacket()
 	{
@@ -34,7 +34,7 @@ struct CAVPacket : AVPacket
 };
 
 typedef shared_ptr<CAVPacket> SHP_CAVPacket;
-typedef std::function<void(SHP_CAVPacket)> FN_SHPPacket;
+typedef std::function<void(SHP_CAVPacket)> FN_SHPPacket;*/
 
 class CScopedPFrame : boost::noncopyable
 {

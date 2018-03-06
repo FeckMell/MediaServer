@@ -299,7 +299,7 @@ void CDestFusion::_dumpGraph()
 int CDestFusion::_encode_audio_frame(AVFrame *frame, int *data_present)
 {
 	/** Packet used for temporary storage. */
-	SHP_CAVPacket shPacket = std::make_shared<CAVPacket>();
+	SHP_CAVPacket2 shPacket = std::make_shared<CAVPacket2>();
 	
 	/**
 	* Encode the audio frame and store it in the temporary packet.
@@ -617,7 +617,7 @@ void CDestFusion::_threadRTPfunction()
 		: 160;
 
 	int szSrc = 0;
-	SHP_CAVPacket packSrc;
+	SHP_CAVPacket2 packSrc;
 	decltype(AVPacket::data) pSrc	= nullptr;
 	decltype(AVPacket::pts)  pts	= 0;
 	auto tpNext = time_point::clock::now();
@@ -625,7 +625,7 @@ void CDestFusion::_threadRTPfunction()
 	buffRTP_.resume();
 	while (isActive())
 	{
-		CAVPacket pktRTP(szChunk);
+		CAVPacket2 pktRTP(szChunk);
 		if (!pktRTP)
 			return; // — пам€тью проблема
 
@@ -672,7 +672,7 @@ void CDestFusion::_threadRTPfunction()
 	}
 }
 //-----------------------------------------------------------------------
-int CDestFusion::_writeRTPpacket(time_point& tp, CAVPacket& pktRTP)
+int CDestFusion::_writeRTPpacket(time_point& tp, CAVPacket2& pktRTP)
 {
 	std::this_thread::sleep_until(tp);
 	//timestamp следующего пакета

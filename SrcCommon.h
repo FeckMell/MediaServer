@@ -1,5 +1,6 @@
 #pragma once
 #include "ISrcFusion.h"
+#include "Structs.h"
 //#define _CRT_SECURE_NO_WARNINGS
 /************************************************************************
 	CSrcCommon	                                                                     

@@ -2,7 +2,6 @@
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #include "stdafx.h"
-#include "Structs.h"
 #include "SrcCommon.h"
 
 
@@ -13,7 +12,7 @@ int CSrcCommon::decode_audio_frame(AVFrame *frame,
 	int *gotted, bool *finished)
 {
 	/** Packet used for temporary storage. */
-	CAVPacket input_packet;
+	CAVPacket2 input_packet;
 	int error = 0;
 
 	/** Read one audio frame from the input file into a temporary packet. */
@@ -59,7 +58,7 @@ SHP_CScopedPFrame CSrcCommon::getNextDecoded(bool& bEOF)
 {
 	SHP_CScopedPFrame shResult;
 	/** Packet used for temporary storage. */
-	CAVPacket packIN;
+	CAVPacket2 packIN;
 	int error = av_read_frame(ctxFormat_, &packIN);
 
 	/** Read one audio frame from the input file into a temporary packet. */
