@@ -12,6 +12,12 @@ struct SSource
 //-*/----------------------------------------------------------
 struct Initing
 {
+	std::vector<AVFormatContext *> out_ifcx;
+	std::vector<AVCodecContext *> out_iccx;
+
+	std::vector<AVFormatContext *> ifcx;
+	std::vector<AVCodecContext *> iccx;
+
 	std::vector<SSource> afcx;
 	std::vector<AVFilterGraph *> graphVec;
 	std::vector<AVFilterContext *> sinkVec;

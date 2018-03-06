@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "Functions.h"
 #include "CRTPReceive.h"
+#define DEBUG1
 using namespace std;
 
 //*/------------------------------------------------------------------------------------------
@@ -14,21 +15,22 @@ CRTPReceive::CRTPReceive(vector<SHP_CConfPoint> callers, int ID) :callers_(calle
 	avcodec_register_all();
 	avfilter_register_all();
 	avformat_network_init();
-	vector<AVCodecContext*>iccx;
+	/*vector<AVCodecContext*>iccx;
 	vector<AVCodecContext*>out_iccx;
 	for (auto&e : callers_)
 	{
 		iccx.push_back(e->iccx);
 		out_iccx.push_back(e->out_iccx);
-	}
+	}*/
 	process_all_finishing = false;
-	Initer.reset(new CMixInit(iccx, out_iccx, ID_));
+	//Initer.reset(new CMixInit(iccx, out_iccx, ID_));
+	Initer.reset(new CMixInit(callers_, ID_));
 	ext = Initer->data;
 	outfile0.open("ConfResult0.wav", std::ofstream::binary);
 	outfile1.open("ConfResult1.wav", std::ofstream::binary);
 	outfile2.open("ConfResult2.wav", std::ofstream::binary);
 	outfile3.open("ConfResult3.wav", std::ofstream::binary);
-	cout << "\nis open:" << outfile0.is_open() << outfile1.is_open() << outfile2.is_open() << outfile3.is_open();
+	loggit("Shold create initer");
 
 	
 	process_all();
@@ -52,10 +54,11 @@ void CRTPReceive::receive_h(boost::system::error_code ec, size_t szPack, int i)
 		{
 			SHP_CAVPacket shpPacket = std::make_shared<CAVPacket>(szPack - 12);
 			memcpy(shpPacket->data, callers_[i]->RawBuf.data + 12, szPack - 12);
-			callers_[i]->RawBuf.data[0] = 0;
+			//callers_[i]->RawBuf.data[0] = 0;
 			callers_[i]->RawBuf.size = szPack - 12;
 			callers_[i]->FrameBuf.push(shpPacket);
 			loggit("sz="+to_string(szPack)+" reseive " + to_string(i));
+#ifdef DEBUG0
 			char* test = new char[szPack - 12];
 			memcpy(test, callers_[i]->RawBuf.data + 12, szPack - 12);
 			if (i == 0) { outfile0.write((char*)test, shpPacket->size);  }
@@ -63,6 +66,7 @@ void CRTPReceive::receive_h(boost::system::error_code ec, size_t szPack, int i)
 			else if (i == 2) { outfile2.write((char*)test, szPack - 12);  }
 			else if (i == 3) { outfile3.write((char*)test, szPack - 12);  }
 			delete[]test;
+#endif
 			szPack = 0;
 		}
 		if (process_all_finishing == false)
@@ -159,7 +163,8 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 		shpPacket->free();
 		shpPacket.reset(new CAVPacket(/*vecData[i].size-12*/160));
 		memcpy(shpPacket->data, str.c_str(), /*vecData[i].size-12*/160);//+12
-		avcodec_decode_audio4(callers_[i]->iccx, frame, data_present, shpPacket.get());
+		//avcodec_decode_audio4(callers_[i]->iccx, frame, data_present, shpPacket.get());
+		avcodec_decode_audio4(ext.iccx[i], frame, data_present, shpPacket.get());
 
 		shpPacket->free();
 	}
@@ -167,7 +172,8 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 	{
 		SHP_CAVPacket shpPacket = callers_[i]->FrameBuf.pop();
 		loggit("decode_audio_frame bytes =" + to_string(shpPacket->size) + "from ip=" + to_string(callers_[i]->Endpoint.port()));
-		avcodec_decode_audio4(callers_[i]->iccx, frame, data_present, shpPacket.get());
+		//avcodec_decode_audio4(callers_[i]->iccx, frame, data_present, shpPacket.get());
+		avcodec_decode_audio4(ext.iccx[i], frame, data_present, shpPacket.get());
 		shpPacket->free();
 	}
 	return 0;
@@ -183,7 +189,8 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 	int error;
 	init_packet(&output_packet);
 	//oggit("CRTPReceive::encode_audio_frame initing done", i);
-	if ((error = avcodec_encode_audio2(callers_[i]->out_iccx, &output_packet, frame, data_present)) < 0)
+	//if ((error = avcodec_encode_audio2(callers_[i]->out_iccx, &output_packet, frame, data_present)) < 0)
+	if ((error = avcodec_encode_audio2(ext.out_iccx[i], &output_packet, frame, data_present)) < 0)
 	{
 		string s(get_error_text(error));
 		loggit("Could not encode frame (error " + s);
@@ -199,10 +206,12 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 		memcpy(send->data, (uint8_t*)&callers_[i]->rtp.header, 12);
 		memcpy(send->data + 12, output_packet.data, output_packet.size);
 		loggit("sending " + to_string(send->size) + "bytes to ip " + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
-		/*if (i == 0) { outfile0.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }
+#ifdef DEBUG1
+		if (i == 0) { outfile0.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }
 		else if (i == 1) { outfile1.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }
 		else if (i == 2) { outfile2.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }
-		else if (i == 3) { outfile3.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }*/
+		else if (i == 3) { outfile3.write((char*)output_packet.data, output_packet.size); loggit("data" + to_string(i)); }
+#endif
 		callers_[i]->Sock->send_to(boost::asio::buffer(send->data, send->size), callers_[i]->Endpoint);
 	}
 	catch (std::exception& e)
@@ -233,7 +242,8 @@ void CRTPReceive::add_missing_frame(int i, int j)
 	memcpy(shpPacket->data, str.c_str(), callers_[i]->RawBuf.size);//+12
 	frame = av_frame_alloc();
 
-	avcodec_decode_audio4(callers_[i]->iccx, frame, &data_present, shpPacket.get());
+	//avcodec_decode_audio4(callers_[i]->iccx, frame, &data_present, shpPacket.get());
+	avcodec_decode_audio4(ext.iccx[i], frame, &data_present, shpPacket.get());
 	mutex_.lock();
 	av_buffersrc_write_frame(ext.afcx[i].src[j], frame);
 	mutex_.unlock();
@@ -357,17 +367,18 @@ int CRTPReceive::process_all()
 void CRTPReceive::new_process()
 {
 	loggit("new_process");
-	std::this_thread::sleep_for(milliseconds(40));
+	//std::this_thread::sleep_for(milliseconds(40));
 	auto t1 = steady_clock::now();
 	auto t2 = steady_clock::now();
 	while (process_all_finishing == false)
 	{
 		t2 = steady_clock::now();
 		auto dur = duration_cast<milliseconds>(t2 - t1);
-		if (20 - dur.count() > 0)
-		{
-			std::this_thread::sleep_for(milliseconds(20 - dur.count()));
-		}
+		//if (20 - dur.count() > 0)
+		//{
+		//	std::this_thread::sleep_for(milliseconds(20 - dur.count()));
+		//}
+		std::this_thread::sleep_for(milliseconds(20));
 		t1 = steady_clock::now();
 		if (process_all_finishing == true) { loggit("BREAK"); break; }
 		loggit("Speed=" + to_string(dur.count()));
@@ -413,14 +424,15 @@ void CRTPReceive::add_track(vector<SHP_CConfPoint> callers)
 		std::this_thread::sleep_for(std::chrono::milliseconds(22));
 		callers_ = callers;
 		clear_memmory();
-		vector<AVCodecContext*>iccx;
+		/*vector<AVCodecContext*>iccx;
 		vector<AVCodecContext*>out_iccx;
 		for (auto&e : callers_)
 		{
 			iccx.push_back(e->iccx);
 			out_iccx.push_back(e->out_iccx);
-		}
-		Initer.reset(new CMixInit(iccx, out_iccx, ID_));
+		}*/
+		//Initer.reset(new CMixInit(iccx, out_iccx, ID_));
+		Initer.reset(new CMixInit(callers, ID_));
 		ext = Initer->data;
 		loggit("CRTPReceive::add_track END + process_all starter");
 		process_all_finishing = false;

@@ -18,17 +18,19 @@ public:
 	int my_port_; // приписанный этому поинту порт
 	int remote_port_; // порт клиента
 	string remote_ip_;// ip клиента
+	string SDP_; // sdp для ffmpeg
+	string SDP_for_client;
 	bool mode = false; // active, inactive (hold)
-	int error;
+	int error = 0;
 
 	Data RawBuf;
 	CThreadedCircular FrameBuf;
 	RTP_struct rtp;
-	AVFormatContext* out_ifcx;
-	AVCodecContext* out_iccx;
+	//AVFormatContext* out_ifcx;
+	//AVCodecContext* out_iccx;
 
-	AVFormatContext* ifcx;
-	AVCodecContext* iccx;
+	//AVFormatContext* ifcx;
+	//AVCodecContext* iccx;
 	SHP_Socket Sock;
 	udp::endpoint Endpoint;
 
@@ -40,12 +42,11 @@ private:
 	string ChangeVersion(string SDP);
 	void ModifySDP();
 
-	int open_output();
-	int open_input();
-	int sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options);
+	//int open_output();
+	//int open_input();
+	//int sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options);
 
-	string SDP_; // sdp для ffmpeg
-	string SDP_for_client;
+	
 
 	//AVCodecID idCodec_;
 };

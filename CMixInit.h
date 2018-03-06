@@ -3,6 +3,7 @@
 #include "Logger.h"
 #include "Functions.h"
 #include "Structs.h"
+#include "ConfPoint.h"
 
 #define INPUT_SAMPLERATE     8000
 #define INPUT_FORMAT         AV_SAMPLE_FMT_S16
@@ -21,7 +22,10 @@ class CMixInit
 {
 public:
 	CMixInit(){}
-	CMixInit(vector<AVCodecContext*>iccx, vector<AVCodecContext*>out_iccx, int ID);
+	//CMixInit(vector<AVCodecContext*>iccx, vector<AVCodecContext*>out_iccx, int ID);
+	CMixInit(vector<SHP_CConfPoint>Callers, int ID);
+
+
 
 	Initing data;
 	void FreeSockFFmpeg();
@@ -29,10 +33,20 @@ private:
 	void loggit(string a);
 	int init_filter_graph(int ForClient);
 
+
+	int sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options);
+	int open_input_file(int i);
+	int open_output_file(int i);
+
+
+
+
+
 	int tracks = 0;
 
-	vector<AVCodecContext*>iccx_;
-	vector<AVCodecContext*>out_iccx_;
+	//vector<AVCodecContext*> iccx_;
+	//vector<AVCodecContext*> out_iccx_;
+	vector<SHP_CConfPoint> Callers;
 
 	int ID_;
 };
