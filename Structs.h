@@ -1,14 +1,16 @@
 #pragma once
 #include "stdafx.h"
+#include <boost/circular_buffer.hpp>
 
 typedef std::shared_ptr<udp::socket> SHP_Socket;
+typedef std::unique_ptr<udp::socket> UHP_Socket;
 
 struct SSource
 {
 	std::vector<AVFilterContext *> src;
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct Initing
 {
 	std::vector<AVFormatContext *> out_ifcx;
@@ -22,16 +24,16 @@ struct Initing
 	std::vector<AVFilterGraph *> graphVec;
 	std::vector<AVFilterContext *> sinkVec;
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct SdpOpaque
 {
 	using Vector = std::vector<uint8_t>;
 	Vector data;
 	Vector::iterator pos;
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct RTP
 {
 	/* первый байт */
@@ -49,8 +51,8 @@ struct RTP
 	/* девятый-двенадцатый байт */
 	uint32_t ssrc;//
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct RTP_struct
 {
 	RTP header;
@@ -75,8 +77,8 @@ struct RTP_struct
 		this->header.timestamp = htonl(160 * this->amount);
 	}
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct CAVPacket : AVPacket
 {
 	CAVPacket() : AVPacket()
@@ -105,8 +107,8 @@ struct CAVPacket : AVPacket
 	//void free(){ av_free_packet(this); }
 };
 typedef shared_ptr<CAVPacket> SHP_CAVPacket;
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct Data
 {
 	~Data(){ free(); }
@@ -117,13 +119,13 @@ struct Data
 		delete[] data;
 	}
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct NetworkData
 {
 	~NetworkData(){ free(); }
-	std::vector<string> input_SDPs;
-	std::vector<string> IPs;
+	std::vector<std::string> input_SDPs;
+	std::vector<std::string> IPs;
 	std::vector<int> my_ports;
 	std::vector<int> remote_ports;
 	void free()
@@ -144,8 +146,8 @@ struct NetworkData
 		remote_ports.~vector();
 	}
 };
-//-----------------------------------------------------------
-//-----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 struct Config
 {
 	~Config()
@@ -158,3 +160,73 @@ struct Config
 	short int port=2427;
 	int error=0;
 };
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+class CThreadedCircular
+{
+public:
+
+	CThreadedCircular(size_t sz) : buffer_(sz){ ; }
+	CThreadedCircular(const CThreadedCircular &obj)
+	{
+		buffer_ = obj.buffer_;
+	}
+	~CThreadedCircular(){ free(); }
+	//-*/----------------------------------------------------------------------
+	void push(SHP_CAVPacket val)
+	{
+		mutex_.lock();
+		buffer_.push_back(val);
+		mutex_.unlock();
+	}
+	//-*/----------------------------------------------------------------------
+	SHP_CAVPacket pop()
+	{
+		SHP_CAVPacket result;
+		mutex_.lock();
+		result = buffer_.front();
+		buffer_.pop_front();
+		mutex_.unlock();
+		return result;
+	}
+	//-*/----------------------------------------------------------------------
+	int size()
+	{
+		int result;
+		mutex_.lock();
+		result = buffer_.size();
+		mutex_.unlock();
+		return result;
+	}
+	//-*/----------------------------------------------------------------------
+	void free()
+	{
+		mutex_.lock();
+		buffer_.clear();
+		mutex_.unlock();
+	}
+	bool empty()
+	{
+		bool result;
+		mutex_.lock();
+		result = buffer_.empty();
+		mutex_.unlock();
+		return result;
+	}
+private:
+	std::mutex  mutex_;
+	boost::circular_buffer<SHP_CAVPacket>	buffer_;
+};
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+/*struct RequestQue
+{
+	RequestQue(string a, udp::endpoint* s) :mess(a), sender(s){}
+	~RequestQue()
+	{
+		delete[] sender;
+	}
+	udp::endpoint* sender;
+	string mess;
+};
+*/

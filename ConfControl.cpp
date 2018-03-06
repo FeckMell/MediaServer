@@ -1,11 +1,6 @@
 #pragma once
 #include "stdafx.h"
 #include "ConfControl.h"
-void SendAnn(SHP_Ann ann, string file)
-{
-	//out << "\nthread SendAnn " << std::this_thread::get_id();
-	ann->Send(file);
-}
 
 void ConfControl::loggit(string a)
 {
@@ -18,8 +13,8 @@ void ConfControl::loggit(string a)
 	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(6, "\n" + time + "     " + a);
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 int ConfControl::SetRoomID()
 {
 	if (RoomsID_.size() == 0) { RoomsID_.push_back(1); return 1; }
@@ -31,8 +26,8 @@ int ConfControl::SetRoomID()
 	std::sort(RoomsID_.begin(), RoomsID_.end());
 	return RoomsID_.size();
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 std::string ConfControl::GenSDP(int Port, MGCP &mgcp)
 {
 	steady_clock::time_point t1 = steady_clock::now();
@@ -46,9 +41,9 @@ std::string ConfControl::GenSDP(int Port, MGCP &mgcp)
 	return str(f %my_IP %Port % (date + boost::to_string(t1.time_since_epoch().count() % 10000000)) % mgcp.paramC);
 	
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+void ConfControl::proceedCRCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " CRCX for " + mgcp.paramC);
 
@@ -62,7 +57,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		SHP_Ann Ann(new Ann(mgcp.SDP, Port, mgcp.paramC));
 		AnnVec_.push_back(Ann);
 
-		server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
+		server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), mgcp.sender);
 		loggit("Ann created");
 		return;
 	}//case ann
@@ -77,7 +72,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			auto my_SDP = GenSDP(Port, mgcp);
 			Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
 			mgcp.EventNum = boost::to_string(Room->GetRoomID());
-			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, udpTO);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, mgcp.sender);
 			loggit("Conf created");
 			return;
 		}
@@ -87,14 +82,14 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			if (Room == nullptr)
 			{
 				loggit("room not found");
-				server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+				server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
 				return;
 			}
 			auto Port = GetFreePort();
 			loggit("join Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
 			auto my_SDP = GenSDP(Port, mgcp);
 			Room->NewInitPoint("", my_SDP, mgcp.paramC, Port);
-			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, udpTO);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, mgcp.sender);
 			loggit("Conf joined");
 			return;
 		}
@@ -110,7 +105,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			SHP_Proxy proxy(new Proxy(mgcp.SDP, Port, mgcp.EventNum, mgcp.paramC));
 			ProxyVec_.push_back(proxy);
 
-			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), mgcp.sender);
 			loggit("Proxy created");
 			return;
 		}
@@ -120,13 +115,13 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			if (proxy == nullptr)
 			{
 				loggit("Proxy not found");
-				server->reply(mgcp.ResponseBAD(400, "Proxy not found"), udpTO);
+				server->reply(mgcp.ResponseBAD(400, "Proxy not found"), mgcp.sender);
 				return;
 			}
 			auto Port = GetFreePort();
 			loggit("join Proxy with ID=" + proxy->GetID() + " my_port=" + boost::to_string(Port));
 			proxy->NewPoint(mgcp.SDP, Port, mgcp.paramC);
-			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), mgcp.sender);
 			loggit("Proxy joined");
 			return;
 		}
@@ -134,38 +129,38 @@ void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 
 	default:
 	{
-		server->reply(mgcp.ResponseBAD(400, "Bad Request"), udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Bad Request"), mgcp.sender);
 		loggit("Bad Request");
 		return;
 	}//default
 	}//switch
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ConfControl::proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+void ConfControl::proceedMDCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " MDCX for " + mgcp.paramC);
 	auto Room = FindConf(mgcp.EventNum);
 	if (Room == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
 		return;
 	}
 	auto Point = Room->FindPoint(mgcp.paramC);
 	if (Point == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400, "Point not found"), udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Point not found"), mgcp.sender);
 		return;
 	}
 	loggit("modify point with ID=" + mgcp.paramC + " in room with ID=" + boost::to_string(Room->GetRoomID()));
 	auto response = Room->ModifyPoint(Point, mgcp.SDP);
-	server->reply(mgcp.ResponseOK(200, "") + response, udpTO);
+	server->reply(mgcp.ResponseOK(200, "") + response, mgcp.sender);
 	loggit("point with ID=" + mgcp.paramC + " in room with ID="+boost::to_string(Room->GetRoomID())+" modified");
 	return;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+void ConfControl::proceedDLCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " DLCX for " + mgcp.paramC);
 	switch (mgcp.Event)
@@ -177,7 +172,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		{
 			//out << "\nAnn not found";
 			loggit("Ann not found");
-			server->reply(mgcp.ResponseBAD(400, "Ann not found"), udpTO);
+			server->reply(mgcp.ResponseBAD(400, "Ann not found"), mgcp.sender);
 			return;
 		}
 		Ann->Stop();
@@ -185,7 +180,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		loggit("Stoped Ann with ID=" + mgcp.EventNum + " and port=" + boost::to_string(Ann->GetPort()));
 		AnnVec_.erase(std::remove(AnnVec_.begin(), AnnVec_.end(), Ann), AnnVec_.end());
 		RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
-		server->reply(mgcp.ResponseOK(250, ""), udpTO);
+		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender);
 		return;
 	}//case MGCP::ann
 	case MGCP::cnf:
@@ -193,13 +188,13 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		auto Room = FindConf(mgcp.EventNum);
 		if (Room == nullptr)
 		{
-			server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+			server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
 			return;
 		}
 		auto Point = Room->FindPoint(mgcp.paramC);
 		if (Point == nullptr)
 		{
-			server->reply(mgcp.ResponseBAD(400, "Point not found"), udpTO);
+			server->reply(mgcp.ResponseBAD(400, "Point not found"), mgcp.sender);
 			return;
 		}
 		SetFreePort(Point->my_port_);
@@ -212,7 +207,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			loggit("Deleted Room with ID=" + Room->GetRoomID());
 			Room.reset();
 		}
-		server->reply(mgcp.ResponseOK(250, ""), udpTO);
+		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender);
 		return;
 	}//case MGCP::cnf
 	case MGCP::prx:
@@ -221,7 +216,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		if (proxy == nullptr)
 		{
 			loggit("Proxy not found");
-			server->reply(mgcp.ResponseBAD(400, "Proxy not found"), udpTO);
+			server->reply(mgcp.ResponseBAD(400, "Proxy not found"), mgcp.sender);
 			return;
 		}
 		SetFreePort(proxy->DeletePoint(mgcp.paramC));
@@ -232,28 +227,28 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			ProxyVec_.erase(std::remove(ProxyVec_.begin(), ProxyVec_.end(), proxy), ProxyVec_.end());
 			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
 		}
-		server->reply(mgcp.ResponseOK(250, ""), udpTO);
+		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender);
 		return;
 	}//case MGCP::prx
 	default:
 	{
-		server->reply(mgcp.ResponseBAD(400, "Bad Request"), udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Bad Request"), mgcp.sender);
 		loggit("Bad Request");
 		return;
 	}//default
 	}//switch
 	
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void ConfControl::proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+void ConfControl::proceedRQNT(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " RQNT for " + mgcp.paramC);
 	auto Ann = FindAnn(mgcp.paramC);
 	if (Ann == nullptr)
 	{
 		loggit("Ann not found");
-		server->reply(mgcp.ResponseBAD(400, "Ann not found"), udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Ann not found"), mgcp.sender);
 		return;
 	}
 	auto param = mgcp.paramS;
@@ -263,10 +258,10 @@ void ConfControl::proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO)
 
 	boost::thread my_thread(&Ann::Send, Ann, filepath);
 	my_thread.detach();
-	server->reply(mgcp.ResponseOK(200, ""), udpTO);
+	server->reply(mgcp.ResponseOK(200, ""), mgcp.sender);
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 SHP_CConfRoom ConfControl::CreateNewRoom()
 {
 	/*Создаем комнату*/
@@ -278,8 +273,8 @@ SHP_CConfRoom ConfControl::CreateNewRoom()
 	mutex_.unlock();
 	return NewRoom;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 int ConfControl::GetFreePort()
 {
 
@@ -310,8 +305,8 @@ int ConfControl::GetFreePort()
 	mutex_.unlock();
 	return freeport;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 void ConfControl::SetFreePort(int port)
 {
 	mutex_.lock();
@@ -319,8 +314,8 @@ void ConfControl::SetFreePort(int port)
 		PortsinUse_.end()); // удаляем порт из занятых
 	mutex_.unlock();
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 SHP_CConfRoom ConfControl::FindConf(string ID)
 {
 	for (auto &room : RoomsVec_)
@@ -330,8 +325,8 @@ SHP_CConfRoom ConfControl::FindConf(string ID)
 	}
 	return nullptr;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 SHP_Ann ConfControl::FindAnn(string ID)
 {
 	for (auto &ann : AnnVec_)
@@ -341,8 +336,8 @@ SHP_Ann ConfControl::FindAnn(string ID)
 	}
 	return nullptr;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 SHP_Proxy ConfControl::FindProxy(string ID)
 {
 	for (auto &proxy : ProxyVec_)
@@ -352,8 +347,8 @@ SHP_Proxy ConfControl::FindProxy(string ID)
 	}
 	return nullptr;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
 int ConfControl::SDPFindMode(string SDP)
 {
 	std::size_t found;
@@ -365,17 +360,17 @@ int ConfControl::SDPFindMode(string SDP)
 		return 1;
 	return -1;
 }
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------

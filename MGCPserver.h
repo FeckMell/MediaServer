@@ -34,7 +34,7 @@ private:
 	void loggit(string a);
 
 /*Первичная обработка команд*/
-	void proceedReceiveBuffer(const char*, const udp::endpoint&);
+	void proceedReceiveBuffer();
 
 	//TArgs	m_args;
 	udp::socket socket_;
@@ -45,7 +45,10 @@ private:
 	std::mutex  mutex_;
 	asio::io_service& io_service__;
 	
-	
+	std::queue<MGCP> Que;
+	//SHP_MGCP mgcp;
+	//std::queue<MGCP> StringQue;
+
 	//boost::scoped_ptr<std::thread> ThreadAddPoint;
 
 };

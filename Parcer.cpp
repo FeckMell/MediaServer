@@ -1,11 +1,10 @@
 #include "stdafx.h"
 #include "Parser.h"
 
-MGCP::MGCP(string req)
+MGCP::MGCP(string req) :mgcp(req)
 {
-	mgcp = req;
 	error = 0;
-	Parse();
+	Parse(false);
 }
 //-------------------------------------------------------------------------------------
 string MGCP::ResponseOK(int code, string end)
@@ -29,8 +28,9 @@ std::string MGCP::ResponseBAD(int code, string message)
 	return response;
 }
 //-------------------------------------------------------------------------------------
-void MGCP::Parse()
+void MGCP::Parse(bool m)
 {
+	if(m) mgcp = string(mes);
 	Remove();
 	parseCMD();
 	EventP();

@@ -20,7 +20,7 @@ void CMGCPServer::loggit(string a)
 	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(3, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
 }
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
 CMGCPServer::CMGCPServer(const TArgs& args)
 : m_args(args), io_service__(args.io_service), socket_(args.io_service, /*udp::endpoint(udp::v4(), args.endpnt.port())*/args.endpnt)
 {
@@ -29,53 +29,67 @@ CMGCPServer::CMGCPServer(const TArgs& args)
 	Conference->server = this;
 	Conference->my_IP = args.endpnt.address().to_string();
 }
-//--------------------------------------------------------------------------------------------
+//-*/----------------------------------------------------------
 void CMGCPServer::Run()
 {
 	loggit("Server.Run()");
 	while (true)
 	{
-		udp::endpoint sender_endpoint;
 		loggit("Waiting for Callagent request...");
 		cout << "\nWaiting for Callagent request...";
-		char data_[max_length + 1];
+		MGCP mgcp;
+		size_t bytes_recvd = socket_.receive_from(asio::buffer(mgcp.mes, max_length), mgcp.sender);
 
-		size_t bytes_recvd = socket_.receive_from(
-			asio::buffer(data_, max_length), sender_endpoint);
-		data_[bytes_recvd] = 0;
-		boost::thread my_thread(&CMGCPServer::proceedReceiveBuffer, this, data_, sender_endpoint);
-		my_thread.detach();
+		mgcp.mes[bytes_recvd] = 0;
+		loggit(str(boost::format("Client %1% sent:\n%2%") % mgcp.sender % mgcp.mes));
+
+		mutex_.lock();
+		if (Que.size() == 0)
+		{
+			Que.push(mgcp);
+			mutex_.unlock();
+			boost::thread th(&CMGCPServer::proceedReceiveBuffer, this);
+			th.detach();
+		}
+		else
+		{
+			Que.push(mgcp);
+			mutex_.unlock();
+		}
 	}
 }
-//--------------------------------------------------------------------------------------------
-void CMGCPServer::reply(const string& str, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+void CMGCPServer::reply(const string& strr, const udp::endpoint& udpTO)
 {
-	socket_.send_to(asio::buffer(str), udpTO);
-	loggit("void CMGCPServer::reply:\n" + str);
+	socket_.send_to(asio::buffer(strr), udpTO);
+	loggit("CMGCPServer reply to " + str(boost::format("%1%") %udpTO) +":\n" + strr);
 }
-//--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udpTO)
+//-*/----------------------------------------------------------
+void CMGCPServer::proceedReceiveBuffer()
 {
-	loggit(str(boost::format("\n%1% sent:\n%2%") % udpTO % pCh));
-	
-	string message(pCh);
-	auto tp1 = steady_clock::now();
-	MGCP mgcp(message);
-	auto tp2 = steady_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tp2 - tp1);
+	while (Que.size() > 0)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-	loggit("Parsing duration: " + to_string(duration.count()) + "microseconds");
-	cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx << boost::format(" Parsing duration: %1% microseconds\n") % duration.count();
-	
-	if (mgcp.error == -1) { reply("Not MGCP", udpTO); return; }
-	if (mgcp.CMD == "CRCX"){ Conference->proceedCRCX(mgcp, udpTO); }
-	else if (mgcp.CMD == "MDCX"){ Conference->proceedMDCX(mgcp, udpTO); }
-	else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp, udpTO); }
-	else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp, udpTO); }
-	else {reply("error 504 Unknown or unsupported command", udpTO);}
+		auto mgcp = Que.front();
+		mutex_.lock();
+		Que.pop();
+		mutex_.unlock();
+		auto tp1 = steady_clock::now();
+		mgcp.Parse(true);
+		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(steady_clock::now() - tp1);
+		loggit("\nParsing duration: " + to_string(duration.count()) + "milliseconds");
+		cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx << boost::format(" Parsing duration: %1% milliseconds\n") % duration.count();
+		
+		if (mgcp.error == -1) { reply("Not MGCP", mgcp.sender); return; }
+		if (mgcp.CMD == "CRCX"){ Conference->proceedCRCX(mgcp); }
+		else if (mgcp.CMD == "MDCX"){ Conference->proceedMDCX(mgcp); }
+		else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp); }
+		else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp); }
+		else { reply("error 504 Unknown or unsupported command", mgcp.sender); }
+	}
 }
-//--------------------------------------------------------------------------------------------
-
+//-*/----------------------------------------------------------
 
 
 

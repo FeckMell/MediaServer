@@ -15,12 +15,12 @@ private:
 	//method
 	void OpenLogFiles();
 	void output(std::string text, int i);
-	std::string pop(int i, int j);
+	std::string pop(int i);
 	void Clean();
 	void reinit();
 
 	//data
-	std::vector<std::vector<std::string>> buffer;
+	std::vector<std::queue<std::string>> buffer;
 	std::vector<HANDLE> file;
 	std::vector<DWORD> filesize;
 

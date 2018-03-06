@@ -171,29 +171,27 @@ void CConfRoom::NewInitPoint(string SDPff,string SDPfc, string CallID, int port)
 //--------------------------------------------------------------------------
 void CConfRoom::Start()
 {
-	loggit("CConfRoom::Start()");
+	NetworkData net = FillNetData();
+	loggit("CConfRoom::Start() ");
 	counter++;
 	counter = counter % 2;
 	if (on == false)
 	{
-		NetworkData net = FillNetData();
-		if (net.input_SDPs.size() > 2)
+		
+		if (net.input_SDPs.size() >= 3)
 		{
 			on = true;
+			loggit("mix->process_all() for " + std::to_string(net.input_SDPs.size()) + "clients");
 			Mixer.reset(new CRTPReceive(net));
-			boost::thread my_thread(&CRTPReceive::process_all, Mixer, net);
-			my_thread.detach();
-			loggit("mix->process_all() for " + boost::to_string(net.input_SDPs.size()) + "clients");
+			Mixer->process_all(net);
 		}
 	}
 	else
 	{
-		NetworkData net = FillNetData();
-		if (net.input_SDPs.size() > 1)
+		if (net.input_SDPs.size() >= 2)
 		{
-			boost::thread my_thread(&CRTPReceive::add_track, Mixer, net);
-			my_thread.detach();
-			loggit("mix->AddCall for " + boost::to_string(net.input_SDPs.size()) + "clients");
+			loggit("mix->AddCall2 for " + std::to_string(net.input_SDPs.size()) + "clients");
+			Mixer->add_track(net);
 		}
 	}
 }

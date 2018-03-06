@@ -7,10 +7,16 @@ class MGCP
 {
 public:
 	//func
-	MGCP(string req);
+	MGCP(string);
+	MGCP() {}
 	string ResponseOK(int code, string end);
 	std::string ResponseBAD(int code, string message);
+	void Parse(bool);
+
 	enum Eventor {ann, cnf, prx};
+	int error;
+	char mes[2049];
+	udp::endpoint sender;
 
 	//data
 	std::string mgcp;
@@ -27,10 +33,8 @@ public:
 	std::string paramS;
 	std::string MessNum;
 	std::string SDP;
-	int error;
-
 private:
-	void Parse();
+	
 	void parseCMD();
 	void EventP();
 	void ParamM();
@@ -42,3 +46,4 @@ private:
 	void Remove();
 	bool Valid();	
 };
+typedef shared_ptr<MGCP> SHP_MGCP;

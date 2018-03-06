@@ -5,11 +5,7 @@ void Logger::OpenLogFiles()
 {
 	using namespace boost;
 	reinit();
-	for (unsigned i = 0; i < file.size(); ++i)
-	{
-		std::vector<std::string> buf;
-		buffer.push_back(buf);
-	}
+	buffer.resize(file.size());
 }
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -24,7 +20,7 @@ void Logger::Run()
 			{
 				for (int k = 0; k < size; ++k)
 				{
-					output(pop(i, k), i);
+					output(pop(i), i);
 				}
 			}
 		}
@@ -45,12 +41,12 @@ void Logger::output(std::string text, int i)
 }
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-std::string Logger::pop(int i, int j)
+std::string Logger::pop(int i)
 {
 	std::string text;
 	mutex_.lock();
-	text = buffer[i][0];//
-	buffer[i].erase(buffer[i].begin());
+	text = buffer[i].front();//
+	buffer[i].pop();
 	mutex_.unlock();
 	return text;
 }
@@ -60,7 +56,7 @@ void Logger::AddToLog(unsigned type, std::string text)
 {
 	if (buffer.size() < type){ std::cout << "size!"; return; }
 	mutex_.lock();
-	buffer[type].push_back(text);
+	buffer[type].push(text);
 	mutex_.unlock();
 }
 ///////////////////////////////////////////////////////////////////////////////

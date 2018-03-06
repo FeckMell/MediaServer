@@ -18,10 +18,10 @@ public:
 	std::string my_IP;
 	CMGCPServer* server;
 
-	void proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO);
-	void proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO);
-	void proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO);
-	void proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO);
+	void proceedCRCX(MGCP &mgcp);
+	void proceedMDCX(MGCP &mgcp);
+	void proceedRQNT(MGCP &mgcp);
+	void proceedDLCX(MGCP &mgcp);
 private:
 	void loggit(string a);
 

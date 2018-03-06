@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 		DateStr = GetDate();
 		setlocale(LC_ALL, "Russian");
-		cout << "\nВЕРСИЯ 1.1.8 (19.05.2016 / 18:03)";
+		cout << "\nВЕРСИЯ 1.2.1 (26.05.2016 / 17:55)";
 		GetPathExe(argv[0]);
 		CLogger.Create();
 		boost::thread my_thread(&Runner);
@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 		************************************************************************/
 		//cout << "\nthread MAIN " << std::this_thread::get_id();
 		CMGCPServer s({ io_service, ep, cfg.MediaPath });
-		LogMain("Запуск экземляра MGCP-сервера	\n");
+		LogMain("Запуск экземляра MGCP-сервера");
 		cout << "\n-------------------------------------------------------------------------------\n\n";
 		s.Run();
 		io_service.run();
