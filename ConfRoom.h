@@ -2,9 +2,11 @@
 #include "stdafx.h"
 #include "Logger.h"
 #include "Functions.h"
-#include "CRTPReceive.h"
+#include "ConfAudio.h"
 #include "Structs.h"
 #include "ConfPoint.h"
+#include "Ann.h"
+
 //#include <boost/thread/thread.hpp>
 
 extern Logger CLogger;
@@ -31,7 +33,8 @@ private:
 	void Start();
 	void loggit(string a);
 	
-	SHP_CRTPReceive Mixer;
+	SHP_Ann OAnn;
+	SHP_ConfAudio Mixer;
 	std::vector<SHP_CConfPoint> cllPoints_;
 	int RoomID_;
 	bool on;

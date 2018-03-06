@@ -27,22 +27,10 @@
     <ClInclude Include="MGCPserver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Conf.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CRTPReceive.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CMixInit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ConfControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Ann.h">
@@ -60,6 +48,18 @@
     <ClInclude Include="ConfPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CFilterInit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfAudio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConfRoom.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RequestControl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -71,19 +71,7 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Conf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CRTPReceive.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CMixInit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Functions.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ConfControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ann.cpp">
@@ -99,6 +87,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ConfPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CFilterInit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfAudio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ConfRoom.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RequestControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,8 +1,8 @@
 #pragma once
 #include "stdafx.h"
-#include "ConfControl.h"
+#include "RequestControl.h"
 
-void ConfControl::loggit(string a)
+void RequestControl::loggit(string a)
 {
 	time_t rawtime;
 	struct tm * t;
@@ -11,11 +11,12 @@ void ConfControl::loggit(string a)
 	string time = "";
 	steady_clock::time_point t1 = steady_clock::now();
 	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	time += " thread=" + boost::to_string(this_thread::get_id());
 	CLogger.AddToLog(6, "\n" + time + "     " + a);
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-int ConfControl::SetRoomID()
+int RequestControl::SetRoomID()
 {
 	if (RoomsID_.size() == 0) { RoomsID_.push_back(1); return 1; }
 	for (unsigned i = 1; i < RoomsID_.size(); ++i)
@@ -28,7 +29,7 @@ int ConfControl::SetRoomID()
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-std::string ConfControl::GenSDP(int Port, MGCP &mgcp)
+std::string RequestControl::GenSDP(int Port, MGCP &mgcp)
 {
 	steady_clock::time_point t1 = steady_clock::now();
 	string date = DateStr;
@@ -43,7 +44,7 @@ std::string ConfControl::GenSDP(int Port, MGCP &mgcp)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-void ConfControl::proceedCRCX(MGCP &mgcp)
+void RequestControl::proceedCRCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " CRCX for " + mgcp.paramC);
 
@@ -81,7 +82,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp)
 			auto Room = FindConf(mgcp.EventNum);
 			if (Room == nullptr)
 			{
-				loggit("room not found");
+				loggit("room " + mgcp.EventNum + " not found");
 				server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
 				return;
 			}
@@ -114,7 +115,7 @@ void ConfControl::proceedCRCX(MGCP &mgcp)
 			auto proxy = FindProxy(mgcp.EventNum);
 			if (proxy == nullptr)
 			{
-				loggit("Proxy not found");
+				loggit("Proxy" + mgcp.EventNum + "not found");
 				server->reply(mgcp.ResponseBAD(400, "Proxy not found"), mgcp.sender);
 				return;
 			}
@@ -137,19 +138,21 @@ void ConfControl::proceedCRCX(MGCP &mgcp)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-void ConfControl::proceedMDCX(MGCP &mgcp)
+void RequestControl::proceedMDCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " MDCX for " + mgcp.paramC);
 	auto Room = FindConf(mgcp.EventNum);
 	if (Room == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
+		loggit("Room" + mgcp.EventNum + "not found");
+		server->reply(mgcp.ResponseBAD(400, "Room" + mgcp.EventNum + "not found"), mgcp.sender);
 		return;
 	}
 	auto Point = Room->FindPoint(mgcp.paramC);
 	if (Point == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400, "Point not found"), mgcp.sender);
+		loggit("Point" + mgcp.paramC + "not found");
+		server->reply(mgcp.ResponseBAD(400, "Point" + mgcp.paramC + "not found"), mgcp.sender);
 		return;
 	}
 	loggit("modify point with ID=" + mgcp.paramC + " in room with ID=" + boost::to_string(Room->GetRoomID()));
@@ -160,7 +163,7 @@ void ConfControl::proceedMDCX(MGCP &mgcp)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-void ConfControl::proceedDLCX(MGCP &mgcp)
+void RequestControl::proceedDLCX(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " DLCX for " + mgcp.paramC);
 	switch (mgcp.Event)
@@ -170,8 +173,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 		auto Ann = FindAnn(mgcp.paramC);
 		if (Ann == nullptr)
 		{
-			//out << "\nAnn not found";
-			loggit("Ann not found");
+			loggit("Ann" + mgcp.EventNum + "not found");
 			server->reply(mgcp.ResponseBAD(400, "Ann not found"), mgcp.sender);
 			return;
 		}
@@ -188,13 +190,15 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 		auto Room = FindConf(mgcp.EventNum);
 		if (Room == nullptr)
 		{
-			server->reply(mgcp.ResponseBAD(400, "Room not found"), mgcp.sender);
+			loggit("Room" + mgcp.EventNum + "not found");
+			server->reply(mgcp.ResponseBAD(400, "Room" + mgcp.EventNum + "not found"), mgcp.sender);
 			return;
 		}
 		auto Point = Room->FindPoint(mgcp.paramC);
 		if (Point == nullptr)
 		{
-			server->reply(mgcp.ResponseBAD(400, "Point not found"), mgcp.sender);
+			loggit("Point" + mgcp.paramC + "not found");
+			server->reply(mgcp.ResponseBAD(400, "Point" + mgcp.paramC + "not found"), mgcp.sender);
 			return;
 		}
 		SetFreePort(Point->my_port_);
@@ -203,14 +207,12 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 		loggit("Delete DONE");
 		if (Room->GetNumCllPoints() == 0)
 		{
-			loggit("delete room:");
-			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), Room->GetRoomID()), RoomsID_.end());
+			loggit("delete room " + mgcp.EventNum + ":");
+			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
 			RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), Room), RoomsVec_.end());
-			//loggit(" Deleted Room with ID=" + Room->GetRoomID());
-			//Room.reset();
 		}
-		loggit("didnt delete room");
 		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender);
+		loggit("DLCX DONE.");
 		return;
 	}//case MGCP::cnf
 	case MGCP::prx:
@@ -218,7 +220,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 		auto proxy = FindProxy(mgcp.EventNum);
 		if (proxy == nullptr)
 		{
-			loggit("Proxy not found");
+			loggit("Proxy" + mgcp.EventNum + "not found");
 			server->reply(mgcp.ResponseBAD(400, "Proxy not found"), mgcp.sender);
 			return;
 		}
@@ -244,18 +246,18 @@ void ConfControl::proceedDLCX(MGCP &mgcp)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-void ConfControl::proceedRQNT(MGCP &mgcp)
+void RequestControl::proceedRQNT(MGCP &mgcp)
 {
 	loggit(mgcp.EventEx + " RQNT for " + mgcp.paramC);
 	auto Ann = FindAnn(mgcp.paramC);
 	if (Ann == nullptr)
 	{
-		loggit("Ann not found");
+		loggit("Ann" + mgcp.EventNum + "not found");
 		server->reply(mgcp.ResponseBAD(400, "Ann not found"), mgcp.sender);
 		return;
 	}
-	auto param = mgcp.paramS;
-	string test = param.substr(param.find("file:///") + 8);
+	//auto param = mgcp.paramS;
+	string test = mgcp.paramS.substr(mgcp.paramS.find("file:///") + 8);
 	test.pop_back();
 	string filepath = server->m_args.strMmediaPath + "\\"+test;
 
@@ -266,7 +268,7 @@ void ConfControl::proceedRQNT(MGCP &mgcp)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-SHP_CConfRoom ConfControl::CreateNewRoom()
+SHP_CConfRoom RequestControl::CreateNewRoom()
 {
 	/*Создаем комнату*/
 	SHP_CConfRoom NewRoom(new CConfRoom());
@@ -279,10 +281,10 @@ SHP_CConfRoom ConfControl::CreateNewRoom()
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-int ConfControl::GetFreePort()
+int RequestControl::GetFreePort()
 {
 
-	int freeport = 29000; // базовый порт, с которого начинаем
+	int freeport = RTPport; // базовый порт, с которого начинаем
 	if (PortsinUse_.size() == 0) 
 	{ 
 		mutex_.lock();
@@ -311,7 +313,7 @@ int ConfControl::GetFreePort()
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-void ConfControl::SetFreePort(int port)
+void RequestControl::SetFreePort(int port)
 {
 	mutex_.lock();
 	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), port),
@@ -320,7 +322,7 @@ void ConfControl::SetFreePort(int port)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-SHP_CConfRoom ConfControl::FindConf(string ID)
+SHP_CConfRoom RequestControl::FindConf(string ID)
 {
 	for (auto &room : RoomsVec_)
 	{ 
@@ -331,7 +333,7 @@ SHP_CConfRoom ConfControl::FindConf(string ID)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-SHP_Ann ConfControl::FindAnn(string ID)
+SHP_Ann RequestControl::FindAnn(string ID)
 {
 	for (auto &ann : AnnVec_)
 	{
@@ -342,7 +344,7 @@ SHP_Ann ConfControl::FindAnn(string ID)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-SHP_Proxy ConfControl::FindProxy(string ID)
+SHP_Proxy RequestControl::FindProxy(string ID)
 {
 	for (auto &proxy : ProxyVec_)
 	{
@@ -353,7 +355,7 @@ SHP_Proxy ConfControl::FindProxy(string ID)
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-int ConfControl::SDPFindMode(string SDP)
+int RequestControl::SDPFindMode(string SDP)
 {
 	std::size_t found;
 	found = SDP.find("inactive");

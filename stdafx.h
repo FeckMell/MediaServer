@@ -6,6 +6,15 @@
 #pragma once
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+
+#define INPUT_SAMPLERATE     8000
+#define INPUT_FORMAT         AV_SAMPLE_FMT_S16
+#define INPUT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
+#define OUTPUT_BIT_RATE 8000
+#define OUTPUT_CHANNELS 1
+#define OUTPUT_SAMPLE_FORMAT AV_SAMPLE_FMT_S16
+#define VOLUME_VAL 0.90
+
 #define snprintf _snprintf
 //#ifdef WIN32
 //#include "targetver.h"

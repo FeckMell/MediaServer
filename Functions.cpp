@@ -49,7 +49,22 @@ Config ParseConfig(string path, Config parsed)
 	string temp;
 	std::size_t found;
 	file.open(path);
-	if (file.is_open()) {
+	if (file.is_open()) 
+	{
+		//RTPport=
+		while (std::getline(file, temp))
+		{
+			found = temp.find("RTPport=");
+			if (found != std::string::npos)
+			{
+				parsed.RTPport = stoi(temp.substr(found + 8, temp.back()));
+				persistance = 1;
+				break;
+			}
+		}
+		persistance = 0;
+		file.close();
+		file.open(path);
 		while (std::getline(file, temp))
 		{
 			found = temp.find("port=");
@@ -60,7 +75,6 @@ Config ParseConfig(string path, Config parsed)
 				break;
 			}
 		}
-		if (persistance == 0) { parsed.port = 2427; }
 		persistance = 0;
 		file.close();
 		file.open(path);
@@ -109,7 +123,14 @@ Config ParseConfig(string path, Config parsed)
 //----------------------------------------------------------------------------
 void LogMain(string a)
 {
-	CLogger.AddToLog(0, "\n"+a);
+	time_t rawtime;
+	struct tm * t;
+	time(&rawtime);
+	t = localtime(&rawtime);
+	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	string result = DateStr + "/" + boost::to_string(t->tm_hour) + ":" + boost::to_string(t->tm_min) + ":" + boost::to_string(t->tm_sec) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
+	result += " thread=" + boost::to_string(std::this_thread::get_id()) + "      ";
+	CLogger.AddToLog(0, result + a);
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

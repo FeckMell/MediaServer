@@ -2,6 +2,39 @@
 #include "stdafx.h"
 
 extern string DateStr;
+class SIP
+{
+public:
+	//func
+	SIP(string);
+	SIP() {}
+	std::string ResponseOK(int code, string end);
+	std::string ResponseBAD(int code, string message);
+	std::string ResponseRing(int code, string mess);
+
+	void Parse(bool);
+
+	int error;
+	char mes[2049];
+	udp::endpoint sender;
+
+	//data
+	std::string sip;
+	std::string CMD;//
+	std::string SDP;
+
+	std::string branch;//ответ с ним же
+	std::string IP;
+	std::string port;
+	std::string maxForwards; //- номер транзакции, в ответе она -1
+	std::string CseqNum; // номер, +1
+	std::string CseqCMD; //
+private:
+
+	void parseCMD();
+	void Remove();
+	bool Valid();
+};
 
 class MGCP
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "Conf.h"
+#include "ConfRoom.h"
 
 //-*/-------------------------------------------------------------------------
 void CConfRoom::loggit(string a)
@@ -17,11 +17,11 @@ void CConfRoom::loggit(string a)
 //-*/--------------------------Events-----------------------------------------
 void CConfRoom::NewPoint(string SDPff, string SDPfc, string CallID, int port)
 {
-	loggit("void CConfRoom::NewInitPoint(string SDP)");
+	loggit("void CConfRoom::NewInitPoint");
 	SHP_CConfPoint point(new CConfPoint(SDPff, SDPfc, CallID, port, io_service_));
 	//TODO:check for errors
 	cllPoints_.push_back(point);
-	loggit("void CConfRoom::NewInitPoint(string SDP) ENDED");
+	loggit("void CConfRoom::NewInitPoint ENDED");
 }
 //-*/-------------------------------------------------------------------------
 void CConfRoom::DeletePoint(string CallID)
@@ -30,22 +30,19 @@ void CConfRoom::DeletePoint(string CallID)
 	SHP_CConfPoint Point;
 	for (auto & entry : cllPoints_)
 	{
-		loggit("Compare Point ID=" + entry->CallID_);
 		if (CallID == entry->CallID_)
 		{
 			loggit("Found Point");
 			Point = entry;
 			Point->mode = false;
+			Start();
 			break;
 		}
 	}
-	loggit("DeletePoint 1");
-	Start();
-	loggit("DeletePoint 2");
-	Point->free();
-	loggit("DeletePoint 3");
+	
 	cllPoints_.erase(std::remove(cllPoints_.begin(), cllPoints_.end(), Point), cllPoints_.end());
-	loggit("Point erased");
+	Point->free();
+	loggit("Point " + CallID + " erased");
 }
 //-*/-------------------------------------------------------------------------
 string CConfRoom::ModifyPoint(SHP_CConfPoint Point, string SDPff)
@@ -67,21 +64,30 @@ void CConfRoom::Start()
 	{
 		loggit("Mixer.reset");
 		on = true;
-		Mixer.reset(new CRTPReceive(callers, RoomID_));
+		//if (OAnn.use_count > 0) { loggit("Ann exists"); OAnn->Stop(); OAnn.reset(); }
+		Mixer.reset(new ConfAudio(callers, RoomID_));
 	}
 	else if ((on == true) && (callers.size() >= 2))
 	{
 		loggit("Mixer->add_track");
+		//if (OAnn.use_count() > 0) { loggit("Ann exists"); OAnn->Stop(); OAnn.reset(); }
 		Mixer->add_track(callers);
 	}
 	else if ((on == true) && (callers.size() == 1))
 	{
-		on = false;
-		loggit("Mixer->Freeze(destroy)");
-		//Mixer->Freeze();
+		loggit("Mixer->Freeze + Start Ann");
 		Mixer->destroy_all();
+		//OAnn.reset(new Ann(callers[0]));
+	}
+	else if ((on == true) && (callers.size() == 0))
+	{
+		on = false;
+		loggit("Conf Ann destroy");
+		//OAnn->Stop();
+		//OAnn.reset();
 		Mixer.reset();
 	}
+	else{ loggit("Start do nothing"); }
 	loggit("START END");
 }
 //-*/--------------------------Access to data---------------------------------

@@ -80,9 +80,7 @@ void MGCP::EventP()
 	if (mgcp.find("@") == std::string::npos) { error = -1; return; }
 	EventNum = mgcp.substr(fd + 4, mgcp.find("@") - fd - 4);
 	EventEx = mgcp.substr(fd, mgcp.find("] ", fd) - fd + 1);
-	if (mgcp.substr(5, 2) == "  "){ MessNum = mgcp.substr(7, fd - 8); }
-	else{ MessNum = mgcp.substr(6, fd - 7); }
-	//out << "\n----"+EventEx+"----\n";
+	MessNum = mgcp.substr(mgcp.find(" ") + 1, fd - 6);
 }
 //-------------------------------------------------------------------------------------
 void MGCP::ParamM()
@@ -156,7 +154,13 @@ void MGCP::Remove()
 	while (fd != std::string::npos)
 	{
 		mgcp.erase(mgcp.begin() + fd);
-		fd = mgcp.find("\r");
+		fd = mgcp.find("\r", fd - 1);
+	}
+	fd = mgcp.find("  ");
+	while (fd != std::string::npos)
+	{
+		mgcp.erase(mgcp.begin() + fd);
+		fd = mgcp.find("  ", fd - 1);
 	}
 	/*fd = mgcp.find("\v");
 	while (fd != std::string::npos)

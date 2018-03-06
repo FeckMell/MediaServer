@@ -2,17 +2,11 @@
 #include "stdafx.h"
 #include "Logger.h"
 #include "Functions.h"
-#include "CMixInit.h"
+#include "CFilterInit.h"
 #include "Structs.h"
 #include "ConfPoint.h"
 
-#define INPUT_SAMPLERATE     8000
-#define INPUT_FORMAT         AV_SAMPLE_FMT_S16
-#define INPUT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
-#define OUTPUT_BIT_RATE 8000
-#define OUTPUT_CHANNELS 1
-#define OUTPUT_SAMPLE_FORMAT AV_SAMPLE_FMT_S16
-#define VOLUME_VAL 0.90
+
 
 using boost::asio::ip::udp;
 using namespace boost::asio;
@@ -24,13 +18,12 @@ extern Logger CLogger;
 
 
 
-class CRTPReceive
+class ConfAudio
 {
 public:
-	CRTPReceive(vector<SHP_CConfPoint> callers, int ID); 
+	ConfAudio(vector<SHP_CConfPoint> callers, int ID); 
 
 	void add_track(vector<SHP_CConfPoint> callers);
-	void Freeze();
 	void destroy_all();
 
 private:
@@ -44,7 +37,7 @@ private:
 	int process_all();
 	void new_process();
 	void receive();
-	void CRTPReceive::receive2(int i);//debug
+	void ConfAudio::receive2(int i);//debug
 
 	int init_input_frame(AVFrame **frame);
 	void init_packet(AVPacket *packet);
@@ -63,17 +56,29 @@ private:
 	vector<boost::shared_ptr<boost::thread>> receive_threads;
 
 	Initing ext;
-	SHP_CMixInit Initer;
+	SHP_CFilterInit Initer;
 
 	bool process_all_finishing;
-	mutex  mutex_;
+	mutex  Mut_io;
+	mutex  Mut_pr;
+
 
 	int ID_;
 	//DEBUG
-	std::ofstream outfile0;
+	/*std::ofstream outfile0;
 	std::ofstream outfile1;
 	std::ofstream outfile2;
 	std::ofstream outfile3;
+
+	std::ofstream outfile00;
+	std::ofstream outfile11;
+	std::ofstream outfile22;
+	std::ofstream outfile33;
+
+	std::ofstream outfile000;
+	std::ofstream outfile111;
+	std::ofstream outfile222;
+	std::ofstream outfile333;*/
 };
-typedef std::shared_ptr<CRTPReceive> SHP_CRTPReceive;
+typedef std::shared_ptr<ConfAudio> SHP_ConfAudio;
 

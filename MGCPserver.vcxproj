@@ -105,11 +105,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ann.h" />
-    <ClInclude Include="CMixInit.h" />
-    <ClInclude Include="Conf.h" />
-    <ClInclude Include="ConfControl.h" />
+    <ClInclude Include="CFilterInit.h" />
+    <ClInclude Include="ConfRoom.h" />
+    <ClInclude Include="RequestControl.h" />
     <ClInclude Include="ConfPoint.h" />
-    <ClInclude Include="CRTPReceive.h" />
+    <ClInclude Include="ConfAudio.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MGCPserver.h" />
@@ -121,11 +121,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ann.cpp" />
-    <ClCompile Include="CMixInit.cpp" />
-    <ClCompile Include="Conf.cpp" />
-    <ClCompile Include="ConfControl.cpp" />
+    <ClCompile Include="CFilterInit.cpp" />
+    <ClCompile Include="ConfRoom.cpp" />
+    <ClCompile Include="RequestControl.cpp" />
     <ClCompile Include="ConfPoint.cpp" />
-    <ClCompile Include="CRTPReceive.cpp" />
+    <ClCompile Include="ConfAudio.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MGCPserver.cpp" />

@@ -12,30 +12,22 @@ void CConfPoint::loggit(string a)
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	string result = DateStr + "/" + boost::to_string(t->tm_hour) + ":" + boost::to_string(t->tm_min) + ":" + boost::to_string(t->tm_sec) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
 	result += " ID=" + CallID_ + " thread=" + boost::to_string(std::this_thread::get_id()) + "      ";
-	CLogger.AddToLog(1, "\n" + result + a);
+	CLogger.AddToLog(8, "\n" + result + a);
 }
 //-*/-------------------------------------------------------------------------
 CConfPoint::CConfPoint(string SDPff, string SDPfc, string CallID, int port, asio::io_service& io_service) :
 CallID_(CallID), my_port_(port), SDP_for_client(SDPfc), io_service_(io_service)
 {
-	av_log_set_level(0);
-	av_register_all();
-	avcodec_register_all();
-	avfilter_register_all();
-	avformat_network_init();
-
+	rtp.rtp_config();
 	if (SDPff != "")
 	{
 		SDP_ = SDPff;
 		ModifySDP();
 		remote_port_ = stoi(MakeRemotePort(SDPff));
 		remote_ip_ = MakeRemoteIP(SDPff);
-
-		Sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
-		Endpoint = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
-		//if (open_input() < 0) error = -1;
-		//if (open_output() < 0) error = -1;
-		if (error != -1) mode = true;
+		if (open_input() < 0) error = -1;
+		if (open_output() < 0) error = -1;
+		if (error != -1) { mode = true; need_free = true; }
 	}
 }
 //-*/-------------------------------------------------------------------------
@@ -47,12 +39,9 @@ string CConfPoint::ModifyPoint(string SDPff)
 		ModifySDP();
 		remote_port_ = stoi(MakeRemotePort(SDPff));
 		remote_ip_ = MakeRemoteIP(SDPff);
-
-		Sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
-		Endpoint = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
-		//if (open_input() < 0) error = -1;
-		//if (open_output() < 0) error = -1;
-		if (error != -1) mode = true;
+		if (open_input() < 0) error = -1;
+		if (open_output() < 0) error = -1;
+		if (error != -1) { mode = true; need_free = true; }
 		return "";
 	}
 	else
@@ -139,7 +128,6 @@ void CConfPoint::ModifySDP()
 //-*/-------------------------------------------------------------------------
 //-*/-------------------------------------------------------------------------
 //-*/-------------------------------------------------------------------------
-/*
 int CConfPoint::open_output()
 {
 
@@ -164,18 +152,22 @@ int CConfPoint::open_output()
 
 	avcodec_open2(strmOut->codec, output_codec, nullptr);
 	/////////////////////////////////////////////
-	Sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
-	Endpoint = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
+	Sock.reset(new boost::asio::ip::udp::socket(io_service_));
+	Sock->open(udp::v4());
+	Sock->set_option(boost::asio::ip::udp::socket::reuse_address(true));
+	Sock->bind(udp::endpoint(udp::v4(), my_port_));
+
+	//Endpoint = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
 	/////////////////////////////////////////////
 	return 0;
-}*/
+}
 //-*/-------------------------------------------------------------------------
-/*int CConfPoint::open_input()
+int CConfPoint::open_input()
 {
 	loggit("open_input");
 	AVCodec *input_codec;
 	int error;
-
+	loggit("SDP:\n" + SDP_);
 	error = sdp_open(&ifcx, SDP_.c_str(), nullptr);
 	if (error < 0)
 	{
@@ -213,14 +205,13 @@ int CConfPoint::open_output()
 	}
 
 	iccx = (ifcx)->streams[0]->codec;
-	loggit("int CRTPReceive::open_input_file END");
+	loggit("int ConfAudio::open_input_file END");
 
 	return 0;
-}*/
+}
 //-*/-------------------------------------------------------------------------
-/*int CConfPoint::sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options) 
+int CConfPoint::sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options) /*noexcept*/
 {
-	loggit("int sdp_open");
 	assert(pctx);
 	*pctx = avformat_alloc_context();
 	assert(*pctx);
@@ -236,25 +227,36 @@ int CConfPoint::open_output()
 	(*pctx)->pb = pbctx;
 
 	auto infmt = av_find_input_format("sdp");
-	loggit("int sdp_open DONE");
 	return avformat_open_input(pctx, "memory.sdp", infmt, nullptr);
-}*/
+}
 //-*/-------------------------------------------------------------------------
-/*тут тоже ffmpeg*/
 void CConfPoint::free()
 {
-	mode = false;
-	Sock->close();
-	//
-	/*avformat_close_input(&ifcx);
-	avformat_free_context(ifcx);
-	ifcx = NULL;
-	//
-	avcodec_close(out_iccx);//iccx?
-	avcodec_free_context(&out_iccx);//iccx?
-	out_iccx = NULL;//iccx?
-	//
-	avio_close(out_ifcx->pb);*/
+	if (need_free)
+	{
+		loggit("free:");
+		mode = false;
+		loggit("Sock->close();");
+		Sock->close();
+		loggit("avformat_close_input(&ifcx);");
+		//
+		avformat_close_input(&ifcx);
+		loggit("avformat_free_context(ifcx);");
+		avformat_free_context(ifcx);
+		loggit("ifcx = NULL;");
+		ifcx = NULL;
+		loggit("avcodec_close(out_iccx);//iccx?");
+		//
+		avcodec_close(out_iccx);//iccx?
+		loggit("avcodec_free_context(&out_iccx);//iccx?");
+		avcodec_free_context(&out_iccx);//iccx?
+		loggit("out_iccx = NULL;");
+		out_iccx = NULL;//iccx?
+		loggit("avio_close(out_ifcx->pb);");
+		//
+		avio_close(out_ifcx->pb);
+		loggit("free: DONE");
+	}
 }
 //-*/-------------------------------------------------------------------------
 //-*/-------------------------------------------------------------------------

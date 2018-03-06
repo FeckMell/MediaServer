@@ -21,8 +21,9 @@ private:
 
 	//data
 	std::vector<std::queue<std::string>> buffer;
-	std::vector<HANDLE> file;
-	std::vector<DWORD> filesize;
+	//std::vector<HANDLE> file;
+	std::vector<std::ofstream> file2;
+	//std::vector<DWORD> filesize;
 
 	std::mutex  mutex_;
 

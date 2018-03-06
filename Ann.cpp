@@ -17,11 +17,6 @@ void Ann::loggit(string a)
 Ann::Ann(string SDP, int my_port, string CallID)
 {
 	loggit("Ann construct");
-	av_log_set_level(0);
-	av_register_all();
-	avcodec_register_all();
-	avfilter_register_all();
-	avformat_network_init();
 
 	running = true;
 	CallID_ = CallID;
@@ -30,17 +25,61 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	my_port_ = my_port;
 	rtp_hdr.rtp_config();
 	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_)+"_");
-	sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
+	
+	sock.reset(new boost::asio::ip::udp::socket(io_service_));
+	sock->open(udp::v4());
+	sock->set_option(boost::asio::ip::udp::socket::reuse_address(true));
+	sock->bind(udp::endpoint(udp::v4(), my_port_));
+	
+	//sock.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port_)));
 	endpt = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
 	left_data.reset(new CAVPacket(0));
 	loggit("Ann construct DONE");
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+Ann::Ann(SHP_CConfPoint Point)
+{
+	
+	type = true;
+	running = true;
+	CallID_ = Point->CallID_;
+	loggit("Ann from Conf");
+	remote_ip_ = Point->remote_ip_;
+	remote_port_ = Point->remote_port_;
+	my_port_ = Point->my_port_;
+	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_) + "_");
+	sock = Point->Sock;
+	endpt = Point->Endpoint;
+	left_data.reset(new CAVPacket(0));
+	filename_ = "";
+	openFile(MusicPath + "\\music_alaw.wav");
+	out_iccx = Point->out_iccx;
+	out_ifcx = Point->out_ifcx;
+	th.reset(new boost::thread(&Ann::Run, this));
+	//boost::thread th(&Ann::Run, this);
+	//th.detach();
+	//Run();
+
+}
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
+void Ann::Send(string file)
+{
+	loggit("Ann::Send " + file);
+	filename_ = file;
+	openFile(file);
+	openRTP();
+
+	loggit("Ann::Send init done, calling RUN()");
+	Run();
+}
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::openFile(string filename)
 {
 	int err = 0;
-	
+
 	err = avformat_open_input(&ifcx, filename.c_str(), NULL, NULL);
 	loggit("Ann::openFile err=" + boost::to_string(err));
 	err = avformat_find_stream_info(ifcx, NULL);
@@ -80,24 +119,11 @@ void Ann::openRTP()
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-void Ann::Send(string file)
-{
-	loggit("Ann::Send");
-	//out << "\n" + file;
-	filename_ = file;
-	openFile(file);
-	openRTP();
-	loggit("Ann::Send init done, calling RUN()");
-	Run();
-}
-//------------------------------------------------------------------------------------------
-//------------------------------------------------------------------------------------------
 void Ann::Run()
 {
-	
+	loggit("Ann::Run()");
 	int data_present = 0;
 	int i = 0;
-	loggit("Ann::Run() DONE");
 	while (running)
 	{
 		data_present = 0;
@@ -105,7 +131,7 @@ void Ann::Run()
 		frame = av_frame_alloc();
 		if (-1 == decode_audio_frame(frame, &data_present))
 		{
-			loggit("Ann::Run() stoped call freeall() badly");
+			loggit("Ann::Run() stoped call reinit()");
 			//freeall();
 			reinit();
 			return;
@@ -120,7 +146,7 @@ void Ann::Run()
 //------------------------------------------------------------------------------------------
 int Ann::decode_audio_frame(AVFrame *frame, int *data_present)
 {
-	loggit("Ann::decode_audio_frame");
+	//loggit("Ann::decode_audio_frame");
 	AVPacket input_packet;
 	SHP_CAVPacket send;
 	int error;
@@ -128,17 +154,14 @@ int Ann::decode_audio_frame(AVFrame *frame, int *data_present)
 	if ((error = av_read_frame(ifcx, &input_packet)) < 0) 
 	{
 		loggit("Ann::decode_audio_frame error read");
-		//out << "\nerrrrrrrr";
 		return -1;
-		/** If we are the the end of the file, flush the decoder below. */
-		/*add end of file*/
 	}
 
 	send.reset(new CAVPacket(input_packet.size));
 	memcpy(send->data, input_packet.data, input_packet.size);
 	avcodec_decode_audio4(/*iccx*/ifcx->streams[0]->codec, frame, data_present, send.get());
 
-	loggit("Ann::decode_audio_frame DONE data readed=" + boost::to_string(send->size));
+	//loggit("Ann::decode_audio_frame DONE data readed=" + boost::to_string(send->size));
 	av_free_packet(&input_packet);
 	send->free();
 	return 0;
@@ -224,13 +247,23 @@ void Ann::init_packet(AVPacket *packet)
 void Ann::freeall()
 {
 	left_data->free();
-	sock->close();
 	avformat_close_input(&ifcx);
-	ifcx = NULL;
-	avcodec_free_context(&out_iccx);
-	avio_close(out_ifcx->pb);
 	avformat_free_context(ifcx);
-	loggit("All freed!");
+	ifcx = NULL;
+	
+	if (!type)
+	{
+		loggit("freeall for Ann");
+		sock->close();
+		avcodec_free_context(&out_iccx);
+		avio_close(out_ifcx->pb);
+	}
+	else
+	{
+		th->~thread();
+		loggit("freeall from Conf");
+	}
+	
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------

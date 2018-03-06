@@ -18,29 +18,40 @@ void CMGCPServer::loggit(string a)
 	string time = "";
 	steady_clock::time_point t1 = steady_clock::now();
 	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	time += " thread=" + boost::to_string(this_thread::get_id());
 	CLogger.AddToLog(3, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
 }
 //-*/----------------------------------------------------------
 CMGCPServer::CMGCPServer(const TArgs& args)
-: m_args(args), io_service__(args.io_service), socket_(args.io_service, /*udp::endpoint(udp::v4(), args.endpnt.port())*/args.endpnt)
+: m_args(args), io_service__(args.io_service)//, socket_(args.io_service, /*udp::endpoint(udp::v4(), args.endpnt.port())*/args.endpnt)
 {
-	ConfControl* ff = new ConfControl;
+	socket_.reset(new ip::udp::socket(io_service__));
+	socket_->open(udp::v4());
+	socket_->set_option(ip::udp::socket::reuse_address(true));
+	socket_->bind(args.endpnt);
+	RequestControl* ff = new RequestControl;
 	Conference = ff;
 	Conference->server = this;
 	Conference->my_IP = args.endpnt.address().to_string();
 }
 //-*/----------------------------------------------------------
+void CMGCPServer::RunBuffer()
+{
+	loggit("Buffer start!");
+	boost::thread th(&CMGCPServer::proceedReceiveBuffer, this);
+	th.detach();
+}
+//-*/----------------------------------------------------------
 void CMGCPServer::Run()
 {
 	loggit("Server.Run()");
-	boost::thread th(&CMGCPServer::proceedReceiveBuffer, this);
-	th.detach();
+	
 	while (true)
 	{
 		loggit("Waiting for Callagent request...");
 		cout << "\nWaiting for Callagent request...";
 		MGCP mgcp;
-		size_t bytes_recvd = socket_.receive_from(asio::buffer(mgcp.mes, max_length), mgcp.sender);
+		size_t bytes_recvd = socket_->receive_from(asio::buffer(mgcp.mes, max_length), mgcp.sender);
 
 		mgcp.mes[bytes_recvd] = 0;
 		loggit(str(boost::format("Client %1% sent:\n%2%") % mgcp.sender % mgcp.mes));
@@ -48,29 +59,13 @@ void CMGCPServer::Run()
 		mutex_.lock();
 		Que.push(mgcp);
 		mutex_.unlock();
-		/*mutex_.lock();
-		if (Que.size() == 0)
-		{
-			Que.push(mgcp);
-			mutex_.unlock();
-			boost::thread th(&CMGCPServer::proceedReceiveBuffer, this);
-			th.detach();
-		}
-		else
-		{
-			Que.push(mgcp);
-			mutex_.unlock();
-		}*/
 	}
 }
 //-*/----------------------------------------------------------
 void CMGCPServer::reply(const string& strr, const udp::endpoint& udpTO)
 {
-//	if (socket_.available())
-//	{
-		socket_.send_to(asio::buffer(strr), udpTO);
+		socket_->send_to(asio::buffer(strr), udpTO);
 		loggit("CMGCPServer reply to " + str(boost::format("%1%") % udpTO) + ":\n" + strr);
-	//}
 }
 //-*/----------------------------------------------------------
 void CMGCPServer::proceedReceiveBuffer()
@@ -96,6 +91,7 @@ void CMGCPServer::proceedReceiveBuffer()
 			else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp); }
 			else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp); }
 			else { reply("error 504 Unknown or unsupported command", mgcp.sender); }
+			loggit("this request done, going to next");
 		}
 	}
 }

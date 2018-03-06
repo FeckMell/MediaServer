@@ -1,20 +1,20 @@
 #pragma once
 #include "stdafx.h"
 #include "Logger.h"
-#include "ConfControl.h"
+#include "RequestControl.h"
 #include "Functions.h"
 #include "Parser.h"
-#include "Conf.h"
+#include "ConfRoom.h"
 /************************************************************************
 	CMGCPServer
 ************************************************************************/
-class ConfControl;
+class RequestControl;
 extern string DateStr;
 extern Logger CLogger;
 class CMGCPServer
 {
 public:
-	ConfControl* Conference;
+	RequestControl* Conference;
 	typedef std::lock_guard<std::mutex> lock;
 	struct TArgs
 	{
@@ -25,6 +25,7 @@ public:
 	
 	CMGCPServer(const TArgs&);
 	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
+	void RunBuffer();
 	void Run();
 	void reply(const string&, const udp::endpoint&);
 	
@@ -35,8 +36,8 @@ private:
 
 /*Первичная обработка команд*/
 	void proceedReceiveBuffer();
-
-	udp::socket socket_;
+	SHP_Socket socket_;
+	//udp::socket socket_;
 	udp::endpoint sender_endpoint_;
 	enum { max_length = 2048 };
 

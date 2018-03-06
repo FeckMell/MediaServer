@@ -5,14 +5,15 @@
 #include "Logger.h"
 #include "Parser.h"
 #include "MGCPserver.h"
-#include "Conf.h"
+#include "ConfRoom.h"
 #include "Ann.h"
 #include "Proxy.h"
 extern Logger CLogger;
 extern string DateStr;
+extern short int RTPport;
 
 class CMGCPServer;
-class ConfControl
+class RequestControl
 {
 public:
 	std::string my_IP;
@@ -52,4 +53,4 @@ private:
 	
 };
 
-typedef std::shared_ptr<ConfControl> SHP_ConfControl;
+typedef std::shared_ptr<RequestControl> SHP_RequestControl;

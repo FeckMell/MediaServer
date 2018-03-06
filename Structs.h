@@ -12,12 +12,6 @@ struct SSource
 //-*/----------------------------------------------------------
 struct Initing
 {
-	std::vector<AVFormatContext *> out_ifcx;
-	std::vector<AVCodecContext *> out_iccx;
-
-	std::vector<AVFormatContext *> ifcx;
-	std::vector<AVCodecContext *> iccx;
-
 	std::vector<SSource> afcx;
 	std::vector<AVFilterGraph *> graphVec;
 	std::vector<AVFilterContext *> sinkVec;
@@ -56,6 +50,12 @@ struct RTP_struct
 	RTP header;
 	long TS;
 	int amount;
+
+	RTP_struct()
+	{
+		rtp_config();
+	}
+
 	void rtp_config()
 	{
 		this->header.version = 2;
@@ -68,6 +68,7 @@ struct RTP_struct
 		this->header.timestamp = htonl(0);
 		this->header.seq_no = htons(0);
 	}
+	
 	void rtp_modify()
 	{
 		++this->amount;
@@ -153,9 +154,11 @@ struct Config
 		MediaPath.~basic_string();
 		IP.~basic_string();
 	}
+
 	string MediaPath;
 	string IP;
 	short int port=2427;
+	short int RTPport = 29500;
 	int error=0;
 };
 //-*/----------------------------------------------------------
@@ -163,7 +166,7 @@ struct Config
 class CThreadedCircular
 {
 public:
-	CThreadedCircular() : buffer_(7){  }
+	CThreadedCircular() : buffer_(3){  }
 	CThreadedCircular(size_t sz) : buffer_(sz){  }
 	CThreadedCircular(const CThreadedCircular &obj)
 	{
