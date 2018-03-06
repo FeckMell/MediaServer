@@ -1,8 +1,8 @@
 #pragma once
 #include "stdafx.h"
+#include "Logger.h"
 #include "Functions.h"
 #include "CRTPReceive.h"
-#include "DestFusion.h"
 #include "Structs.h"
 //#include <boost/thread/thread.hpp>
 

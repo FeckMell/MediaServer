@@ -24,37 +24,7 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PackMGCP.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="MGCPserver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MGCPparser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Connection.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="envlp_ffmpeg.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SrcAsio.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SrcCash.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ISrcFusion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="DestFusion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SrcCommon.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Conf.h">
@@ -78,6 +48,12 @@
     <ClInclude Include="Ann.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Parser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Logger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -86,31 +62,7 @@
     <ClCompile Include="MGCPserver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PackMGCP.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MGCPparser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Connection.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="envlp_ffmpeg.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SrcCommon.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SrcAsio.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SrcCash.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="DestFusion.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Conf.cpp">
@@ -129,6 +81,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Ann.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

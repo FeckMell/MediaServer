@@ -1,21 +1,28 @@
 #include "stdafx.h"
 #include "Functions.h"
 #include "Structs.h"
+#include "Logger.h"
+extern Logger CLogger;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 class Ann
 {
 public:
-	Ann(string SDP, int my_port, string CallID, int ID);
+	Ann(string SDP, int my_port, string CallID);
 	void Send(string file);
 	string CallID_;
+	void Stop(){ running = false; }
+	int GetPort(){ return my_port_; }
 private:
 	boost::asio::io_service io_service_;
+
+	void loggit(string a);
 	void openFile(string filename);
 	void openRTP();
 	void Run();
 	int encode_audio_frame(AVFrame *frame, int *data_present);
 	int decode_audio_frame(AVFrame *frame, int *data_present);
 	void init_packet(AVPacket *packet);
+	void freeall();
 
 
 
@@ -27,7 +34,7 @@ private:
 	RTP_struct rtp_hdr;
 	SHP_Socket sock;
 	udp::endpoint endpt;
-	SHP_CAVPacket2 left_data;
+	SHP_CAVPacket left_data;
 
 	AVFormatContext* ifcx = nullptr;
 	AVFormatContext* out_ifcx = nullptr;
@@ -38,8 +45,6 @@ private:
 	AVOutputFormat *ofmt = NULL;
 	AVFormatContext *ifmt_ctx = NULL, *ofmt_ctx = NULL;
 
-	
-	int ID_;
-
+	bool running;
 };
 typedef std::shared_ptr<Ann> SHP_Ann;

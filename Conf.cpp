@@ -5,14 +5,23 @@
 void StartRoom(SHP_CRTPReceive mixer, NetworkData net)
 {
 	LogMain("StartRoom");
+	//out << "\nthread StartRoom " << std::this_thread::get_id();
 	mixer->process_all(net);
 	LogMain("StartRoom DONE");
 }
 void AddCall(SHP_CRTPReceive mixer, NetworkData net)
 {
 	LogMain("AddCall");
+	//out << "\nthread AddCall " << std::this_thread::get_id();
 	mixer->add_track(net);
 	LogMain("AddCall DONE");
+}
+void Finish(SHP_CRTPReceive mixer)
+{
+	LogMain("FINISH");
+	//out << "\nthread FINISH " << std::this_thread::get_id();
+	mixer->destroy_all();
+	LogMain("FINISH DONE");
 }
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
@@ -108,8 +117,9 @@ void CConfRoom::loggit(string a)
 	steady_clock::time_point t1 = steady_clock::now();
 	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 
-	fprintf(FileLogConfRoom, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
-	fflush(FileLogConfRoom);
+	//fprintf(FileLogConfRoom, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
+	//fflush(FileLogConfRoom);
+	CLogger.AddToLog(1, "\n" + time + "       " + a);
 }
 //--------------------------------------------------------------------------
 string CConfRoom::Make_addr_from_SDP(string output_SDP)
@@ -152,9 +162,13 @@ void CConfRoom::DeletePoint(string CallID)
 	if (cllPoints_.size() == 1)
 	{
 		loggit("room size == 1, Mixer->destroy_all();");
-		Mixer->destroy_all();
+		//Mixer->destroy_all();
+		boost::thread my_thread(&Finish, Mixer);
+		//my_thread.detach();
 		loggit("reseting Mixer pointer");
+		my_thread.join();
 		Mixer.reset();
+		cout << "\nMixer pointer reseted";
 		loggit("Mixer pointer reseted");
 		return;
 	}
@@ -200,7 +214,7 @@ void CConfRoom::Start()
 			Mixer.reset(new CRTPReceive(net));
 			boost::thread my_thread(&StartRoom, Mixer, net);
 			my_thread.detach();
-			loggit("mix->process_all() for " + boost::to_string(net.input_SDPs.size()) + "clients");
+			loggit("mix->process_all() for " + std::to_string(net.input_SDPs.size()) + "clients");
 		}
 	}
 	else
@@ -210,7 +224,7 @@ void CConfRoom::Start()
 		{
 			boost::thread my_thread(&AddCall, Mixer, net);
 			my_thread.detach();
-			loggit("mix->AddCall for " + boost::to_string(net.input_SDPs.size()) + "clients");
+			loggit("mix->AddCall for " + std::to_string(net.input_SDPs.size()) + "clients");
 		}
 	}
 }
@@ -222,7 +236,7 @@ NetworkData CConfRoom::FillNetData()
 	{
 		if (entry->mode == true)
 		{
-			cout << "net +1";
+			//out << "net +1";
 			entry->ModifySDP(/*1000 * counter*/0);
 			net.input_SDPs.push_back(entry->SDP_);
 			net.IPs.push_back(entry->remote_ip_);

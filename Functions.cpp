@@ -8,8 +8,8 @@ void GetDate()
 	if (Today != Date)
 	{
 		Date = Today;
-		DateStr = boost::to_string(Today.day().as_number()) + "-" + boost::to_string(Today.month().as_number()) + "-" + boost::to_string(Today.year());
-		OpenLogFiles();
+		DateStr = std::to_string(Today.day().as_number()) + "-" + std::to_string(Today.month().as_number()) + "-" + std::to_string(Today.year());
+		//OpenLogFiles();
 	}
 }
 //----------------------------------------------------------------------------
@@ -18,8 +18,8 @@ string GetTime()
 {
 	//using namespace boost::posix_time;
 	boost::posix_time::ptime t = boost::posix_time::second_clock::local_time();
-	boost::chrono::steady_clock::time_point t1 = boost::chrono::steady_clock::now();
-	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
+	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + std::to_string(t1.time_since_epoch().count() % 1000);
 	
 }
 //----------------------------------------------------------------------------
@@ -74,7 +74,11 @@ Config ParseConfig(string path, Config parsed)
 			found = temp.find("mpath=");
 			if (found != std::string::npos)
 			{
-				parsed.MediaPath = temp.substr(found + 6, temp.back());
+				parsed.MediaPath = PathEXE + temp.substr(found + 6, temp.back());
+				while (parsed.MediaPath.find("/") != std::string::npos)
+				{
+					parsed.MediaPath.replace(parsed.MediaPath.find("/"), 1, "\\");
+				}
 				persistance = 1;
 				break;
 			}
@@ -110,13 +114,13 @@ Config ParseConfig(string path, Config parsed)
 //----------------------------------------------------------------------------
 void LogMain(string a)
 {
-
-	fprintf(FileLog, (a + "\n").c_str());
-	fflush(FileLog);
+	CLogger.AddToLog(0, "\n"+a);
+	//fprintf(FileLog, (a + "\n").c_str());
+	//fflush(FileLog);
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-void OpenLogFiles()
+/*void OpenLogFiles()
 {
 	using namespace boost;
 	gregorian::date TODAY = gregorian::day_clock::local_day();
@@ -128,12 +132,14 @@ void OpenLogFiles()
 	fopen_s( &FileLogMixer,      (tempPath + "LOGS_Mixer.txt"    ).c_str(),"w");
 	fopen_s( &FileLogServer,     (tempPath + "LOGS_Server.txt"   ).c_str(),"w");
 	fopen_s( &FileLogMixerInit,  (tempPath + "LOGS_MixerInit.txt").c_str(),"w");
-}
+	fopen_s(&FileLogAnn, (tempPath + "LOGS_Ann.txt").c_str(), "w");
+}*/
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 inline void MessBoxHelper(string text)
 {
 	//MessageBox(NULL, L"Лалалал", L"Error", MB_OK);
+	//out << "\nthread MessBox " << std::this_thread::get_id();
 	MessageBoxA(NULL, text.c_str(), "Error", MB_OK);
 }
 void MessBox(string mess)
@@ -161,6 +167,12 @@ string MakeRemotePort(string SDP)
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+void GetPathExe(char* argv)
+{
+	boost::filesystem::path full_path(boost::filesystem::initial_path<boost::filesystem::path>());
+	full_path = boost::filesystem::system_complete(boost::filesystem::path(argv));
+	PathEXE = full_path.parent_path().string() + "\\";
+}
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -213,10 +225,10 @@ GetDate();
 FILE* file;
 string time = GetTime();
 string filepath = PathEXE + "\\" + DateStr + "_" + classname + ".txt";
-//cout << "\nfilepath=" << filepath;
+//out << "\nfilepath=" << filepath;
 fopen_s(&file, filepath.c_str(), "a");
-fprintf(file, (time + " thread=" + boost::to_string(thread) + "       " + a + "\n\n").c_str());
+fprintf(file, (time + " thread=" + std::to_string(thread) + "       " + a + "\n\n").c_str());
 fflush(file);
 fclose(file);
-//cout << "\nLOGIT DONE";
+//out << "\nLOGIT DONE";
 }*/

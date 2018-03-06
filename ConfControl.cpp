@@ -3,6 +3,7 @@
 #include "ConfControl.h"
 void SendAnn(SHP_Ann ann, string file)
 {
+	//out << "\nthread SendAnn " << std::this_thread::get_id();
 	ann->Send(file);
 }
 //--------------------------------------------------------------------------------------------
@@ -20,115 +21,152 @@ int ConfControl::SetRoomID()
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ConfControl::proceedCRCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
+void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
-	if (mgcp.EndPoint.m_point == "ann/$")
+	countCRCX++;
+	cout << "CRCX " << countCRCX << "\n";
+	if (mgcp.Event+mgcp.EventNum == "ann/$")
 	{
+		server->loggit(mgcp.EventEx);
 		auto Port = GetFreePort();
-		SHP_Ann Ann(new Ann(mgcp.SDP, Port, mgcp.getCallID(), SetRoomID()));
+		SHP_Ann Ann(new Ann(mgcp.SDP, Port, mgcp.paramC));
 		AnnVec_.push_back(Ann);
+		mgcp.EventNum = std::to_string(SetRoomID());
 
 		auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\na=sendrecv\n")); // формируем тип ответа
 		auto my_SDP = str(f %my_IP %Port % (rand() % 100000) % (rand() % 100000));
-		server->reply(mgcp.ResponseOK() + my_SDP, udpTO);
+		server->reply(mgcp.ResponseOK(200, mgcp.Event) + my_SDP, udpTO);
+		return;
+		//сделать отправку номера и тут и в cnf
 	}
 
-	if (mgcp.EndPoint.m_point.substr(0, 4) != "cnf/")
+	if (mgcp.Event != "cnf/")
 	{
+		server->loggit(mgcp.EventEx);
 		server->loggit("!= cnf / ");
 		return;
 	}
 
-	if (mgcp.EndPoint.m_point == "cnf/$")
+	if (mgcp.Event + mgcp.EventNum == "cnf/$")
 	{
-		cout << "\n1";
+		server->loggit(mgcp.EventEx);
 		auto Room = CreateNewRoom();
-		cout << "\n2";
 		auto Port = GetFreePort();
-		cout << "\n3";
 		auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\na=sendrecv\n")); // формируем тип ответа
 		auto my_SDP = str(f %my_IP %Port %(rand() % 100000) %(rand() % 100000));
-		cout << "\n4";
-		Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.getCallID(), Port);
-		cout << "\n5";
-		server->reply(mgcp.NewResponseOK(200,mgcp.EndPoint.m_point.substr(0, 4)+std::to_string(Room->GetRoomID())) + my_SDP, udpTO);
+		Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
+		mgcp.EventNum = std::to_string(Room->GetRoomID());
+		server->reply(mgcp.ResponseOK(200, mgcp.Event) + my_SDP, udpTO);
+		return;
 	}
 	else
 	{
-		auto ConfNum = mgcp.EndPoint.m_point.substr(4);
-		server->loggit("cnf/"+ConfNum);
-		auto Room = FindRoom(ConfNum);
+		server->loggit(mgcp.EventEx);
+		auto Room = FindRoom(mgcp.EventNum);
 		if (Room == nullptr)
 		{
 			server->loggit("room not found");
-			server->reply(mgcp.ResponseBAD(400) + "Room not found", udpTO);
+			server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
 			return;
 		}
 		auto Port = GetFreePort();
 		auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\na=sendrecv\n")); // формируем тип ответа
 		auto my_SDP = str(f %my_IP %Port % (rand() % 100000) % (rand() % 100000));
-		Room->NewInitPoint("", my_SDP, mgcp.getCallID(), Port);
-		server->reply(mgcp.NewResponseOK(200, mgcp.EndPoint.m_point) + my_SDP, udpTO);
+		Room->NewInitPoint("", my_SDP, mgcp.paramC, Port);
+		server->reply(mgcp.ResponseOK(200, mgcp.Event) + my_SDP, udpTO);
+		return;
 	}
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ConfControl::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
+void ConfControl::proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
-	auto ConfNum = mgcp.EndPoint.m_point.substr(4);
-	auto Room = FindRoom(ConfNum);
+	server->loggit(mgcp.EventEx);
+	auto Room = FindRoom(mgcp.EventNum);
 	if (Room == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400) + "Room not found", udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
 		return;
 	}
-	auto Point = Room->FindPoint(mgcp.getCallID());
+	auto Point = Room->FindPoint(mgcp.paramC);
 	if (Point == nullptr)
 	{
-		server->reply(mgcp.ResponseBAD(400) + "Point not found", udpTO);
+		server->reply(mgcp.ResponseBAD(400, "Point not found"), udpTO);
 		return;
 	}
-	cout << "\nSDPServer\n" << mgcp.SDP;
 	auto response = Room->ModifyPoint(Point, mgcp.SDP);
-	server->reply(mgcp.ResponseOK() + response, udpTO);
+	server->reply(mgcp.ResponseOK(200, "") + response, udpTO);
+	return;
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ConfControl::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
+void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
-	auto ConfNum = mgcp.EndPoint.m_point.substr(4);
-	auto Room = FindRoom(ConfNum);
-	if (Room == nullptr)
+	//out << "\nthread DLCX " << std::this_thread::get_id();
+	if (mgcp.Event == "ann/")
 	{
-		server->reply(mgcp.ResponseBAD(400) + "Room not found", udpTO);
+		server->loggit(mgcp.EventEx);
+		auto Ann = FindAnn(mgcp.paramC);
+		if (Ann == nullptr)
+		{
+			//out << "\nAnn not found";
+			server->loggit("Ann not found");
+			server->reply(mgcp.ResponseBAD(400, "Ann not found"), udpTO);
+			return;
+		}
+		Ann->Stop();
+		SetFreePort(Ann->GetPort());
+		AnnVec_.erase(std::remove(AnnVec_.begin(), AnnVec_.end(), Ann), AnnVec_.end());
+		RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
+		server->reply(mgcp.ResponseOK(250, ""), udpTO);
+	}
+	else if (mgcp.Event == "cnf/")
+	{
+		server->loggit(mgcp.EventEx);
+		auto Room = FindRoom(mgcp.EventNum);
+		if (Room == nullptr)
+		{
+			server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+			return;
+		}
+		auto Point = Room->FindPoint(mgcp.paramC);
+		if (Point == nullptr)
+		{
+			server->reply(mgcp.ResponseBAD(400, "Point not found"), udpTO);
+			return;
+		}
+		SetFreePort(Point->my_port_);
+		Room->DeletePoint(mgcp.paramC);
+		if (Room->GetNumCllPoints() == 0)
+		{
+			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), Room->GetRoomID()), RoomsID_.end());
+			RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), Room), RoomsVec_.end());
+			Room.reset();
+		}
+		server->reply(mgcp.ResponseOK(250, ""), udpTO);
 		return;
 	}
-	auto Point = Room->FindPoint(mgcp.getCallID());
-	if (Point == nullptr) 
-	{
-		server->reply(mgcp.ResponseBAD(400) + "Room not found", udpTO);
-		return;
-	}
-	SetFreePort(Point->my_port_);
-	Room->DeletePoint(mgcp.getCallID());
-	if (Room->GetNumCllPoints() == 0)
-	{
-		RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), Room->GetRoomID()), RoomsID_.end());
-		RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), Room), RoomsVec_.end());
-		Room.reset();
-	}
-	server->reply(mgcp.ResponseOK(250), udpTO);
+	
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void ConfControl::proceedRQNT(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
+void ConfControl::proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO)
 {
-	auto Ann = FindAnn(mgcp.getCallID());
-	auto param = mgcp.getSignalParam();
-	string filepath = param->m_value.substr(param->m_value.find("file:///") + 7, param->m_value.find(")\n") - (param->m_value.find("file:///") + 7));
+	auto Ann = FindAnn(mgcp.paramC);
+	if (Ann == nullptr)
+	{
+		//out << "\nAnn not found";
+		server->loggit("Ann not found");
+		server->reply(mgcp.ResponseBAD(400, "Ann not found"), udpTO);
+		return;
+	}
+	auto param = mgcp.paramS;
+	string test = param.substr(param.find("file:///") + 8);
+	test.pop_back();
+	string filepath = server->m_args.strMmediaPath + "\\"+test;
 	boost::thread my_thread(&SendAnn, Ann, filepath);
 	my_thread.detach();
-	server->reply(mgcp.ResponseOK(), udpTO);
+	server->reply(mgcp.ResponseOK(200, ""), udpTO);
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -136,7 +174,7 @@ SHP_CConfRoom ConfControl::CreateNewRoom()
 {
 	/*Создаем комнату*/
 	SHP_CConfRoom NewRoom(new CConfRoom());
-	cout<< RoomsVec_.size();
+	//out<< RoomsVec_.size();
 	NewRoom->SetRoomID(SetRoomID());
 	RoomsVec_.push_back(NewRoom);
 	return NewRoom;
@@ -170,7 +208,7 @@ SHP_CConfRoom ConfControl::FindRoom(string ID)
 {
 	for (auto &room : RoomsVec_)
 	{ 
-		if (ID == boost::to_string(room->GetRoomID()))
+		if (ID == std::to_string(room->GetRoomID()))
 			return room;
 	}
 	return nullptr;
@@ -181,6 +219,7 @@ SHP_Ann ConfControl::FindAnn(string ID)
 {
 	for (auto &ann : AnnVec_)
 	{
+		//out << "\nID=" + ID + "?=" + ann->CallID_;
 		if (ID == ann->CallID_)
 			return ann;
 	}

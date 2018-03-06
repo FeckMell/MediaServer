@@ -1,24 +1,15 @@
 #pragma once
 #include "stdafx.h"
 #include "Structs.h"
+#include "Logger.h"
 #include <boost/type_index.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 
 extern boost::gregorian::date Date;
 extern string DateStr;
 extern string PathEXE;
-extern FILE *FileLog;
-extern FILE *FileLogConfPoint;
-extern FILE *FileLogConfRoom;
-extern FILE *FileLogMixer;
-extern FILE *FileLogMixerInit;
-extern FILE *FileLogServer;
-/*FILE *FileLog2;
-FILE *FileLogConfPoint2;
-FILE *FileLogConfRoom2;
-FILE *FileLogMixer2;
-FILE *FileLogMixerInit2;
-FILE *FileLogServer2;*/
+extern Logger CLogger;
+
 
 //----------------------------------------------------------------------------
 void GetDate();
@@ -33,7 +24,7 @@ Config ParseConfig(string path, Config parsed);
 //----------------------------------------------------------------------------
 void LogMain(string a);
 //----------------------------------------------------------------------------
-void OpenLogFiles();
+//void OpenLogFiles();
 //----------------------------------------------------------------------------
 void MessBox(string mess);
 //----------------------------------------------------------------------------
@@ -41,6 +32,7 @@ string MakeRemotePort(string SDP);
 //----------------------------------------------------------------------------
 string MakeRemoteIP(string SDP);
 //----------------------------------------------------------------------------
+void GetPathExe(char* argv);
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 

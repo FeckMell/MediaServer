@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Logger.h"
 #include "Functions.h"
 #include "Structs.h"
 #define INPUT_SAMPLERATE     8000
@@ -20,11 +21,12 @@ using namespace boost::asio;
 using namespace std;
 
 extern FILE *FileLogMixerInit;
+extern Logger CLogger;
 struct Initing;
 //struct SSource;
 struct NetworkData;
 
-//typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
+//typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 
 class CMixInit
 {
@@ -37,7 +39,7 @@ public:
 		init(net.input_SDPs);
 	}
 	Initing data;
-	void FreeSockFFmpeg();
+	void FreeSockFFmpeg();//
 private:
 	void loggit(string a);
 	int FirstInit();

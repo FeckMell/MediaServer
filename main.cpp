@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Structs.h"
 #include "Functions.h"
+#include "Logger.h"
 #include "MGCPserver.h"
 
 
@@ -9,36 +10,30 @@
 //#include "vld.h" //visual leak detector
 #endif // WIN32*/
 
-FILE *FileLog;
-FILE *FileLogConfPoint;
-FILE *FileLogConfRoom;
-FILE *FileLogMixer;
-FILE *FileLogMixerInit;
-FILE *FileLogServer;
 boost::gregorian::date Date;
 string DateStr;
 string PathEXE;
 
-void GetPathExe(char* argv)
+Logger CLogger = Logger();
+void Runner()
 {
-	boost::filesystem::path full_path(boost::filesystem::initial_path<boost::filesystem::path>());
-	full_path = boost::filesystem::system_complete(boost::filesystem::path(argv));
-	PathEXE = full_path.parent_path().string() + "\\";
+	CLogger.Run();
 }
 int main(int argc, char* argv[])
 {
 	try
 	{
-		
 		setlocale(LC_ALL, "Russian");
-		cout << "\nВЕРСИЯ 1.0.1 (5.05.2016 / 10:03)";
+		cout << "\nВЕРСИЯ 1.1.5 (11.05.2016 / 13:33)";
 		GetPathExe(argv[0]);
-		OpenLogFiles();
+		CLogger.Create();
+		std::thread my_thread(&Runner);
+		std::this_thread::sleep_for(std::chrono::microseconds(50));
+		my_thread.detach();
 		LogMain("Using path: " + PathEXE);
 		/************************************************************************
 			Парсинг входящих параметров	                                                                     
 		************************************************************************/
-		//string strConfigFile("mgcpserver.cfg");
 		string strConfigFile(PathEXE + "mgcpserver.cfg");
 		Config cfg;
 		cfg = ParseConfig(strConfigFile, cfg);
@@ -46,7 +41,7 @@ int main(int argc, char* argv[])
 		if (cfg.error == 0)
 		{
 			cout << "\nparse end:\nUsing IP: " << cfg.IP << " Media Path: " << cfg.MediaPath << " port: " << cfg.port;
-			LogMain("\nparse end:\nUsing IP: " + cfg.IP + " Media Path: " + cfg.MediaPath + " port: " + boost::to_string(cfg.port));
+			LogMain("\nparse end:\nUsing IP: " + cfg.IP + " Media Path: " + cfg.MediaPath + " port: " + std::to_string(cfg.port));
 		}
 		//Инициализация адреса и порта сервера		
 		boost::asio::io_service io_service;
@@ -54,6 +49,7 @@ int main(int argc, char* argv[])
 		/************************************************************************
 			Запуск экземляра MGCP-сервера	                                                                     
 		************************************************************************/
+		//cout << "\nthread MAIN " << std::this_thread::get_id();
 		CMGCPServer s({ io_service, ep, cfg.MediaPath });
 		LogMain("Запуск экземляра MGCP-сервера	\n");
 		s.Run();

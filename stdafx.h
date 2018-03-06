@@ -32,29 +32,16 @@
 #include <ctime>  
 
 typedef std::lock_guard<std::mutex> lock;
-//#include <tchar.h>
 
 // TODO: reference additional headers your program requires here
 #include <boost/asio.hpp>
-namespace asio	= boost::asio;
-namespace ip	= boost::asio::ip;
-using boost::asio::ip::udp;
-
 #include <boost/format.hpp>
-#include <boost/circular_buffer.hpp>
-#include <boost/scope_exit.hpp>
-#include <boost/scoped_ptr.hpp>
 #include <boost/thread.hpp>
 #include <boost/asio/basic_datagram_socket.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
-//
 #include <boost/algorithm/string.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
 #include "boost/date_time/gregorian/gregorian.hpp"
 #include <boost/filesystem/operations.hpp>
-#include <boost/program_options.hpp>
 
 
 
@@ -82,13 +69,21 @@ extern "C"
 	//#include <libavutil/time.h>
 	//#include <libavcodec/avcodec.h>
 }
-namespace phoenix = boost::phoenix;
-namespace qi = boost::spirit::qi;
-namespace chrono = std::chrono;
+//namespace phoenix = boost::phoenix;
+//namespace qi = boost::spirit::qi;
+//namespace chrono = std::chrono;
+
+namespace asio = boost::asio;
+using boost::asio::ip::udp;
 using std::string;
 using std::cerr;
 using std::cout;
 using std::shared_ptr;
+#pragma comment (lib,"avformat.lib")
+#pragma comment (lib,"avcodec.lib")
+#pragma comment (lib,"avformat.lib")
+#pragma comment (lib,"avutil.lib")
+#pragma comment (lib,"avfilter.lib")
 
 
 

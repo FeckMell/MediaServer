@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "CMixInit.h"
+#define newout
 
 int sdp_read2(void *opaque, uint8_t *buf, int size) /*noexcept*/
 {
@@ -28,8 +29,9 @@ void CMixInit::loggit(string a)
 	t = localtime(&rawtime);
 	string time = "";
 	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000) + "\n          ";
-	fprintf(FileLogMixerInit, ("\n" + time + "       " + a/* + "\n//-------------------------------------------------------------------"*/).c_str());
-	fflush(FileLogMixerInit);
+	//fprintf(FileLogMixerInit, ("\n" + time + "       " + a/* + "\n//-------------------------------------------------------------------"*/).c_str());
+	//fflush(FileLogMixerInit);
+	CLogger.AddToLog(4, "\n" + time + "       " + a);
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
@@ -87,17 +89,17 @@ int CMixInit::init(vector<string> input_SDPs)
 			loggit("Error while opening file " + to_string(i));
 			system("pause");
 		}
-		av_dump_format(data.ifcx[i], 0, input_SDPs[i].c_str(), 0);
-
+		//av_dump_format(data.ifcx[i], 0, input_SDPs[i].c_str(), 0);
 		char out[100];
-		snprintf(out, sizeof(out), "output%d.wav", i);
+		//snprintf(out, sizeof(out), "output%d.wav", i);
 		err = open_output_file(out, i);
+		
 
-		if (write_output_file_header(data.out_ifcx[i]) < 0)
+		/*if (write_output_file_header(data.out_ifcx[i]) < 0)
 		{
 			loggit("Error while writing header outputfile  " + std::to_string(err));
 			system("pause");
-		}
+		}*/
 		loggit("Opening input and output for i = " + to_string(i) + "good");
 	}
 
@@ -403,12 +405,15 @@ int CMixInit::open_input_file(const char * SDP, int i)
 	/** Save the decoder context for easier access later. */
 	data.iccx[i] = (data.ifcx[i])->streams[0]->codec;
 	loggit("int CRTPReceive::open_input_file END");
+
+
 	return 0;
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 int CMixInit::open_output_file(const char *filename, int i)
 {
+#ifndef newout
 	loggit("int CRTPReceive::open_output_file");
 	AVIOContext *output_io_context = NULL;
 	AVStream *stream = NULL;
@@ -473,8 +478,8 @@ int CMixInit::open_output_file(const char *filename, int i)
 	* Some container formats (like MP4) require global headers to be present
 	* Mark the encoder so that it behaves accordingly.
 	*/
-	if ((data.out_ifcx[i])->oformat->flags & AVFMT_GLOBALHEADER)
-		(data.out_iccx[i])->flags |= CODEC_FLAG_GLOBAL_HEADER;
+	/*if ((data.out_ifcx[i])->oformat->flags & AVFMT_GLOBALHEADER)
+		(data.out_iccx[i])->flags |= CODEC_FLAG_GLOBAL_HEADER;*/
 
 	/** Open the encoder for the audio stream to use it later. */
 	if ((error = avcodec_open2(data.out_iccx[i], output_codec, NULL)) < 0) {
@@ -482,7 +487,6 @@ int CMixInit::open_output_file(const char *filename, int i)
 			get_error_text(error));
 		goto cleanup;
 	}
-
 	return 0;
 
 cleanup:
@@ -490,29 +494,79 @@ cleanup:
 	avformat_free_context(data.out_ifcx[i]);
 	data.out_ifcx[i] = NULL;
 	return error < 0 ? error : AVERROR_EXIT;
+
+#else
+	auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%") % net_.IPs[i]/*remote_ip_*/ % net_.remote_ports[i] /*remote_port_*/ % (net_.my_ports[i] - 1000)/*(my_port_ - 1000)*/);
+	//out << "\nrtp to: " << strRTP;
+	avformat_alloc_output_context2(&data.out_ifcx[i], nullptr, "rtp", strRTP.c_str());
+	avio_open(&data.out_ifcx[i]->pb, strRTP.c_str(), AVIO_FLAG_WRITE);
+
+	AVCodecID idCodec = AV_CODEC_ID_PCM_ALAW;
+	AVCodec *output_codec = avcodec_find_encoder(idCodec);
+
+	auto strmOut = avformat_new_stream(data.out_ifcx[i], output_codec);
+	strmOut->time_base = { 1, 8000 };
+	data.out_iccx[i] = strmOut->codec;
+
+	data.out_iccx[i]->channels = 1;
+	data.out_iccx[i]->channel_layout = av_get_default_channel_layout(data.out_iccx[i]->channels);
+	data.out_iccx[i]->sample_fmt = output_codec->sample_fmts[0];
+	data.out_iccx[i]->sample_rate = 8000;
+	data.out_iccx[i]->bit_rate = 8000;
+	data.out_iccx[i]->time_base = { 1, data.out_iccx[i]->sample_rate };
+
+	avcodec_open2(strmOut->codec, output_codec, nullptr);
+#endif // !newout
+return 0;
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 void CMixInit::FreeSockFFmpeg()
 {
+	loggit("Destroing filter");//
+	for (auto &e : data.graphVec)
+	{
+		avfilter_graph_free(&e);
+	}
+	for (auto &e : data.ifcx)
+	{ 
+		avformat_close_input(&e);
+		avformat_free_context(e);
+		e = NULL;
+	}
+	for (auto &e : data.out_iccx)
+	{
+		avcodec_close(e);//
+		avcodec_free_context(&e);
+	}
+	for (auto &e : data.out_ifcx)
+	{
+		avio_close(e->pb);
+	}
+
 	for (int i = 0; i < tracks; ++i)
 	{
-		avformat_close_input(&data.ifcx[i]);
-		data.ifcx[i] = NULL;
+		//avcodec_close(data.out_iccx[i]);//
+		//avformat_close_input(&data.ifcx[i]);
+		//data.ifcx[i] = NULL;
+		
+		//avcodec_free_context(&data.out_iccx[i]);
+		//avio_close(data.out_ifcx[i]->pb);
+		//avformat_free_context(data.ifcx[i]);
+		
+
 		net_.input_SDPs[i].clear();
 		net_.IPs[i].clear();
-		avfilter_graph_free(&data.graphVec[i]);
+		//---------------------------------------------------------------
+		//avformat_free_context(data.out_ifcx[i]);
 		//avcodec_close(data.iccx[i]);
 		//avcodec_close(data.out_iccx[i]);
 		//avcodec_free_context(&data.iccx[i]);
-		avcodec_free_context(&data.out_iccx[i]);
-		avio_close(data.out_ifcx[i]->pb);
-		avformat_free_context(data.ifcx[i]);
-		//avformat_free_context(data.out_ifcx[i]);
 	}
 	net_.input_SDPs.clear();
 	net_.IPs.clear();
 	net_.my_ports.clear();
 	net_.remote_ports.clear();
+	loggit("Destroing filter DONE!");//
 }
 

@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Logger.h"
 #include "Functions.h"
 #include "CMixInit.h"
 #include "Structs.h"
@@ -22,14 +23,15 @@ using boost::asio::ip::udp;
 using namespace boost::asio;
 using namespace std;
 extern FILE *FileLogMixer;
+extern Logger CLogger;
 struct Initing;
-struct CAVPacket2;
+struct CAVPacket;
 struct Data;
 struct NetworkData;
 struct RTP_struct;
 using namespace std::chrono;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
-typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
+typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 
 class CRTPReceive
 {
@@ -42,31 +44,25 @@ public:
 		Initer.reset(new CMixInit(net_));
 		ext = Initer->data;
 		reinit_sockets(false);
+
 	}
 	~CRTPReceive()
 	{
-		cout << "~CRTPReceive()";
+		//out << "\n~CRTPReceive()";
 		process_all_finishing = true;
-
 		Initer.reset();
-		cout << "~CRTPReceive()";
+		//out << "\n~CRTPReceive()";
 	}
 	void add_track(NetworkData net);
 	int process_all(NetworkData net);
 	void receive(int i);
 	void destroy_all();
 	
-
-	
-	
-
 private:
 	boost::asio::io_service io_service_;
 	/*helpers*/
 	void reinit_sockets(bool mode);
 	void loggit(string a, int thread);
-	void rtp_config(int i);
-	void rtp_modify(int i);
 	void clear_memmory();
 	/*main activity*/
 	int init_input_frame(AVFrame **frame);
@@ -82,18 +78,19 @@ private:
 	
 	Initing ext; 
 
-	//vector<SHP_CAVPacket2> rtp;
 	vector<RTP_struct> rtp2;
 	vector<SHP_Socket> vecSock;
 	vector<udp::endpoint> vecEndpoint;
 	vector<Data> vecData;
 	vector<boost::shared_ptr<boost::thread>> receive_threads;
 	NetworkData net_;
+	vector<AVFrame*> vecFrame;//TODO free
 	
 	SHP_CMixInit Initer;
 
 	bool process_all_finishing;
 	int received;
+	std::mutex  mutex_;
 };
 typedef std::shared_ptr<CRTPReceive> SHP_CRTPReceive;
 

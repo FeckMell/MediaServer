@@ -73,15 +73,15 @@ struct RTP_struct
 };
 //-----------------------------------------------------------
 //-----------------------------------------------------------
-struct CAVPacket2 : AVPacket
+struct CAVPacket : AVPacket
 {
-	CAVPacket2() : AVPacket()
+	CAVPacket() : AVPacket()
 	{
 		av_init_packet(this);
 		data = nullptr;
 		size = 0;
 	}
-	CAVPacket2(size_t sz) : CAVPacket2()
+	CAVPacket(size_t sz) : CAVPacket()
 	{
 		if (sz > 0)
 			av_new_packet(this, sz);
@@ -95,12 +95,12 @@ struct CAVPacket2 : AVPacket
 		av_shrink_packet(this, to);
 	}
 	void free(){ av_free_packet(this); }
-	~CAVPacket2(){ av_free_packet(this); }
+	~CAVPacket(){ av_free_packet(this); }
 
 	operator bool()const{ return data != nullptr; }
 	//void free(){ av_free_packet(this); }
 };
-typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
+typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 //-----------------------------------------------------------
 //-----------------------------------------------------------
 struct Data
