@@ -3,16 +3,19 @@
 #include "MGCPparser.h"
 #include "MGCPcontrol.h"
 
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
-
-class MGCPServer
+namespace mgcp
 {
-public:
-	MGCPServer();
-	void Run();
-	void Receive(boost::system::error_code, size_t);
-private:
-	SHP_MGCPcontrol mgcpManagement;
-	REQUEST message = (REQUEST());
-};
+	class MGCPServer
+	{
+	public:
+		MGCPServer();
+		void Run();
+
+	private:
+		void Receive(boost::system::error_code, size_t);
+
+		SHP_MGCPcontrol mgcpManagement;
+		REQUEST message = (REQUEST());
+	};
+	typedef shared_ptr<MGCPServer> SHP_MGCPServer;
+}

@@ -1,4 +1,5 @@
 #pragma once
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
 
 /* <\> FFMPEG PARAMETERS */
 #define INPUT_SAMPLERATE     8000
@@ -28,6 +29,8 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <map>
+#include <regex>
 /* </> C++ */
 
 
@@ -40,7 +43,6 @@
 //#include <boost/exception/all.hpp>
 
 #undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
-
 /* <\> BOOST LOGS */
 #include <boost/log/core.hpp>//
 #include <boost/log/trivial.hpp>
@@ -57,11 +59,11 @@
 /* <\>FFMPEG */
 extern "C"
 {
-	#include <libavformat/avformat.h>
-	#include <libavfilter/buffersink.h>
-	#include <libavfilter/buffersrc.h>
-	#include <libavfilter/avfilter.h>
-	#include <libavutil/opt.h> //#include <libavutil/avstring.h>//#include <libavutil/md5.h>//#include <libavutil/mem.h>//#include <libavutil/samplefmt.h>//#include "libavutil/time.h"
+#include <libavformat/avformat.h>
+#include <libavfilter/buffersink.h>
+#include <libavfilter/buffersrc.h>
+#include <libavfilter/avfilter.h>
+#include <libavutil/opt.h> //#include <libavutil/avstring.h>//#include <libavutil/md5.h>//#include <libavutil/mem.h>//#include <libavutil/samplefmt.h>//#include "libavutil/time.h"
 }
 
 #ifdef WIN32
@@ -80,10 +82,10 @@ extern "C"
 #endif//TimeBeginPeriod()
 
 /* <\> GLOBAL TYPEDEFs */
-typedef boost::log::sources::severity_logger<boost::log::trivial::severity_level> BOOSTLOGGER; // shortcut for logger define
 typedef boost::asio::io_service IO; // shortcut for io_service
 typedef boost::asio::ip::udp::endpoint EP; // shortcut for endpoint
 
+typedef boost::log::sources::severity_logger<boost::log::trivial::severity_level> BOOSTLOGGER; // shortcut for logger define
 typedef std::shared_ptr<boost::asio::io_service> SHP_IO;
 typedef std::shared_ptr<std::thread> SHP_thread;
 /* </> GLOBAL TYPEDEFs */

@@ -1,13 +1,11 @@
 #include "stdafx.h"
 #include "MGCPcontrol.h"
-/*
-TODO:
-2) Reply client
-3) Logs
-*/
+using namespace mgcp;
+
+
 MGCPcontrol::MGCPcontrol()
 {
-	BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::MGCPcontrol() BEGIN END";
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::MGCPcontrol() BEGIN END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -17,32 +15,32 @@ void MGCPcontrol::Preprocessing(SHP_MGCP mgcp_)
 	string type = mgcp_->data["EventType"];
 	if (cmd == "CRCX" && type == "ann")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) CRCX_ANN";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) CRCX_ANN";
 		CRCX_ANN(mgcp_);
 	}
 	else if (cmd == "CRCX" && type == "cnf")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) CRCX_CNF";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) CRCX_CNF";
 		CRCX_CNF(mgcp_);
 	}
 	else if (cmd == "RQNT" && type == "ann")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) RQNT_ANN";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) RQNT_ANN";
 		RQNT_ANN(mgcp_);
 	}
 	else if (cmd == "MDCX" && type == "cnf")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) MDCX_CNF";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) MDCX_CNF";
 		MDCX_CNF(mgcp_);
 	}
 	else if (cmd == "DLCX" && type == "ann")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) DLCX_ANN";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) DLCX_ANN";
 		DLCX_ANN(mgcp_);
 	}
 	else if (cmd == "DLCX" && type == "cnf")
 	{
-		BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...) DLCX_CNF";
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) DLCX_CNF";
 		DLCX_CNF(mgcp_);
 	}
 	else 
@@ -266,7 +264,8 @@ string MGCPcontrol::GenSDP(string server_port_, SHP_MGCP mgcp_)
 		"a=sendrecv\n"
 		)); // формируем тип ответа
 	string result = str(template_sdp
-		%init_Params->data[STARTUP::outerIP]
+		%CFG::data[CFG::outerIP]
+		//%init_Params->data[STARTUP::outerIP]
 		% server_port_
 		%lastSDP_ID
 		%mgcp_->data["CallID"]
@@ -281,7 +280,8 @@ string MGCPcontrol::GenSDP(string server_port_, SHP_MGCP mgcp_)
 //*///------------------------------------------------------------------------------------------
 string MGCPcontrol::ReservePort()
 {
-	int free_port = stoi(init_Params->data[STARTUP::rtpPort]);
+	//int free_port = stoi(init_Params->data[STARTUP::rtpPort]);
+	int free_port = stoi(CFG::data[CFG::rtpPort]);
 	if (usedPorts.size() == 0)
 	{
 		usedPorts.push_back(free_port);

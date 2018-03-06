@@ -1,11 +1,8 @@
 #include "stdafx.h"
 #include "Point.h"
+using namespace mgcp;
 
-/*
-TODO:
-1) Modify SDP
-2) Logs
-*/
+
 Point::Point(SHP_MGCP mgcp_)
 {
 	serverSDP = mgcp_->serverSDP;
@@ -72,7 +69,7 @@ string Point::FindSDPmode(string sdp_)
 		if (sdp_.find(e) != string::npos)
 			return e;
 	}
-	BOOST_LOG_SEV(lg, fatal) << "Point::FindSDPmode(...): not found";
+	BOOST_LOG_SEV(LOG::vecLogs, fatal) << "Point::FindSDPmode(...): not found";
 	return "error";
 }
 //*///------------------------------------------------------------------------------------------

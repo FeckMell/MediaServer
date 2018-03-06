@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SIPparser.h"
+using namespace sip;
 
 
 SIP::SIP(char* rawMes_, EP sender_) : request(rawMes_), sender(sender_)
@@ -174,7 +175,7 @@ string SIP::ResponseBAD()
 //*///------------------------------------------------------------------------------------------
 void SIP::ReplyClient(SHP_SOCK s_, string str_)
 {
-	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
+	BOOST_LOG_SEV(LOG::GL(LOG::L::sip), warning) << "Reply is:\n" << str_;
 	s_->s.send_to(boost::asio::buffer(str_), sender);
 }
 //*///------------------------------------------------------------------------------------------

@@ -1,5 +1,8 @@
 #include "stdafx.h"
 #include "Filter.h"
+using namespace cnf;
+
+
 //TODO: logs
 
 Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
@@ -13,7 +16,7 @@ Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
 	{
 		if (InitFilterGraph(i) < 0)
 		{
-			BOOST_LOG_SEV(lg, fatal) << "Filter::Filter(..) ERROR";
+			BOOST_LOG_SEV(LOG::GL(LOG::L::cnf), fatal) << "Filter::Filter(..) ERROR";
 			system("pause");
 		}
 	}

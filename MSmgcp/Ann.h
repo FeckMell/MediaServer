@@ -1,25 +1,28 @@
+#pragma once
 #include "stdafx.h"
 #include "MGCPparser.h"
 #include "Point.h"
-
-class Ann
+namespace mgcp
 {
-public:
+	class Ann
+	{
+	public:
 
-	Ann(SHP_Point, SHP_MGCP);
+		Ann(SHP_Point, SHP_MGCP);
 
-	void RequestMusic(SHP_MGCP);
-	void Delete();
+		void RequestMusic(SHP_MGCP);
+		void Delete();
 
-	string eventID;
+		string eventID;
 
-private:
+	private:
 
-	bool CheckFileExistance();
-	void SendToAnnModul(string);
+		bool CheckFileExistance();
+		void SendToAnnModul(string);
 
-	bool state = false;
-	string fileName;
-	SHP_Point point;
-};
-typedef shared_ptr<Ann> SHP_Ann;
+		bool state = false;
+		string fileName;
+		SHP_Point point;
+	};
+	typedef shared_ptr<Ann> SHP_Ann;
+}

@@ -1,31 +1,31 @@
 #pragma once
 #include "stdafx.h"
 #include "Point.h"
-
-extern SHP_STARTUP init_Params;
-
-class Control
+namespace dtmf
 {
-public:
-	Control();
-	void Preprocessing(SHP_IPL);
+	class Control
+	{
+	public:
+		Control();
+		void Preprocessing(SHP_IPL);
 
-private:
-	void CR(SHP_IPL);
-	void DL(SHP_IPL);
+	private:
+		void CR(SHP_IPL);
+		void DL(SHP_IPL);
 
-	void DeletePoint(SHP_Point);
-	SHP_Point FindPoint(string);
+		void DeletePoint(SHP_Point);
+		SHP_Point FindPoint(string);
 
-	int GetFreeThread();
+		int GetFreeThread();
 
-	void Receive(boost::system::error_code, size_t, SHP_Point);
-	void RunIO(int);
+		void Receive(boost::system::error_code, size_t, SHP_Point);
+		void RunIO(int);
 
-	Data rawBuf;
+		Data rawBuf;
 
-	vector<SHP_IO> vecIOs;
-	vector<int> vecIOstates;
-	vector<SHP_Point> vecPoints;
-};
-typedef shared_ptr<Control> SHP_Control;
+		vector<SHP_IO> vecIOs;
+		vector<int> vecIOstates;
+		vector<SHP_Point> vecPoints;
+	};
+	typedef shared_ptr<Control> SHP_Control;
+}

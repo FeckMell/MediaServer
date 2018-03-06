@@ -2,19 +2,19 @@
 #include "stdafx.h"
 #include "SIPparser.h"
 #include "SIPcontrol.h"
-
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
-
-class SIPServer
+namespace sip
 {
-public:
-	SIPServer(int num_, string name_);
-	void Run();
-	void ReceiveSIP(boost::system::error_code, size_t);
-	void ReceiveIN(boost::system::error_code, size_t);
-private:
-	//SHP_IPLcontrol iplManagement;
-	SHP_SIPcontrol sipManagement;
-	REQUEST message = (REQUEST());
-};
+	class SIPServer
+	{
+	public:
+		SIPServer();
+		void Run();
+		void ReceiveSIP(boost::system::error_code, size_t);
+		void ReceiveIN(boost::system::error_code, size_t);
+	private:
+		//SHP_IPLcontrol iplManagement;
+		SHP_SIPcontrol sipManagement;
+		REQUEST message = (REQUEST());
+	};
+	typedef shared_ptr<SIPServer> SHP_SIPServer;
+}

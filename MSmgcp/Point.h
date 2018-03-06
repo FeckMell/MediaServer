@@ -1,34 +1,33 @@
 #pragma once
 #include "stdafx.h"
 #include "MGCPparser.h"
-
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
-
-class Point
+namespace mgcp
 {
-public:
-	//enum State{ login, pass, ready, paused };
-	Point(SHP_MGCP);
-	void ModifyPoint(SHP_MGCP);
+	class Point
+	{
+	public:
+		//enum State{ login, pass, ready, paused };
+		Point(SHP_MGCP);
+		void ModifyPoint(SHP_MGCP);
 
-	string PrintPoint();
+		string PrintPoint();
 
-	string serverSDP;
-	string clientSDP;
-	string serverPort;
-	string clientPort;
-	string clientIP;
-	string callID;
+		string serverSDP;
+		string clientSDP;
+		string serverPort;
+		string clientPort;
+		string clientIP;
+		string callID;
 
-	string eventID;
+		string eventID;
 
-	bool state = false;//true - sendrecv, false - inactive
-private:
+		bool state = false;//true - sendrecv, false - inactive
+	private:
 
-	string FindSDPmode(string);
-	bool ChangeSDPmode(string);
-	string GetIPfromSDP(string);
-	string GetPortFromSDP(string);
-};
-typedef shared_ptr<Point> SHP_Point;
+		string FindSDPmode(string);
+		bool ChangeSDPmode(string);
+		string GetIPfromSDP(string);
+		string GetPortFromSDP(string);
+	};
+	typedef shared_ptr<Point> SHP_Point;
+}

@@ -1,39 +1,38 @@
 #pragma once
 #include "stdafx.h"
-
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
-
-class MGCP
+namespace mgcp
 {
-public:
-	MGCP(char*, EP);
-	void ReplyClient();
-	void ReplyNOTMGCP();
+	class MGCP
+	{
+	public:
+		MGCP(char*, EP);
+		void ReplyClient();
+		void ReplyNOTMGCP();
 
-	string PrintAll();
-	
-	EP sender;
-	string request;
-	string mgcp = "";
-	string sdp = "";
-	string serverSDP = "";
+		string PrintAll();
 
-	string outerError = "";
-	string innerError = "";
-	map<string, string> data;
+		EP sender;
+		string request;
+		string mgcp = "";
+		string sdp = "";
+		string serverSDP = "";
 
-private:
+		string outerError = "";
+		string innerError = "";
+		map<string, string> data;
 
-	string ResponseOK();
-	string ResponseBAD();
+	private:
 
-	void Remove();
-	void SplitMGCPandSDP();
-	void ParseMain();
-	void ParseRest();
+		string ResponseOK();
+		string ResponseBAD();
 
-	void CheckValid();
-};
+		void Remove();
+		void SplitMGCPandSDP();
+		void ParseMain();
+		void ParseRest();
 
-typedef shared_ptr<MGCP> SHP_MGCP;
+		void CheckValid();
+	};
+
+	typedef shared_ptr<MGCP> SHP_MGCP;
+}

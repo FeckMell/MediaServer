@@ -15,17 +15,8 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MGCPServer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MGCPcontrol.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Point.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MSmgcp.h">
+      <Filter>Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="Ann.h">
       <Filter>Header Files</Filter>
@@ -33,34 +24,46 @@
     <ClInclude Include="Cnf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MGCPcontrol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="MGCPparser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MGCPServer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Point.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MGCPServer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MGCPcontrol.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Point.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Ann.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Cnf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="MGCPcontrol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="MGCPparser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MSmgcp.cpp">
+    <ClCompile Include="MGCPServer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Point.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

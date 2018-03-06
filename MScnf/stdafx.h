@@ -1,3 +1,3 @@
 #pragma once
-#include <SharedLib.h>
-#pragma comment(lib,"SharedLibs.lib")
+#include "../SharedLib/SharedLib.h"
+#pragma comment(lib,"../Release/SharedLib.lib")
