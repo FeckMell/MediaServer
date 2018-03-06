@@ -30,7 +30,6 @@ CRTPReceive::CRTPReceive(vector<SHP_CConfPoint> callers, int ID) :callers_(calle
 	outfile1.open("ConfResult1.wav", std::ofstream::binary);
 	outfile2.open("ConfResult2.wav", std::ofstream::binary);
 	outfile3.open("ConfResult3.wav", std::ofstream::binary);
-	loggit("Shold create initer");
 
 	
 	process_all();
@@ -56,6 +55,7 @@ void CRTPReceive::receive_h(boost::system::error_code ec, size_t szPack, int i)
 			memcpy(shpPacket->data, callers_[i]->RawBuf.data + 12, szPack - 12);
 			//callers_[i]->RawBuf.data[0] = 0;
 			callers_[i]->RawBuf.size = szPack - 12;
+			shpPacket->size = szPack - 12;
 			callers_[i]->FrameBuf.push(shpPacket);
 			loggit("sz="+to_string(szPack)+" reseive " + to_string(i));
 #ifdef DEBUG0
@@ -174,6 +174,12 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 		loggit("decode_audio_frame bytes =" + to_string(shpPacket->size) + "from ip=" + to_string(callers_[i]->Endpoint.port()));
 		//avcodec_decode_audio4(callers_[i]->iccx, frame, data_present, shpPacket.get());
 		avcodec_decode_audio4(ext.iccx[i], frame, data_present, shpPacket.get());
+#ifdef DEBUG2
+		if (i == 0) { outfile0.write((char*)shpPacket->data, shpPacket->size); loggit("data" + to_string(i)); }
+		else if (i == 1) { outfile1.write((char*)shpPacket->data, shpPacket->size); loggit("data" + to_string(i)); }
+		else if (i == 2) { outfile2.write((char*)shpPacket->data, shpPacket->size); loggit("data" + to_string(i)); }
+		else if (i == 3) { outfile3.write((char*)shpPacket->data, shpPacket->size); loggit("data" + to_string(i)); }
+#endif
 		shpPacket->free();
 	}
 	return 0;
