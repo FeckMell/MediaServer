@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 		DateStr = GetDate();
 		setlocale(LC_ALL, "Russian");
-		cout << "\nÂÅÐÑÈß 1.4.0 (13.07.2016 / 12:21)";
+		cout << "\nÒÅÑÒ ÂÅÐÑÈß 1.4.1 (14.07.2016 / 11:17)";
 		GetPathExe(argv[0]);
 		CLogger.Create();
 		boost::thread my_thread(&Runner);

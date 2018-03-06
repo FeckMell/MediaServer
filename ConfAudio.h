@@ -37,9 +37,15 @@ private:
 	int process_all();
 	void new_process();
 	void receive();
-	//void ConfAudio::receive2(int i);//debug
 
-	//void init_packet(AVPacket *packet);
+
+	void proceed_data(int);
+	void fill_filter_for_i(int i);
+	SHP_CAVFrame get_frame_from_filter(int i);
+	void encode_and_send(SHP_CAVFrame, int);
+	void create_silent_frame();
+
+
 
 	int decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
 	SHP_CAVFrame decode(SHP_CAVPacket, int);
@@ -59,9 +65,8 @@ private:
 	Initing ext;
 	SHP_CFilterInit Initer;
 
+	SHP_CAVFrame SilentFrame;
 	bool process_all_finishing;
-	mutex  Mut_io;
-	mutex  Mut_pr;
 	int ID_;
 };
 typedef std::shared_ptr<ConfAudio> SHP_ConfAudio;

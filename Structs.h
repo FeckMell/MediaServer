@@ -81,12 +81,16 @@ struct RTP_struct
 class CAVFrame
 {
 public:
-	CAVFrame(){ frame = av_frame_alloc(); }
+	CAVFrame(){ frame = av_frame_alloc(); Empty = false; }
+	CAVFrame(bool a){ frame = av_frame_alloc(); Empty = true; }
 	~CAVFrame(){ av_frame_free(&frame); }
 
 	AVFrame* get(){ return frame; }
 	void free(){ av_frame_free(&frame); }
+
+	bool empty(){ return Empty; }
 private:
+	bool Empty;
 	AVFrame* frame;
 };
 typedef shared_ptr<CAVFrame> SHP_CAVFrame;
@@ -187,8 +191,9 @@ public:
 	{
 		SHP_CAVFrame result;
 		mutex_.lock();
-		result = buffer_.front();
-		buffer_.pop_front();
+		if (buffer_.empty()) { result = std::make_shared<CAVFrame>(true); }//cout << "\nempty, size =" << buffer_.size(); }
+		else {result = buffer_.front(); }
+		
 		mutex_.unlock();
 		return result;
 	}

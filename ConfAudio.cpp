@@ -14,6 +14,7 @@ ConfAudio::ConfAudio(vector<SHP_CConfPoint> callers, int ID) :callers_(callers),
 	process_all_finishing = false;
 	Initer.reset(new CFilterInit(callers, ID_));
 	ext = Initer->data;
+	create_silent_frame();
 	loggit("ConfAudio constuct END");
 	process_all();
 	
@@ -52,11 +53,13 @@ void ConfAudio::receive_h(boost::system::error_code ec, size_t szPack, int i)
 			callers_[i]->RawBuf.size = szPack - 12;
 			shpPacket->make_size(szPack - 12);
 			loggit("sz=" + to_string(szPack) + " reseive " + to_string(i) + " buf.size=" + to_string(callers_[i]->FrameBuf.size()));
-			
-			callers_[i]->FrameBuf.push(decode(shpPacket, i));
+			auto frame = decode(shpPacket, i);
+
+			callers_[i]->FrameBuf.push(frame);
+
+			proceed_data(i);
 
 
-			//callers_[i]->FrameBuf.push(shpPacket);
 		}
 		if (process_all_finishing == false)
 		{
@@ -85,6 +88,75 @@ void ConfAudio::receive()
 	}
 }
 //*/------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+void ConfAudio::proceed_data(int i)
+{
+	fill_filter_for_i(i);
+	SHP_CAVFrame frame = get_frame_from_filter(i);
+	encode_and_send(frame, i);
+}
+//*/------------------------------------------------------------------------------------------
+void ConfAudio::fill_filter_for_i(int i)
+{
+	for (int j = 0; j < (int)callers_.size(); ++j)
+	{
+		if (i == j) continue;
+
+		SHP_CAVFrame frame = callers_[j]->FrameBuf.pop();
+		//cout << "\ntest " << frame->empty() << " done";
+		//cout << "\ntest2 " << SilentFrame->empty()<<" done"<<i;
+		if (frame->empty())
+		{ 
+			//cout << "\nUSE SF "<<i;
+			if (i < j){ av_buffersrc_write_frame(ext.afcx[i].src[j - 1], SilentFrame->get()); }
+			else{ av_buffersrc_write_frame(ext.afcx[i].src[j], SilentFrame->get()); }
+			//av_frame_unref(SilentFrame->get());
+		}
+		else{
+			if (i < j){ av_buffersrc_write_frame(ext.afcx[i].src[j - 1], frame->get()); }
+			else{ av_buffersrc_write_frame(ext.afcx[i].src[j], frame->get()); }
+			//av_frame_unref(frame->get());
+		}
+		//cout << "\nfor " << i;
+	}
+	//cout << "\nfill end";
+}
+//*/------------------------------------------------------------------------------------------
+SHP_CAVFrame ConfAudio::get_frame_from_filter(int i)
+{
+	SHP_CAVFrame frame = std::make_shared<CAVFrame>();
+	av_buffersink_get_frame(ext.sinkVec[i], frame->get());
+	return frame;
+}
+//*/------------------------------------------------------------------------------------------
+void ConfAudio::encode_and_send(SHP_CAVFrame frame, int i)
+{
+	int mark;
+	SHP_CAVPacket output_packet = std::make_shared<CAVPacket>();
+	avcodec_encode_audio2(callers_[i]->out_iccx, output_packet->get(), frame->get(), &mark);
+	SHP_CAVPacket send = std::make_shared<CAVPacket>(output_packet->size() + 12);
+	callers_[i]->rtp.rtp_modify();
+	memcpy(send->data(), (uint8_t*)&callers_[i]->rtp.header, 12);
+	memcpy(send->data() + 12, output_packet->data(), output_packet->size());
+	loggit("sending  " + to_string(send->size()) + "bytes to ip " + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
+	try
+	{
+		if (callers_[i]->Endpoint.address().to_string() == "0.0.0.0"){ loggit("inactive"); }
+		else callers_[i]->Sock->send_to(boost::asio::buffer(send->data(), send->size()), callers_[i]->Endpoint);
+	}
+	catch (std::exception& e)
+	{
+		loggit("encode_audio_frame: Exception:" + to_string(*e.what()) + " (Inactive socket skiped port )" + to_string(callers_[i]->Endpoint.port()));
+	}
+}
+//*/------------------------------------------------------------------------------------------
+//*/------------------------------------------------------------------------------------------
 SHP_CAVFrame ConfAudio::decode(SHP_CAVPacket packet, int i)
 {
 	SHP_CAVFrame frame = std::make_shared<CAVFrame>();
@@ -93,25 +165,41 @@ SHP_CAVFrame ConfAudio::decode(SHP_CAVPacket packet, int i)
 	return frame;
 }
 //*/------------------------------------------------------------------------------------------
+void ConfAudio::create_silent_frame()
+{
+	loggit("Creating silent frame");
+	int mark;
+	SilentFrame = std::make_shared<CAVFrame>();
+	SHP_CAVPacket shpPacket = std::make_shared<CAVPacket>(160);
+	string str = "";
+	for (int k = 0; k < 20; ++k) str += "aaaaaaaa";
+	memcpy(shpPacket->data(), str.c_str(), 160);
+	avcodec_decode_audio4(callers_[0]->iccx, SilentFrame->get(), &mark, shpPacket->get());
+	//for (int i = 0; i < (int)callers_.size() - 1; ++i)
+	//{
+	//	cout << i;
+	//	av_buffersrc_write_frame(ext.afcx[0].src[i], SilentFrame->get());
+	//}
+	//loggit("1");
+	//cout << "\n1";
+	//SHP_CAVFrame frame;
+	//frame = SilentFrame;
+	loggit("Creating silent frame DONE");
+}
+//*/------------------------------------------------------------------------------------------
+
+
+
+
 int ConfAudio::decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i)
 {
 	SHP_CAVPacket shpPacket;
-	//if (callers_[i]->FrameBuf.empty())
-	//{
-		loggit("Creating silent frame for ip=" + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
-		string str = "";
-		for (int k = 0; k < callers_[i]->RawBuf.size / 8; ++k) str += "aaaaaaaa";
-		shpPacket.reset(new CAVPacket(160));
-		memcpy(shpPacket->data(), str.c_str(), 160);
-		
-	//}
-	/*else
-	{
-		shpPacket = callers_[i]->FrameBuf.pop();
-		loggit("decode_audio_frame bytes =" + to_string(shpPacket->size()) + "from ip=" + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
-	}*/
+	loggit("Creating silent frame for ip=" + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
+	string str = "";
+	for (int k = 0; k < callers_[i]->RawBuf.size / 8; ++k) str += "aaaaaaaa";
+	shpPacket.reset(new CAVPacket(160));
+	memcpy(shpPacket->data(), str.c_str(), 160);
 	avcodec_decode_audio4(callers_[i]->iccx, frame->get(), data_present, shpPacket->get());
-	//shpPacket->free();
 	return 0;
 }
 //*/------------------------------------------------------------------------------------------
@@ -189,9 +277,9 @@ int ConfAudio::process_all()
 	loggit("process_all");
 	receive();
 	boost::shared_ptr<boost::thread> thread_io(new boost::thread(&ConfAudio::Run_io, this));
-	boost::shared_ptr<boost::thread> thread_pr(new boost::thread(&ConfAudio::new_process, this));
+	//boost::shared_ptr<boost::thread> thread_pr(new boost::thread(&ConfAudio::new_process, this));
 
-	receive_threads.push_back(thread_pr);
+	//receive_threads.push_back(thread_pr);
 	receive_threads.push_back(thread_io);
 	loggit("process_all done");
 	return 0;
@@ -201,7 +289,7 @@ int ConfAudio::process_all()
 void ConfAudio::new_process()
 {
 	loggit("PRE add to filter");
-	Mut_pr.lock();
+	//Mut_pr.lock();
 	auto t1 = steady_clock::now();
 	auto t2 = steady_clock::now();
 	
@@ -244,7 +332,6 @@ void ConfAudio::new_process()
 			av_frame_unref(filt_frame->get());
 		}
 	}
-	Mut_pr.unlock();
 	loggit("new_process DONE");
 }
 //*/------------------------------------------------------------------------------------------
@@ -253,21 +340,15 @@ void ConfAudio::clear_memmory()
 {
 	loggit("clearing");
 	
-	receive_threads[0]->join();//new process
+	//receive_threads[0]->join();//new process
 	for (auto &e : callers_)
 	{
 		e->Sock->cancel();
 	}
-	receive_threads[1]->join();//run_io
-	//receive_threads[1]->~thread();//run_io
+	//receive_threads[1]->join();//run_io
+	receive_threads[0]->join();//run_io
 	callers_[0]->io_service_.reset();
-	
-	Mut_io.lock();
-	Mut_io.unlock();
-	Mut_pr.lock();
-	Mut_pr.unlock();
 	receive_threads.clear();
-	//Initer.reset();
 	loggit("clearing DONE");
 }
 //*/------------------------------------------------------------------------------------------
