@@ -1,18 +1,11 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
 
-
-
-
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class MGCP
 {
 public:

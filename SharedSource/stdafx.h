@@ -1,8 +1,3 @@
-// stdafx.h : include file for standard system include files,
-// or project specific include files that are used frequently, but
-// are changed infrequently
-//
-
 #pragma once
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
@@ -56,12 +51,23 @@
 #include <boost/thread/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/exception/all.hpp>
-#include <boost/circular_buffer.hpp>
 //#include <boost/algorithm/string.hpp>
 //#include "boost/date_time/gregorian/gregorian.hpp"
 //#include <boost/thread.hpp>
+/*LOGS*/
+#include <boost/log/core.hpp>//
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>//
+#include <boost/log/sinks/text_file_backend.hpp>//
+#include <boost/log/utility/setup/file.hpp>//
+#include <boost/log/utility/setup/common_attributes.hpp>//
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
 
-typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
+
+/*LOGS END*/
+
+
 
 
 
@@ -83,13 +89,6 @@ extern "C"
 #include "libavutil/time.h"
 }
 
-
-//namespace asio = boost::asio;
-using boost::asio::ip::udp;
-//using std::string;
-//using std::cerr;
-//using std::cout;
-//using std::shared_ptr;
 #ifdef WIN32
 #pragma comment (lib,"avformat.lib")
 #pragma comment (lib,"avcodec.lib")
@@ -98,12 +97,19 @@ using boost::asio::ip::udp;
 #pragma comment (lib,"avfilter.lib")
 #pragma comment (lib,"Winmm.lib")
 #endif
+#ifdef WIN32
+#include "Mmsystem.h"
+#endif
 //Winmm.dll
 typedef std::lock_guard<std::mutex> lock;
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+namespace keywords = boost::log::keywords;
+using namespace logging::trivial;
+using namespace std;
+typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 typedef boost::asio::io_service IO;
 typedef boost::asio::ip::udp::endpoint EP;
 typedef std::shared_ptr<IO> SHP_IO;
-
-
-// TODO: reference additional headers your program requires here
-
+typedef std::shared_ptr<std::thread> SHP_thread;

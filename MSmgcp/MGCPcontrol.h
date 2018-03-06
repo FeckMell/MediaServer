@@ -1,19 +1,13 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-#include "MGCPparser.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "EventAnn.h"
 #include "EventCnf.h"
-
-using namespace std;
+#include "MGCPparser.h"
 
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
-
-
-
-
 
 class MGCPcontrol
 {
@@ -24,5 +18,8 @@ public:
 private:
 	SHP_EventAnn annControl;
 	SHP_EventCnf cnfControl;
+	//*///------------------------------------------------------------------------------------------
+	//*///------------------------------------------------------------------------------------------
+	void ReplyClient(SHP_MGCP, string);
 };
 typedef shared_ptr<MGCPcontrol> SHP_MGCPcontrol;

@@ -1,19 +1,13 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "EventBase.h"
 #include "MGCPparser.h"
 #include "Cnf.h"
 
-using namespace std;
-
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
-
-
-
-
 
 class EventCnf :EventBase
 {
@@ -26,6 +20,9 @@ private:
 	string CheckExistance(SHP_MGCP);
 	SHP_Cnf FindCnf(SHP_MGCP);
 	void RemoveCnf(SHP_Cnf);
+	//*///------------------------------------------------------------------------------------------
+	//*///------------------------------------------------------------------------------------------
+	void ReplyClient(SHP_MGCP, string);
 
 	vector<SHP_Cnf> vecCnf;
 };

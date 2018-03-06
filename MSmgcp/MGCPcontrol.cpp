@@ -1,17 +1,18 @@
-#include "stdafx.h"
 #include "MGCPcontrol.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 MGCPcontrol::MGCPcontrol()
 {
+	BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::MGCPcontrol()";
 	annControl.reset(new EventAnn());
+	BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::MGCPcontrol(): annControl.reset(new EventAnn()); DONE";
 	cnfControl.reset(new EventCnf());
+	BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::MGCPcontrol(): cnfControl.reset(new EventCnf()); DONE";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void MGCPcontrol::Preprocessing(SHP_MGCP mgcp_)
 {
+	BOOST_LOG_SEV(lg, trace) << "MGCPcontrol::Preprocessing(...)";
 	switch (mgcp_->events[MGCP::CMD])
 	{
 	case MGCP::CRCX:
@@ -52,3 +53,10 @@ void MGCPcontrol::Preprocessing(SHP_MGCP mgcp_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void MGCPcontrol::ReplyClient(SHP_MGCP mgcp_, string str_)
+{
+	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
+	net_Data->GS(NETDATA::out)->s.send_to(boost::asio::buffer(str_), mgcp_->sender);
+}

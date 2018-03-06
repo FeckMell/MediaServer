@@ -1,29 +1,21 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class IPL
 {
 public:
 	/*Enum struct data*/
 	enum ParamNames
 	{//             int type
-		modulName, eventType, clientIP, clientPort, serverPort, fileName, eventID,
+		modulName, eventType, clientIP, clientPort, serverPort, eventID, fileName,
 		maxParamNames
 	};
-	enum EventType { cr, dl, maxEventType };
+	enum EventType { cr, md, dl, maxEventType };
 
 	/*Main public activity*/
+	IPL(int, string);
 	IPL(char*, boost::asio::ip::udp::endpoint);
 	string ResponseOK(int, string);
 	string ResponseBAD(int, string);
@@ -39,8 +31,11 @@ public:
 	int type = -1;
 	vector<string> data;
 	string stringIPL;
-	boost::asio::ip::udp::endpoint sender;
+	EP sender;
 	string error = "";
+
+	static string myModulSTR;
+	static int myModulINT;
 
 private:
 	/*Parsing functions*/
@@ -49,5 +44,6 @@ private:
 	/*String names for enumed data*/
 	static vector<string> paramNamesStr;//0
 	static vector<string> eventTypeStr;//1
+	
 };
 typedef shared_ptr<IPL> SHP_IPL;

@@ -1,17 +1,8 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class IPL
 {
 public:
@@ -21,10 +12,10 @@ public:
 		modulName, eventType, clientIP, clientPort, serverPort, eventID,
 		maxParamNames
 	};
-	enum EventType { cr, md, dl,  maxEventType };
+	enum EventType { cr, md, dl, maxEventType };
 
 	/*Main public activity*/
-	IPL(char*, boost::asio::ip::udp::endpoint);
+	IPL(char*, EP);
 	string ResponseOK(int, string);
 	string ResponseBAD(int, string);
 
@@ -39,7 +30,7 @@ public:
 	int type = -1;
 	vector<string> data;
 	string stringIPL;
-	boost::asio::ip::udp::endpoint sender;
+	EP sender;
 	string error = "";
 
 private:

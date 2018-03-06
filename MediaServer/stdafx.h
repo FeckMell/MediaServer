@@ -48,6 +48,7 @@
 //#include <exception>
 
 
+
 //typedef std::lock_guard<std::mutex> lock;
 
 // TODO: reference additional headers your program requires here
@@ -60,11 +61,29 @@
 //#include <boost/algorithm/string.hpp>
 //#include "boost/date_time/gregorian/gregorian.hpp"
 //#include <boost/thread.hpp>
+/*LOGS*/
+#include <boost/log/core.hpp>//
+#include <boost/log/trivial.hpp>
+#include <boost/log/expressions.hpp>//
+#include <boost/log/sinks/text_file_backend.hpp>//
+#include <boost/log/utility/setup/file.hpp>//
+#include <boost/log/utility/setup/common_attributes.hpp>//
+#include <boost/log/sources/severity_logger.hpp>
+#include <boost/log/sources/record_ostream.hpp>
+
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+namespace keywords = boost::log::keywords;
+using namespace logging::trivial;
+/*LOGS END*/
 
 typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
 
-
+#include <Windows.h>
+#include <WinUser.h> //для определения окна
+#include <ShellAPI.h> //для запуска процессов
 
 extern "C"
 {

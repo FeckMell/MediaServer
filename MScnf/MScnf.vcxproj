@@ -48,9 +48,10 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Projects\LIBS\Boost(old)\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost(old)\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <ReferencePath>
+    </ReferencePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -69,53 +70,46 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost(old);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
+      <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;C:\Projects\LIBS\Boost(old)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Audio.h" />
     <ClInclude Include="Cnf.h" />
     <ClInclude Include="CnfPoint.h" />
     <ClInclude Include="Control.h" />
     <ClInclude Include="Filter.h" />
-    <ClInclude Include="Functions.h" />
     <ClInclude Include="InnerParser.h" />
     <ClInclude Include="Server.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="Structs.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\SharedSource\Functions.cpp" />
+    <ClCompile Include="..\SharedSource\stdafx.cpp" />
+    <ClCompile Include="..\SharedSource\Structs.cpp" />
     <ClCompile Include="Audio.cpp" />
     <ClCompile Include="Cnf.cpp" />
     <ClCompile Include="CnfPoint.cpp" />
     <ClCompile Include="Control.cpp" />
     <ClCompile Include="Filter.cpp" />
-    <ClCompile Include="Functions.cpp" />
     <ClCompile Include="InnerParser.cpp" />
     <ClCompile Include="MScnf.cpp" />
     <ClCompile Include="Server.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="Structs.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

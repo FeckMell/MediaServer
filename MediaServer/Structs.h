@@ -2,17 +2,14 @@
 #include "stdafx.h"
 using namespace std;
 
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 struct IPar
 {
 	//Tipes of parametrs.
 	enum ParamNames
 	{
-		RTPPort, outerPort, innerPort, MediaPath, outerIP, innerIP, MaxTimeAnn, MaxTimeCnf, MaxTimePrx,
-		LogLevel, PathEXE,
-		MaxParamNames
+		outerIP, innerIP, innerPort, logLevel, outerPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
+		mediaPath, homePath,
+		maxParamNames
 	};
 	//Methods for Data.
 	IPar(char*);
@@ -28,3 +25,4 @@ struct IPar
 typedef shared_ptr<IPar> SHP_IPar;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+void LogsInit();

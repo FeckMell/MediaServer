@@ -1,20 +1,17 @@
-#include "stdafx.h"
-#ifdef WIN32
-#include "Mmsystem.h"
-#endif
-#include "Functions.h"
-#include "Structs.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Functions.h"
+#include "../SharedSource/Structs.h"
 #include "Server.h"
 
 //*///------------------------------------------------------------------------------------------
 //*///----Variables-----------------------------------------------------------------------------
 SHP_IPar init_Params;
 SHP_NETDATA net_Data;
-//boost::asio::io_service io_Server;
-//boost::asio::io_service io_Apps;
-//SHP_Socket outer_Socket;
-//SHP_Socket inner_Socket;
-//udp::endpoint inner_EndPoint;
+SHP_MGCPServer outer_Server;
+
+string my_Modul_STR;
+int my_Modul_INT;
+src::severity_logger<severity_level> lg;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 int main(int argc, char* argv[])
@@ -24,40 +21,28 @@ int main(int argc, char* argv[])
 /************************************************************************
 						Инициализация
 ************************************************************************/
-#ifdef WIN32
-		//timeBeginPeriod(1);//CPU timer 1ms
-		//SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);//Realtime priority in system
-#endif
-		setlocale(LC_ALL, "Russian");//Russia location
-		cout << "\nТЕСТ MSmgcp 2.0 (20.10.2016 / 12:08)\n";//Info about app.
-		init_Params.reset(new IPar(argv[0])); //Create storage for init parametrs and parse init file
-		cout << init_Params->GetParams(); //show parametrs
-		net_Data.reset(new NETDATA());
-		//Init sockets for modules and server
-		/*outer_Socket.reset(new Socket(
-			init_Params->data[IPar::outerIP],
-			stoi(init_Params->data[IPar::outerPort]),
-			io_Server));
-		inner_Socket.reset(new Socket(
-			init_Params->data[IPar::innerIP],
-			stoi(init_Params->data[IPar::outerPort]),
-			io_Server));
-		inner_EndPoint = udp::endpoint(
-			boost::asio::ip::address::from_string("127.0.0.1"),
-			stoi("2427")
-			);*/
+		setlocale(LC_ALL, "Russian");
+		my_Modul_STR = "MGCP";
+		my_Modul_INT = 1;
+		init_Params.reset(new IPar(argv, my_Modul_STR));
+		LogsInit(my_Modul_STR);
+		BOOST_LOG_SEV(lg, fatal) << init_Params->GetParams()<<"\nIniting net services.";
+		net_Data.reset(new NETDATA(my_Modul_INT));
 /************************************************************************
 					 Запуск MGCP-сервера
 ************************************************************************/
-		MGCPServer server_outer;
-		server_outer.Run();
+		BOOST_LOG_SEV(lg, debug) << "Initing done.->MGCPServer server_outer;";
+		//MGCPServer server_outer;
+		outer_Server.reset(new MGCPServer());
+		BOOST_LOG_SEV(lg, debug) << "MGCPServer server_outer;->server_outer.Run();";
+		outer_Server->Run();
+		BOOST_LOG_SEV(lg, debug) << "server_outer.Run();->net_Data->GI(NETDATA::out).run();";
 		net_Data->GI(NETDATA::out).run();
-		//io_Server.run();
-
+		BOOST_LOG_SEV(lg, debug) << "net_Data->GI(NETDATA::out).run();";
 	}
 	catch (std::exception& e)
 	{
-		cout<<e.what();
+		BOOST_LOG_SEV(lg, fatal) << "exeption in main:"<<e.what();
 		system("pause");
 	}
 	return 0;

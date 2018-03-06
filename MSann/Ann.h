@@ -1,16 +1,13 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "MusicStore.h"
+#include "InnerParser.h"
 using namespace std;
 using boost::asio::ip::udp;
 
 extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
 
 class Ann
 {

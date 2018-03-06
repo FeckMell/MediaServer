@@ -1,22 +1,21 @@
-#include "stdafx.h"
 #include "EventBase.h"
+
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 vector<int> EventBase::usedPorts;
 vector<int> EventBase::usedEventNum;
 int EventBase::lastSDP_ID = 0;
-
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 EventBase::EventBase()
 {
-	//Nothing to do
+	BOOST_LOG_SEV(lg, trace) << "EventBase::EventBase()";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 string EventBase::ReservePort()
 {
-	int free_port = stoi(init_Params->data[IPar::RTPPort]);
+	int free_port = stoi(init_Params->data[IPar::rtpPort]);
 	if (usedPorts.size() == 0)
 	{
 		usedPorts.push_back(free_port);
