@@ -5,6 +5,9 @@ using namespace mgcp;
 
 MGCP::MGCP(char* rawMes_, boost::asio::ip::udp::endpoint sender_) : request(rawMes_), sender(sender_)
 {
+	clientSDP.reset(new SDP());
+	serverSDP.reset(new SDP());
+
 	Remove();
 	SplitMGCPandSDP();
 	ParseMain();
@@ -41,7 +44,7 @@ void MGCP::SplitMGCPandSDP()
 		temp = copy_single_n_line(request, line);
 	}
 	line++;
-	string sdp="";
+	string sdp = "";
 	temp = copy_single_n_line(request, line);
 	while (temp != "")
 	{
@@ -63,7 +66,7 @@ void MGCP::ParseMain()
 	catch (exception& e)
 	{
 		outerError = "Not MGCP";
-		cout << e.what();
+		e;
 		return;
 	}
 	if (result.size() != 6)
@@ -160,28 +163,19 @@ void MGCP::CheckValid()
 	}
 
 	// Check SDP
-	if (clientSDP != nullptr)
+	if (clientSDP->error != "")
 	{
-		if (clientSDP->error != "")
-		{
-			outerError = clientSDP->error;
-			return;
-		}
+		outerError = clientSDP->error;
+		return;
 	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void MGCP::ReplyClient()
 {
-	if (outerError != "") ReplyNOTMGCP();
-	else
-	{
-		string result;
-		if (innerError != "") result = ResponseBAD();
-		else result = ResponseOK();
-		
-		NET::GS(NET::OUTER::mgcp_)->s.send_to(boost::asio::buffer(result), sender);
-	}
+	if (outerError != "") SendClient("400 999 BAD\nZ: outerError " + outerError); // Not MGCP
+	else if (innerError != "") SendClient("400 " + to_string(stoi(data["MessNum"]) + 1) + " BAD\nZ: innerError " + innerError);// BAD
+	else SendClient(ResponseOK());
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -197,27 +191,9 @@ string MGCP::ResponseOK()
 		result += "\nZ: " + data["EventType"] + "/" + data["EventID"] + "@[" + data["Addr"] + "]";
 		result += "\nI: " + to_string(rand() % 10000);
 
-		if (serverSDP != nullptr) result += "\n\n" + serverSDP->sdp;
+		if (serverSDP->sdp != "") result += "\n\n" + serverSDP->sdp;
 	}
 	return result;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-string MGCP::ResponseBAD()
-{
-	string result = "400 " + to_string(stoi(data["MessNum"]) + 1) + " BAD";
-	result += "\nZ: innerError " + innerError; 
-	
-	return result;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void MGCP::ReplyNOTMGCP()
-{
-	string result = "400 999 BAD";
-	result += "\nZ: outerError " + outerError;
-	
-	NET::GS(NET::OUTER::mgcp_)->s.send_to(boost::asio::buffer(result), sender);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -225,6 +201,12 @@ string MGCP::PrintAll()
 {
 	string result = "";
 	for (auto& e : data) result += "\n_" + e.first + "_=_" + e.second + "_";
-	if (clientSDP != nullptr) result += "\n" + clientSDP->sdp;
+	if (clientSDP->sdp != "") result += "\n" + clientSDP->sdp;
 	return result;
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void MGCP::SendClient(string str_)
+{
+	NET::GS(NET::OUTER::mgcp_)->s.send_to(boost::asio::buffer(str_), sender);
 }

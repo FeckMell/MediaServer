@@ -12,15 +12,17 @@ namespace sip
 
 		Cnf(SHP_Point);
 
-		SHP_Point FindPoint(string);
 		void AddPoint(SHP_Point);
 		bool RmPoint(SHP_Point);
 
-		string roomID;
-		bool state = false;
+		string eventID;
 
 	private:
+		void Process();
+		void SendCR(vector<SHP_Point>);
+		void SendDL();
 
+		bool state = false;
 		vector<SHP_Point> vecPoints;
 
 	};

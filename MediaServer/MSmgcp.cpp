@@ -56,13 +56,9 @@ void Control::PreprocessingOUT(REQUEST message_)
 		else
 		{
 			mgcp->innerError = "Control::Preprocessing ERROR";
-			mgcp->ReplyClient();
 		}
 	}
-	else
-	{ 
-		mgcp->ReplyNOTMGCP(); 
-	}
+	mgcp->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -71,13 +67,11 @@ void Control::CRCX_CNF(SHP_MGCP mgcp_)
 	if (FindPoint(mgcp_->data["CallID"]) != nullptr)
 	{
 		mgcp_->innerError = "Control::CRCX_CNF WTF? ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	if (mgcp_->data["EventID"] != "$" && FindCnf(mgcp_->data["EventID"]) == nullptr)
 	{
 		mgcp_->innerError = "Control::CRCX_CNF WTF?2 ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 
@@ -96,7 +90,6 @@ void Control::CRCX_CNF(SHP_MGCP mgcp_)
 		SHP_Cnf found_cnf = FindCnf(mgcp_->data["EventID"]);
 		found_cnf->AddPoint(new_point);
 	}
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -105,13 +98,11 @@ void Control::CRCX_ANN(SHP_MGCP mgcp_)
 	if (FindPoint(mgcp_->data["CallID"]) != nullptr)
 	{
 		mgcp_->innerError = "Control::CRCX_ANN WTF? ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	if (mgcp_->data["EventID"] != "$")
 	{
 		mgcp_->innerError = "Control::CRCX_ANN WTF?2 ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	mgcp_->data["EventID"] = SSTORAGE::ReserveEventID();
@@ -122,8 +113,6 @@ void Control::CRCX_ANN(SHP_MGCP mgcp_)
 
 	SHP_Ann new_ann = make_shared<Ann>(Ann(new_point, mgcp_));
 	vecAnns.push_back(new_ann);
-
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -134,14 +123,11 @@ void Control::MDCX_CNF(SHP_MGCP mgcp_)
 	if (found_point == nullptr || found_cnf == nullptr)
 	{
 		mgcp_->innerError = "Control::MDCX_CNF not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	
 	found_point->ModifyPoint(mgcp_);
 	found_cnf->Process();
-
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -152,18 +138,14 @@ void Control::RQNT_ANN(SHP_MGCP mgcp_)
 	if (found_point == nullptr)
 	{
 		mgcp_->innerError = "Control::RQNT_ANN point not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	if (found_ann == nullptr)
 	{
 		mgcp_->innerError = "Control::RQNT_ANN ann not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	found_ann->RequestMusic(mgcp_);
-
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -174,7 +156,6 @@ void Control::DLCX_CNF(SHP_MGCP mgcp_)
 	if (found_point == nullptr || found_cnf == nullptr)
 	{
 		mgcp_->innerError = "Control::DLCX_CNF not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 
@@ -182,8 +163,6 @@ void Control::DLCX_CNF(SHP_MGCP mgcp_)
 	else{ found_cnf->Process(); }
 
 	RemovePoint(found_point);
-
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -194,21 +173,17 @@ void Control::DLCX_ANN(SHP_MGCP mgcp_)
 	if (found_point == nullptr)
 	{
 		mgcp_->innerError = "Control::DLCX_ANN point not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 	if (found_ann == nullptr)
 	{
 		mgcp_->innerError = "Control::DLCX_ANN ann not found ERROR";
-		mgcp_->ReplyClient();
 		return;
 	}
 
 	found_ann->Delete();
 	RemoveAnn(found_ann);
 	RemovePoint(found_point);
-
-	mgcp_->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

@@ -5,7 +5,6 @@ using namespace mgcp;
 
 Cnf::Cnf(SHP_Point point_, string event_id_)
 {
-	
 	vecPoints.push_back(point_);
 	eventID = event_id_;
 }
@@ -72,7 +71,7 @@ void Cnf::SendCR(vector<SHP_Point> points_)
 	string client_port = "";
 	string server_port = "";
 
-	for (auto&e : points_)
+	for (auto& e : points_)
 	{
 		client_ip += e->clientSDP->data["IP"] + " ";
 		client_port += e->clientSDP->data["Port"] + " ";

@@ -3,68 +3,83 @@
 using namespace sip;
 
 
-SIP::SIP(char* rawMes_, EP sender_) : request(rawMes_), sender(sender_)
+SIP::SIP(char* raw_mes_, EP sender_) : sender(sender_)
 {
-	Remove();
-	SplitSIPandSDP();
-	data.resize(maxqqq);
+	clientSDP.reset(new SDP());
+	serverSDP.reset(new SDP());
+
+	string request(raw_mes_);
+	Remove(request);
+	SplitSIPandSDP(request);
 	ParseMain();
+
+	Check();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void SIP::SplitSIPandSDP()
+void SIP::SplitSIPandSDP(string& mes_)
 {
 	int line = 0;
-	string temp = copy_single_n_line(request, line);
+	string temp = copy_single_n_line(mes_, line);
 	while (temp != "")
 	{
 		sip += temp + "\n";
 		line++;
-		temp = copy_single_n_line(request, line);
+		temp = copy_single_n_line(mes_, line);
 	}
 	line++;
-	temp = copy_single_n_line(request, line);
+	string sdp = "";
+	temp = copy_single_n_line(mes_, line);
 	while (temp != "")
 	{
 		sdp += temp + "\n";
 		line++;
-		temp = copy_single_n_line(request, line);
+		temp = copy_single_n_line(mes_, line);
 	}
+	if (sdp != "") clientSDP.reset(new SDP(sdp));
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void SIP::Remove()
+void SIP::Remove(string& mes_)
 {
-	auto fd_pos = request.find("\r");
+	auto fd_pos = mes_.find("\r");
 	while (fd_pos != string::npos)
 	{
-		request.erase(request.begin() + fd_pos);
-		fd_pos = request.find("\r", fd_pos - 1);
+		mes_.erase(mes_.begin() + fd_pos);
+		fd_pos = mes_.find("\r", fd_pos - 1);
 	}
-	auto fd_pos2 = request.find("  ");
+	auto fd_pos2 = mes_.find("  ");
 	while (fd_pos2 != string::npos)
 	{
-		request.erase(request.begin() + fd_pos2);
-		fd_pos2 = request.find("  ", fd_pos2 - 1);
+		mes_.erase(mes_.begin() + fd_pos2);
+		fd_pos2 = mes_.find("  ", fd_pos2 - 1);
 	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIP::ParseMain()
 {
-	data[CMD] = sip.substr(0, copy_single_n_line(sip, 0).find(" sip:"));
-	data[CallID] = get_substr(sip, "Call-ID: ", "\n");
+	data["CMD"] = sip.substr(0, copy_single_n_line(sip, 0).find(" sip:"));
+	data["CallID"] = get_substr(sip, "Call-ID: ", "\n");
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-string SIP::GetParam(int c_)
+void SIP::Check()
 {
-	switch (c_)
+	if (data["CMD"] == "") { outerError = "NOT SIP"; return; }
+	if ( !(data["CMD"] == "INVITE" || data["CMD"] == "BYE" || data["CMD"] == "ACK") )
 	{
-	case CMD: return data[CMD];
-	case CallID: return data[CallID];
-	default: assert(false); return "";
+		outerError = "NOT SIP"; 
+		return;
 	}
+	if (data["CallID"] == ""){ outerError = "NOT SIP"; return; }
+
+	if (data["CMD"] == "INVITE" && clientSDP->sdp == "")
+	{
+		outerError = "NOT SUPPORTED SDP NEEDED";
+		return;
+	}
+	if (clientSDP->error != "") { outerError = clientSDP->error; return; }
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -107,14 +122,15 @@ string SIP::ReplyRinging()
 		line++;
 		temp_line = copy_single_n_line(sip, line);
 	}
-	//result += "Contact: My name+IP\r\n";
+
 	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";//TODO
 	result += "Content-Length: 0\r\n";
 	return result;
+	//SendClient(result);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-string SIP::ReplyOK(string sdp_)
+string SIP::ReplyOK()
 {
 	string result = "SIP/2.0 200 OK\r\n";
 	int line = 0;
@@ -154,29 +170,50 @@ string SIP::ReplyOK(string sdp_)
 		temp_line = copy_single_n_line(sip, line);
 	}
 	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";//TODO
-	if (sdp_ != "")
+	if (serverSDP->sdp != "")
 	{
 		result += "Content-Type: application/sdp\r\n";
-		result += "Content-Length: " + to_string(sdp_.length()) + "\r\n";
-		result += "\r\n" + sdp_;
+		result += "Content-Length: " + to_string(serverSDP->sdp.length()) + "\r\n";
+		result += "\r\n" + serverSDP->sdp;
 	}
 	else
 	{
 		result += "Content-Length: 0\r\n";
 	}
 	return result;
+	//SendClient(result);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-string SIP::ResponseBAD()
+/*void SIP::ResponseBAD()
 {
-	return "SIP/2.0 400 Bad Request\r\n";
+	SendClient("SIP/2.0 400 Bad Request\r\n" + innerError + " " + outerError + "\r\n");
+}*/
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void SIP::ReplyClient()
+{
+	if (innerError == "" && outerError == "")
+	{
+		SendClient("SIP/2.0 400 Bad Request\r\n" + innerError + " " + outerError + "\r\n");
+		return;
+	}
+	else
+	{
+		if (data["CMD"] == "INVITE")
+		{
+			SendClient(ReplyRinging());
+			SendClient(ReplyOK());
+		}
+		else
+		{
+			SendClient(ReplyOK());
+		}
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void SIP::ReplyClient(string str_)
+void SIP::SendClient(string str_)
 {
 	NET::GS(NET::OUTER::sip_)->s.send_to(boost::asio::buffer(str_), sender);
 }
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------

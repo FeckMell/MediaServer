@@ -17,7 +17,7 @@
     <ClCompile Include="MSann_MusicStore.cpp" />
     <ClCompile Include="MScnf_Audio.cpp" />
     <ClCompile Include="MScnf_Cnf.cpp" />
-    <ClCompile Include="MScnf_CnfPoint.cpp" />
+    <ClCompile Include="MScnf_Point.cpp" />
     <ClCompile Include="MScnf.cpp" />
     <ClCompile Include="MScnf_Filter.cpp" />
     <ClCompile Include="MSdtmf.cpp" />
@@ -50,7 +50,7 @@
     <ClInclude Include="MSann_MusicStore.h" />
     <ClInclude Include="MScnf_Audio.h" />
     <ClInclude Include="MScnf_Cnf.h" />
-    <ClInclude Include="MScnf_CnfPoint.h" />
+    <ClInclude Include="MScnf_Point.h" />
     <ClInclude Include="MScnf.h" />
     <ClInclude Include="MScnf_Filter.h" />
     <ClInclude Include="MSdtmf.h" />

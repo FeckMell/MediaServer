@@ -5,11 +5,11 @@
 
 namespace cnf
 {
-	class CnfPoint
+	class Point
 	{
 	public:
-		CnfPoint(string, string, string, string);
-		~CnfPoint();
+		Point(string, string, string, string);
+		~Point();
 
 		void SetMaxTimesTook(int);
 		SHP_FRAME GetFrame();
@@ -17,12 +17,11 @@ namespace cnf
 
 		string clientPort;
 		string clientIP;
-		string serverPort; //ID of point
+		string serverPort;
 		string serverIP;
 		AVCodecContext* iccx;
 		AVCodecContext* occx;
 		SHP_SOCK socket;
-		RTP_struct rtp;
 		EP endPoint;
 
 	private:
@@ -32,5 +31,5 @@ namespace cnf
 		int timesTook = 0;
 		SHP_FRAME bufFrame = nullptr;
 	};
-	typedef shared_ptr<CnfPoint> SHP_CnfPoint;
+	typedef shared_ptr<Point> SHP_Point;
 }

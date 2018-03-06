@@ -9,11 +9,14 @@ namespace ann
 	class Ann
 	{
 	public:
+
 		Ann(SHP_MediaFile, SHP_IPL);
 		void DL();
 
-		string annID;
+		string eventID;
+
 	private:
+
 		void Run();
 		SHP_PACKET CreatePacket(int);
 		void SendPacket(SHP_PACKET);
@@ -23,9 +26,10 @@ namespace ann
 
 		IO ioAnn;
 		SHP_SOCK outerSOCK = nullptr;
-		RTP_struct rtpHDR;
+		//RTP_struct rtpHDR;
 		SHP_MediaFile mediaFile;
 		EP endPoint;
+
 	};
 	typedef shared_ptr<Ann> SHP_Ann;
 }

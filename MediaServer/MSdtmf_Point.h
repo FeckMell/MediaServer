@@ -10,7 +10,6 @@ namespace dtmf
 	public:
 		Point(SHP_IPL);
 
-		//void Receive(boost::system::error_code, size_t);
 		bool Analyze(uint8_t ch[2]);
 
 		Data rawBuf;

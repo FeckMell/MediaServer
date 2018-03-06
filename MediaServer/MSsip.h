@@ -29,10 +29,6 @@ namespace sip
 		SHP_Cnf FindCnf(string);
 		void RemoveCnf(SHP_Cnf);
 
-		string GenSDP(string, SHP_SIP);
-
-		int lastSDP_ID;
-
 		vector<SHP_Point> vecPoints;
 		vector<SHP_Cnf> vecCnfs;
 	};

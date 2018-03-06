@@ -9,33 +9,32 @@ namespace sip
 	{
 	public:
 
-		enum { CMD, CallID, maxqqq };
 		SIP(char*, EP);
 
-		string GetParam(int);
+		void ReplyClient();
 
-		void ReplyClient(string);
+		SHP_SDP clientSDP;
+		SHP_SDP serverSDP;
+		string outerError = "";
+		string innerError = "";
 
-		string ReplyRinging();
-		string ReplyOK(string);
-		string ResponseBAD();
-
-		EP sender;
-		string request;
-		string sip = "";
-		string sdp = "";
-		string error = "";
+		map<string, string> data;
 
 	private:
 
-		void Remove();
-		void SplitSIPandSDP();
+		void Remove(string&);
+		void SplitSIPandSDP(string&);
 		void ParseMain();
+		void Check();
 
-		string GetCMD();
-		string GetCallID();
+		string ReplyRinging();
+		string ReplyOK();
+		//void ResponseBAD();
+		void SendClient(string);
 
-		vector<string> data;
+		EP sender;
+		string sip = "";
+		
 	};
 	typedef shared_ptr<SIP> SHP_SIP;
 }

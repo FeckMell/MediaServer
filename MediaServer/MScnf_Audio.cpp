@@ -3,12 +3,11 @@
 using namespace cnf;
 
 
-Audio::Audio(vector<SHP_CnfPoint> points_) : vecPoints(points_)
+Audio::Audio(vector<SHP_Point> points_) : vecPoints(points_)
 {
 	filter.reset(new  Filter(vecPoints));
 	CreateSilentFrame();
 	for (int i = 0; i < (int)vecPoints.size(); ++i) vecPoints[i]->SetMaxTimesTook(vecPoints.size());
-	
 	Run();
 }
 Audio::~Audio()
@@ -22,14 +21,12 @@ Audio::~Audio()
 //*///------------------------------------------------------------------------------------------
 void Audio::CreateSilentFrame()
 {
-	
 	int mark;
 	silentFrame = make_shared<FRAME>();
 	SHP_PACKET shpPacket = make_shared<PACKET>(160);
 	string str(160, 1);//string length 160, elements = ASCII(1)
 	memcpy(shpPacket->Data(), str.c_str(), 160);
 	avcodec_decode_audio4(vecPoints[0]->iccx, silentFrame->Get(), &mark, shpPacket->Get());
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -49,7 +46,6 @@ void Audio::Run()
 }
 void Audio::RunIO()
 {
-	
 	vecPoints[0]->socket->io->reset();
 	vecPoints[0]->socket->io->run();
 }
@@ -72,17 +68,14 @@ void Audio::Receive(boost::system::error_code ec_, size_t size_, int i_)
 			boost::bind(&Audio::Receive, this, _1, _2, i_)
 			);
 	}
-	//
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 SHP_FRAME Audio::Decode(SHP_PACKET packet_, int i_)
 {
-	//
 	SHP_FRAME frame = make_shared<FRAME>();
 	int mark;
 	avcodec_decode_audio4(vecPoints[i_]->iccx, frame->Get(), &mark, packet_->Get());
-	//
 	return frame;
 }
 //*///------------------------------------------------------------------------------------------
@@ -96,16 +89,12 @@ void Audio::ProceedData(int i_)
 //*///------------------------------------------------------------------------------------------
 void Audio::FillFilter(int i_)
 {
-//	
 	for (int j = 0; j < (int)vecPoints.size(); ++j)
 	{
 		if (i_ == j) continue;
 
 		SHP_FRAME frame = vecPoints[j]->GetFrame();
-		if (frame == nullptr) 
-		{ 
-			frame = silentFrame;
-		}
+		if (frame == nullptr) { frame = silentFrame; }
 		if (i_ < j){ av_buffersrc_write_frame(filter->data.afcx[i_][j - 1], frame->Get()); }
 		else{ av_buffersrc_write_frame(filter->data.afcx[i_][j], frame->Get()); }
 	}
@@ -126,7 +115,7 @@ void Audio::EncodeAndSend(SHP_FRAME frame_, int i_)
 	SHP_PACKET output_packet = make_shared<PACKET>();
 	avcodec_encode_audio2(vecPoints[i_]->occx, output_packet->Get(), frame_->Get(), &mark);
 	SHP_PACKET send = make_shared<PACKET>(output_packet->Size() + 12);
-	memcpy(send->Data(), (uint8_t*)&vecPoints[i_]->rtp.Get(), 12);
+	memcpy(send->Data(), (uint8_t*)&(vecPoints[i_]->socket->rtp.Get()), 12);
 	memcpy(send->Data() + 12, output_packet->Data(), output_packet->Size());
 	try
 	{

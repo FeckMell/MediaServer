@@ -5,9 +5,9 @@ using namespace cnf;
 
 //TODO: logs
 
-Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
+Filter::Filter(vector<SHP_Point> points_) : vecPoints(points_)
 {
-	tracks = cnfPoints.size();
+	tracks = vecPoints.size();
 	data.afcx.resize(tracks);
 	for (int i = 0; i < tracks; ++i)
 		data.afcx[i].resize(tracks - 1);
@@ -51,13 +51,15 @@ int Filter::InitFilterGraph(int for_client_)
 		if (!abuffer0){ return AVERROR_FILTER_NOT_FOUND; }
 
 		/*источник буффера: раскодированные фреймы из декодера будут в здесь*/
-		if (!cnfPoints[i]->iccx->channel_layout)
-			{ cnfPoints[i]->iccx->channel_layout = av_get_default_channel_layout(cnfPoints[i]->iccx->channels); }
+		if (!vecPoints[i]->iccx->channel_layout)
+		{
+			vecPoints[i]->iccx->channel_layout = av_get_default_channel_layout(vecPoints[i]->iccx->channels);
+		}
 		
 		string arg1 = str(template_arg_create_graph
-			%cnfPoints[i]->iccx->sample_rate
-			%av_get_sample_fmt_name(cnfPoints[i]->iccx->sample_fmt)
-			%cnfPoints[i]->iccx->channel_layout
+			%vecPoints[i]->iccx->sample_rate
+			%av_get_sample_fmt_name(vecPoints[i]->iccx->sample_fmt)
+			% vecPoints[i]->iccx->channel_layout
 			);
 		//разбиение индекса для SSource.
 		if (i < for_client_) { err = avfilter_graph_create_filter(&data.afcx[for_client_][i], abuffer0, "src", arg1.c_str(), NULL, filter_graph); }

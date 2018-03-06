@@ -132,9 +132,6 @@
     <ClCompile Include="MScnf_Cnf.cpp">
       <Filter>MScnf\Source</Filter>
     </ClCompile>
-    <ClCompile Include="MScnf_CnfPoint.cpp">
-      <Filter>MScnf\Source</Filter>
-    </ClCompile>
     <ClCompile Include="MScnf_Filter.cpp">
       <Filter>MScnf\Source</Filter>
     </ClCompile>
@@ -186,6 +183,9 @@
     <ClCompile Include="SL_SDP.cpp">
       <Filter>SharedLib\Source</Filter>
     </ClCompile>
+    <ClCompile Include="MScnf_Point.cpp">
+      <Filter>MScnf\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -231,9 +231,6 @@
       <Filter>MScnf\Header</Filter>
     </ClInclude>
     <ClInclude Include="MScnf_Cnf.h">
-      <Filter>MScnf\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf_CnfPoint.h">
       <Filter>MScnf\Header</Filter>
     </ClInclude>
     <ClInclude Include="MScnf_Filter.h">
@@ -283,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="SL_SDP.h">
       <Filter>SharedLib\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Point.h">
+      <Filter>MScnf\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

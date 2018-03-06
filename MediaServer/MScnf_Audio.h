@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "SharedLib.h"
-#include "MScnf_CnfPoint.h"
+#include "MScnf_Point.h"
 #include "MScnf_Filter.h"
 
 
@@ -10,10 +10,9 @@ namespace cnf
 	class Audio
 	{
 	public:
-		Audio(vector<SHP_CnfPoint>);
+
+		Audio(vector<SHP_Point>);
 		~Audio();
-		//void MD(vector<SHP_CnfPoint>);
-		//void Stop();
 
 	private:
 		/*initing and reiniting*/
@@ -32,10 +31,10 @@ namespace cnf
 		/*Data*/
 		SHP_FRAME silentFrame;
 		SHP_thread eventThread;
-		bool state;// = true;
+		bool state;
 		Data rawBuf;
 		SHP_Filter filter;
-		vector<SHP_CnfPoint> vecPoints;
+		vector<SHP_Point> vecPoints;
 	};
 	typedef shared_ptr<Audio> SHP_Audio;
 }

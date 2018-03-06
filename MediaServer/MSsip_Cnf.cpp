@@ -7,114 +7,88 @@ Cnf::Cnf(SHP_Point point_)
 {
 	point_->PlayAnn("music_alaw.wav");
 	vecPoints.push_back(point_);
-	roomID = point_->roomID;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-SHP_Point Cnf::FindPoint(string callid_)
-{
-	for (auto &point : vecPoints) if (point->callID == callid_) return point;
-	return nullptr;
+	eventID = point_->roomID;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::AddPoint(SHP_Point point_)
 {
-	
 	vecPoints.push_back(point_);
-	if (state == false)
-	{
-		state = true;
-		
-		vecPoints[0]->StopAnn();
-		vecPoints[1]->StopAnn();
-
-		string client_ip = vecPoints[0]->clientIP + " " + vecPoints[1]->clientIP;
-		string client_port = vecPoints[0]->clientPort + " " + vecPoints[1]->clientPort;
-		string server_port = vecPoints[0]->serverPort + " " + vecPoints[1]->serverPort;
-
-		string result = "";
-		result += "From=sip\n";
-		result += "To=cnf\n";
-		result += "EventID=sip" + roomID + "\n";
-		result += "EventType=cr\n";
-		result += "ClientIP=" + client_ip + "\n";
-		result += "ClientPort=" + client_port + "\n";
-		result += "ServerPort=" + server_port + "\n";
-		NET::vecSigsIN[NET::INNER::cnf](result);
-	}
-	else
-	{
-		point_->StopAnn();
-		
-		string result = "";
-		result += "From=sip\n";
-		result += "To=cnf\n";
-		result += "EventID=sip" + roomID + "\n";
-		result += "EventType=md\n";
-		result += "ClientIP=" + point_->clientIP + "\n";
-		result += "ClientPort=" + point_->clientPort + "\n";
-		result += "ServerPort=" + point_->serverPort + "\n";
-		NET::vecSigsIN[NET::INNER::cnf](result);
-	}
-	
-
+	point_->StopAnn();
+	Process();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 bool Cnf::RmPoint(SHP_Point point_)
 {
-	
-	if (state == false)
-	{
-		
-		point_->StopAnn();
-		return true;
-	}
-	else
-	{
-		
-		if (vecPoints.size() == 1)
-		{
-			
-			vecPoints[0]->StopAnn();
-			vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
-			return true;
-		}
-		else if (vecPoints.size() == 2)
-		{
-			
-			string result = "";
-			result += "From=sip\n";
-			result += "To=cnf\n";
-			result += "EventID=sip" + roomID + "\n";
-			result += "EventType=dl\n";
-			NET::vecSigsIN[NET::INNER::cnf](result);
-
-			vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
-			state = false;
-			
-			vecPoints[0]->PlayAnn("music_alaw.wav");
-			return false;
-		}
-		else
-		{
-			
-			string result = "";
-			result += "From=sip\n";
-			result += "To=cnf\n";
-			result += "EventID=sip" + roomID + "\n";
-			result += "EventType=md\n";
-			result += "ClientIP=" + point_->clientIP + "\n";
-			result += "ClientPort=" + point_->clientPort + "\n";
-			result += "ServerPort=" + point_->serverPort + "\n";
-			NET::vecSigsIN[NET::INNER::cnf](result);
-
-			vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
-			return false;
-		}
-	}
-	
+	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
+	Process();
+	if (vecPoints.size() == 0) return true;
+	else return false;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+void Cnf::Process()
+{
+	vector<SHP_Point> active_points;
+	for (auto& e : vecPoints) if (e->state == Point::ready) active_points.push_back(e);
+
+	if (state == false)
+	{
+		if (active_points.size() == 2)
+		{
+			SendCR(active_points);
+			state = true;
+		}
+	}
+	else
+	{
+		if (active_points.size() >= 2)
+		{
+			SendCR(active_points);
+			state = true;
+		}
+		else
+		{
+			SendDL();
+			state = false;
+		}
+	}
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void Cnf::SendDL()
+{
+	string result = "From=sip\n";
+	result += "To=cnf\n";
+	result += "EventID=sip" + eventID + "\n";
+	result += "EventType=dl\n";
+	NET::vecSigsIN[NET::INNER::cnf](result);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void Cnf::SendCR(vector<SHP_Point> points_)
+{
+	string client_ip = "";
+	string client_port = "";
+	string server_port = "";
+
+	for (auto&e : points_)
+	{
+		client_ip += e->clientSDP->data["IP"] + " ";
+		client_port += e->clientSDP->data["Port"] + " ";
+		server_port += e->serverSDP->data["Port"] + " ";
+	}
+	client_ip.pop_back();
+	client_port.pop_back();
+	server_port.pop_back();
+
+	string result = "From=sip\n";
+	result += "To=cnf\n";
+	result += "EventID=sip" + eventID + "\n";
+	result += "EventType=cr\n";
+	result += "ClientIP=" + client_ip + "\n";
+	result += "ClientPort=" + client_port + "\n";
+	result += "ServerPort=" + server_port + "\n";
+	NET::vecSigsIN[NET::INNER::cnf](result);
+}

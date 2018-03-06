@@ -31,9 +31,9 @@ namespace mgcp
 		SHP_Point FindPoint(string);
 		void RemovePoint(SHP_Point);
 		SHP_Cnf FindCnf(string);
-		void RemoveCnf(SHP_Cnf);// delete ID
+		void RemoveCnf(SHP_Cnf);
 		SHP_Ann FindAnn(string);
-		void RemoveAnn(SHP_Ann);// delete ID
+		void RemoveAnn(SHP_Ann);
 
 		vector<SHP_Point> vecPoints;
 		vector<SHP_Ann> vecAnns;

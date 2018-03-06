@@ -5,7 +5,7 @@ using namespace ann;
 Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 {
 	
-	annID = ipl_->data["EventID"];
+	eventID = ipl_->data["EventID"];
 	
 	mediaFile = mediafile_;
 	
@@ -21,7 +21,6 @@ Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 //*///------------------------------------------------------------------------------------------
 void Ann::Run()
 {
-	
 	int file_size = mediaFile->Size();
 	int current_packet_num = 0;
 	
@@ -38,7 +37,7 @@ SHP_PACKET Ann::CreatePacket(int current_packet_num_)
 {
 	SHP_PACKET file_packet = mediaFile->GetPacket(current_packet_num_);
 	SHP_PACKET packet_to_send = make_shared<PACKET>(172);
-	memcpy(packet_to_send->Data(), (uint8_t*)&rtpHDR.Get(), 12);
+	memcpy(packet_to_send->Data(), (uint8_t*)&(outerSOCK->rtp.Get()), 12);
 	memcpy(packet_to_send->Data() + 12, file_packet->Data(), 160);
 	return packet_to_send;
 }
@@ -53,9 +52,6 @@ void Ann::SendPacket(SHP_PACKET packet_to_send_)
 //*///------------------------------------------------------------------------------------------
 void Ann::DL()
 {
-	
 	state = false;
-	
 	th->join();
-	
 }

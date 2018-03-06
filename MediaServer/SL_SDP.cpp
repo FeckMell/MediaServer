@@ -78,6 +78,7 @@ void SDP::Check()
 	catch (exception& e)
 	{
 		error += "BAD SDP PORT 2";
+		e;
 		return;
 	}
 
@@ -87,6 +88,7 @@ void SDP::Check()
 	catch (exception& e)
 	{
 		error += "BAD SDP IP 1";
+		e;
 		return;
 	}
 	if (result.size() != 5)

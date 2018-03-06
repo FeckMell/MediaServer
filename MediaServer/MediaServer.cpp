@@ -36,12 +36,6 @@ int main(int argc, char* argv[])
 	NET::vecSigsOUT[NET::OUTER::mgcp_].connect(boost::bind(&mgcp::Control::PreprocessingOUT, &mgcp, _1));
 
 	Receiver receiver;
-		
-	//ann::SHP_MSann ann = make_shared<ann::MSann>();
-	//cnf::SHP_MScnf cnf = make_shared<cnf::MScnf>();
-	//dtmf::SHP_MSdtmf dtmf = make_shared<dtmf::MSdtmf>();
-	//mgcp::SHP_MSmgcp mgcp = make_shared<mgcp::MSmgcp>();
-	//sip::SHP_MSsip sip = make_shared<sip::MSsip>();
 	
 	cout << "\n1";
 	system("pause");

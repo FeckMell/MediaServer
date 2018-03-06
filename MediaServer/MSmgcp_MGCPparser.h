@@ -8,10 +8,10 @@ namespace mgcp
 	class MGCP
 	{
 	public:
-		MGCP(char*, EP);
-		void ReplyClient();
-		void ReplyNOTMGCP();
 
+		MGCP(char*, EP);
+
+		void ReplyClient();
 		string PrintAll();
 
 		EP sender;
@@ -19,17 +19,15 @@ namespace mgcp
 		string mgcp = "";
 		SHP_SDP clientSDP;
 		SHP_SDP serverSDP;
-		//string sdp = "";
-		//string serverSDP = "";
 
 		string outerError = "";
 		string innerError = "";
+
 		map<string, string> data;
 
 	private:
-
+		void SendClient(string);
 		string ResponseOK();
-		string ResponseBAD();
 
 		void Remove();
 		void SplitMGCPandSDP();
@@ -37,6 +35,7 @@ namespace mgcp
 		void ParseRest();
 
 		void CheckValid();
+
 	};
 
 	typedef shared_ptr<MGCP> SHP_MGCP;

@@ -1,23 +1,18 @@
 #include "stdafx.h"
-#include "MScnf_CnfPoint.h"
+#include "MScnf_Point.h"
 using namespace cnf;
 
 
-CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_)
+Point::Point(string c_port_, string s_port_, string c_IP_, string s_IP_)
 	: clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
-	cout << "\nd1";
 	socket = SSTORAGE::GetSocket(serverPort);
-	cout << "\nd2";
 	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
-	cout << "\nd3";
 	
 	InitCodec(&iccx, true);
-	cout << "\nd4";
 	InitCodec(&occx, false);
-	cout << "\nd5";
 }
-CnfPoint::~CnfPoint()
+Point::~Point()
 {
 	avcodec_close(iccx);
 	avcodec_close(occx);
@@ -26,7 +21,7 @@ CnfPoint::~CnfPoint()
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, false-encoder
+void Point::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, false-encoder
 {
 	
 	AVCodec *x_codec;//possible leak
@@ -47,13 +42,13 @@ void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, fals
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void CnfPoint::SetMaxTimesTook(int t_)
+void Point::SetMaxTimesTook(int t_)
 {
 	timesTookMax = t_ - 1;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-SHP_FRAME CnfPoint::GetFrame()
+SHP_FRAME Point::GetFrame()
 {
 	if (timesTook >= timesTookMax) return nullptr;
 	timesTook++;
@@ -61,7 +56,7 @@ SHP_FRAME CnfPoint::GetFrame()
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void CnfPoint::StoreFrame(SHP_FRAME f_)
+void Point::StoreFrame(SHP_FRAME f_)
 {
 	bufFrame = f_;
 	timesTook = 0;

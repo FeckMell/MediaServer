@@ -1,7 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "SharedLib.h"
-#include "MScnf_CnfPoint.h"
+#include "MScnf_Point.h"
 
 
 namespace cnf
@@ -9,7 +9,7 @@ namespace cnf
 	class Filter
 	{
 	public:
-		Filter(vector<SHP_CnfPoint>);
+		Filter(vector<SHP_Point>);
 
 		FFF data;
 
@@ -19,7 +19,7 @@ namespace cnf
 
 		/*Data*/
 		int tracks;
-		vector<SHP_CnfPoint> cnfPoints;
+		vector<SHP_Point> vecPoints;
 	};
 	typedef shared_ptr<Filter> SHP_Filter;
 }

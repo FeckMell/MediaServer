@@ -5,11 +5,9 @@ using namespace ann;
 
 MediaFile::MediaFile(string filename_)
 {
-	
 	fileName = filename_;
 	if (OpenFile() == -1) 
 	{ 
-		
 		error = "error read file"; 
 	}
 }
@@ -47,7 +45,6 @@ int MediaFile::OpenFile()
 //*///------------------------------------------------------------------------------------------
 void MediaFile::CutPackets(vector<SHP_PACKET> file_)
 {
-	
 	for (int i = 0; i < (int)file_.size(); ++i)
 	{
 		int j = 0;
@@ -59,7 +56,6 @@ void MediaFile::CutPackets(vector<SHP_PACKET> file_)
 			++j;
 		}
 	}//last bit is thrown as it less than 20ms. No one will notice. Maybe.
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -88,12 +84,10 @@ SHP_MediaFile MusicStore::GetFile(string filename_)
 //*///------------------------------------------------------------------------------------------
 SHP_MediaFile MusicStore::OpenNewFile(string filename_)
 {
-	
 	SHP_MediaFile new_file = make_shared<MediaFile>(filename_);
 	if (new_file->error == "")
 	{
 		data.push_back(new_file);
-		
 		return new_file;
 	}
 	else return nullptr;
