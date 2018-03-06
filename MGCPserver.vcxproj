@@ -104,8 +104,10 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Ann.h" />
     <ClInclude Include="CMixInit.h" />
     <ClInclude Include="Conf.h" />
+    <ClInclude Include="ConfControl.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="CRTPReceive.h" />
     <ClInclude Include="DestFusion.h" />
@@ -124,8 +126,10 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Ann.cpp" />
     <ClCompile Include="CMixInit.cpp" />
     <ClCompile Include="Conf.cpp" />
+    <ClCompile Include="ConfControl.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CRTPReceive.cpp" />
     <ClCompile Include="DestFusion.cpp" />

@@ -379,13 +379,10 @@ bool parseMGCP(const char* pCh, TMGCP& mgcp)
 	TmplMGCPparser<const char*> parserMGCP(mgcp);
 	auto pBegin = pCh;
 	auto pEnd	= pCh + strlen(pCh);
-	//printf("\n parsertest\n");
-	//bool b = parse(pBegin, pEnd, parserMGCP, ascii::space);
 	bool b = qi::phrase_parse(pBegin, pEnd, parserMGCP, ascii::space)
 		&& pBegin == pEnd;
 
-	printf("Parser %s\n", b ? "OK" : "false");
-
+	cout << "Parser ", b ? "OK\n" : "false\n";
 
 	return b;
 }

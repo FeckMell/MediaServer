@@ -113,6 +113,17 @@ namespace MGCP
 
 		return strResult;
 	}
+	string TMGCP::NewResponseOK(unsigned short code /*=200*/, string mode)
+	{
+		static auto frmHeader = boost::format("%1% %2% OK");
+		static auto frmParam = boost::format("\n%1%: %2%");
+
+		string strResult(str(frmHeader % code % IdTransact));
+		strResult += "\nZ: " + mode + "@[10.77.7.19]";
+		strResult += "\nI: 4";
+
+		return strResult;
+	}
 
 	SHP_TMGCP_Param TMGCP::getSignalParam()
 	{

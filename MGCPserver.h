@@ -1,5 +1,7 @@
 #pragma once
 //#include "PackMGCP.h"
+#include "stdafx.h"
+#include "ConfControl.h"
 #include "Functions.h"
 #include "Connection.h"
 #include "MGCPparser.h"
@@ -9,6 +11,8 @@
 /************************************************************************
 	CMGCPServer
 ************************************************************************/
+class ConfControl;
+//class CMGCPServer;
 class CMGCPConnection;
 typedef MGCP::TEndPoint KEY_MGCPConnection;
 typedef shared_ptr<CMGCPConnection> SHP_CMGCPConnection;
@@ -33,9 +37,12 @@ struct ConfParam
 	int error = 0;
 };
 typedef shared_ptr<ConfParam> SHP_ConfParam;
+
 class CMGCPServer
 {
 public:
+	//SHP_ConfControl a;
+	ConfControl* Conference;
 	typedef std::lock_guard<std::mutex> lock;
 	struct TArgs
 	{
@@ -47,14 +54,16 @@ public:
 	CMGCPServer(const TArgs&);
 	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
 	void Run();
+	void reply(const string&, const udp::endpoint&);
+	void loggit(string a);
 private:
 /*Отладка*/
-	void loggit(string a);
+	//void loggit(string a);
 
 	void do_receive();
 	void do_send(std::size_t length);
 	void respond(const string);
-	void reply(const string&, const udp::endpoint&);
+	//void reply(const string&, const udp::endpoint&);
 
 /*Первичная обработка команд*/
 	void proceedReceiveBuffer(const char*, const udp::endpoint&);
@@ -75,7 +84,7 @@ private:
 
 /* Работа с портами*/
 	/*Освобождаем сокет*/
-	void SetFreePort(SHP_CConfRoom room, int port/*string CallID*/);
+	void SetFreePort(int port);
 	/*Узнаем, занят ли сокет*/
 	bool FindPort(int sc);
 	/*Получаем номер свободного*/
@@ -114,6 +123,7 @@ private:
 	std::vector<SHP_ConfParam> SDPforCRCX_;// вектор объявленных соединений
 	std::mutex  mutex_;
 	asio::io_service& io_service__;
+	
 	
 	//boost::scoped_ptr<std::thread> ThreadAddPoint;
 

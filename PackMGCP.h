@@ -135,6 +135,7 @@ namespace MGCP
 			loopback, conttest, netwloop, netwtest};
 		enum MGCPCmd { NON, EPCF, CRCX, MDCX, DLCX, RQNT, NTFY, AUEP, AUCX, RSIP };
 		string ResponseOK(unsigned short code = 200) const;
+		string NewResponseOK(unsigned short code /*=200*/, string mode);
 		string ResponseBAD(unsigned short code) const;
 		string getCallID(); // "вытаскивает" CALLID
 		string getsdpparam();// "вытаскивает" из SDP

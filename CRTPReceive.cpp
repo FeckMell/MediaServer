@@ -103,7 +103,8 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 	{
 		send.reset(new CAVPacket2(output_packet.size + 12));
 		//memcpy(send->data, rtp[i]->data, 12);
-		rtp_modify(i);
+		//rtp_modify(i);
+		rtp2[i].rtp_modify();
 		memcpy(send->data, (uint8_t*)&rtp2[i].header, 12);
 		memcpy(send->data + 12, output_packet.data, output_packet.size);
 		loggit("sending " + to_string(send->size) + "bytes to ip " + vecEndpoint[i].address().to_string() + " and port=" + to_string(vecEndpoint[i].port()), i);
@@ -181,7 +182,10 @@ void CRTPReceive::reinit_sockets(bool mode)
 		vecSock.push_back(a);
 		//SHP_CAVPacket2 c;
 		//rtp.push_back(c);
-		rtp_config(i);
+		RTP_struct rtp_hdr;
+		rtp_hdr.rtp_config();
+		rtp2.push_back(rtp_hdr);
+		//rtp_config(i);
 
 		Data dat1;
 		vecData.push_back(dat1);
@@ -242,9 +246,12 @@ void CRTPReceive::destroy_all()
 		vecSock[i]->close();
 		receive_threads[i]->join();
 	}
-	clear_memmory();
-
+	loggit("sockets+thread end", 9999);
 	Initer->FreeSockFFmpeg();
+	loggit("ffmpeg end", 9999);
+	clear_memmory();
+	loggit("clear memory end", 9999);
+
 	loggit("CRTPReceive::destroy_all DONE", 9999);
 }
 //------------------------------------------------------------------------------------------

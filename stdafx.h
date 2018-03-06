@@ -17,7 +17,6 @@
 #include "targetver.h"
 #endif // _WIN32_
 
-#include <stdio.h>
 #include <iostream>
 #include <fstream>
 #include <ostream>
@@ -74,6 +73,8 @@ extern "C"
 #include <libavutil/mem.h>
 #include <libavutil/opt.h>
 #include <libavutil/samplefmt.h>
+	//
+#include "libavutil/time.h"
 	//#include <libswresample/swresample.h>
 	//#include <libavutil/audio_fifo.h>
 	//#include <libavformat/avio.h>

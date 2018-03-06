@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 	{
 		
 		setlocale(LC_ALL, "Russian");
-		cout << "\nÂÅÐÑÈß 1.0.1 (26.04.2016 / 11:42)";
+		cout << "\nÂÅÐÑÈß 1.0.1 (5.05.2016 / 10:03)";
 		GetPathExe(argv[0]);
 		OpenLogFiles();
 		LogMain("Using path: " + PathEXE);

@@ -56,7 +56,12 @@ void CMGCPServer::loggit(string a)
 CMGCPServer::CMGCPServer(const TArgs& args)
 : m_args(args), io_service__(args.io_service), socket_(args.io_service, /*udp::endpoint(udp::v4(), args.endpnt.port())*/args.endpnt)
 {
-
+	//Conference->my_IP = args.endpnt.address().to_string();
+	ConfControl* ff = new ConfControl;
+	//ConfControl ff;
+	Conference = ff;
+	Conference->server = this;
+	Conference->my_IP = args.endpnt.address().to_string();
 	//fopen_s(&FileLogServer, "LOGS_Server.txt", "w");
 	loggit("Server Construct");
 }
@@ -145,9 +150,9 @@ void CMGCPServer::reply(const string& str, const udp::endpoint& udpTO)
 	socket_.send_to(asio::buffer(str), udpTO);
 	//auto f = boost::format("----------REPLIED TO %1%:\n%2%\n------------------") % udpTO % str;
 	
-	cout << "\n --------------------Server REPLIED------------------------\n";
+	//cout << "\n --------------------Server REPLIED------------------------\n";
 	loggit("void CMGCPServer::reply:\n" + str);
-	//cout << boost::format("----------REPLIED TO %1%:\n%2%\n------------------\n")% udpTO % str;
+	cout << boost::format("----------REPLIED TO %1%:\n%2%\n------------------\n")% udpTO % str;
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
@@ -179,95 +184,44 @@ void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udp
 	switch (mgcp.CMD)
 	{
 	case TMGCP::CRCX:
-		proceedCRCX(mgcp, udpTO);
+		if (mgcp.EndPoint.m_point == "ann/$")
+		{
+			loggit("proceedCRCX_ANN_0");
+			proceedCRCX_ANN_0(mgcp, udpTO);
+		}
+		else
+		{
+			loggit("Conference->proceedCRCX(mgcp, udpTO);");
+			Conference->proceedCRCX(mgcp, udpTO);
+		}
 		break;
 	case TMGCP::RQNT:
+		loggit("proceedRQNT(mgcp, udpTO);");
 		proceedRQNT(mgcp, udpTO);
 		break;
 	case TMGCP::DLCX:
-		proceedDLCX(mgcp, udpTO);
+		if (mgcp.EndPoint.m_point.substr(0, 4) == "ann/")
+		{
+			loggit("proceedDLCX(mgcp, udpTO);");
+			proceedDLCX(mgcp, udpTO);
+		}
+		else
+		{
+			loggit("Conference->proceedDLCX(mgcp, udpTO);");
+			Conference->proceedDLCX(mgcp, udpTO);
+		}
 		break;
 	case TMGCP::MDCX:
-		proceedMDCX(mgcp, udpTO);
+		loggit("Conference->proceedMDCX(mgcp, udpTO);");
+		Conference->proceedMDCX(mgcp, udpTO);
 		break;
+
 	default:
 		//error 504 Unknown or unsupported command.
 		reply(str(boost::format("504 %1% unsupported command") % mgcp.IdTransact), udpTO);
 		break;
 	}
 	loggit("proceed done");
-}
-//--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
-{
-	loggit("void CMGCPServer::proceedDLCX");
-	if (mgcp.CMD != MGCP::TMGCP::DLCX)
-	{
-		reply(mgcp.ResponseBAD(400) + "wrong mgcp command", udpTO); return;
-	}
-	SHP_CMGCPConnection conn = getConnection(mgcp, udpTO);
-	if (conn)
-	{
-
-		conn->stopMedia();
-		auto CallID = mgcp.getCallID();
-
-		const auto& epMGCP = mgcp.EndPoint;
-		unsigned id = 0;
-		if (qi::parse(epMGCP.m_point.cbegin(), epMGCP.m_point.cend(),
-			"ann/" >> qi::uint_[phoenix::ref(id) = qi::_1]))
-		{
-			reply(mgcp.ResponseOK(250), udpTO);
-			thsetAnnIdInUse.unreg(id);
-			return;
-		}
-		if (!id && qi::parse(epMGCP.m_point.cbegin(), epMGCP.m_point.cend(),
-			"cnf/" >> qi::uint_[phoenix::ref(id) = qi::_1]))
-		{
-			string num = GetRoomIDConn(mgcp.EndPoint.m_point); // получаем номер, куда обращаемся
-			string EndpntConf = "cnf/" + num;// создаем вид обращения
-			auto DestRoom = FindRoom(atoi(EndpntConf.c_str()));
-			if (!DestRoom)
-			{
-				reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
-				return;
-			}
-			string CallID = mgcp.getCallID();
-			auto confparams = FindClient(CallID);
-			int err = DestRoom->DeletePoint(CallID);
-			loggit("error while deliting point=" + boost::to_string(err));
-			if (err == -1)
-			{
-				loggit("going to delete whole room");
-				for (int i = 0; i < DestRoom->GetNumCllPoints(); ++i)
-				{
-					loggit("deleting point with IP=" + DestRoom->GetPointID(i) + "\ndeleting port=" 
-						+ to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_));
-					SetFreePort(DestRoom, DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_);
-					loggit("port deleted " + to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->my_port_));
-					SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(DestRoom->GetPointID(i))), 
-						SDPforCRCX_.end());
-				}
-				loggit("deleting point with IP=" + CallID + "\ndeleting port=" + to_string(confparams->my_port));
-				SetFreePort(DestRoom, confparams->my_port);
-				loggit("port deleted");
-				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());
-				RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), DestRoom), RoomsVec_.end());
-				DestRoom.reset();
-			}
-			else
-			{
-				loggit("deleting point with IP=" + CallID + "\ndeleting port=" + to_string(confparams->my_port));
-				SetFreePort(DestRoom, confparams->my_port);
-				loggit("port deleted, room size=" + to_string(DestRoom->GetNumCllPoints()));
-				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());	
-			}
-				
-			reply(mgcp.ResponseOK(250), udpTO);
-		}
-		else { reply(mgcp.ResponseBAD(400) + "didn`t find connection code", udpTO); return; }
-	}
-	else { reply(mgcp.ResponseBAD(400) + "didn`t find connection", udpTO); return; }
 }
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::proceedRQNT(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
@@ -294,174 +248,34 @@ void CMGCPServer::proceedRQNT(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 	}
 }
 //--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedCRCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
-{
-	loggit("void CMGCPServer::proceedCRCX");
-	using namespace MGCP;
-	assert(mgcp.CMD == TMGCP::CRCX);
-
-	/*Обратока обычного звонка*/
-	if (mgcp.EndPoint.m_point == "ann/$")// обработка обычного звонка
-	{
-		loggit("if (mgcp.EndPoint.m_point == ann/$)");
-		proceedCRCX_ANN_0(mgcp, udpTO);
-		loggit("CRCX: ann$ END");
-		return;
-	}
-
-	/*Обработка первичного запроса конференции*/
-	if (mgcp.EndPoint.m_point == "cnf/$")
-	{
-		loggit("if (mgcp.EndPoint.m_point == cnf/$)");
-		proceedCRCX_CNF_0(mgcp, udpTO);
-		loggit("CRCX: cnf$ END");
-		return;
-	}
-	
-	string num = GetRoomIDConn(mgcp.EndPoint.m_point); // получаем номер, куда обращаемся
-	string EndpntConf = "cnf/" + num;// создаем вид обращения
-	/*Обработка вторичного запроса конференции*/
-	if (mgcp.EndPoint.m_point == EndpntConf)
-	{
-		loggit("if (mgcp.EndPoint.m_point == cnf/N");
-		proceedCRCX_CNF_N(mgcp, udpTO);
-		loggit("CRCX: cnf/N ENDED");
-		return;
-	}
-	else
-	{
-		reply(mgcp.ResponseBAD(400) + "Didnt find mark cnf/*,ann/*", udpTO);//
-		return;
-	}
-}
 //--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
+void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 {
-	loggit("void CMGCPServer::proceedMDCX");
+	loggit("void CMGCPServer::proceedDLCX");
+	if (mgcp.CMD != MGCP::TMGCP::DLCX)
+	{
+		reply(mgcp.ResponseBAD(400) + "wrong mgcp command", udpTO); return;
+	}
 	SHP_CMGCPConnection conn = getConnection(mgcp, udpTO);
-
-	if (mgcp.EndPoint.m_point == "ann/$")
+	if (conn)
 	{
-		loggit("it was ann/$");
-		conn->Modify(mgcp);
-		reply(mgcp.ResponseOK(), udpTO);
-		return;
-	}
-	string num = GetRoomIDConn(mgcp.EndPoint.m_point); // получаем номер, куда обращаемся
-	string EndpntConf = "cnf/" + num;// создаем вид обращения
 
-	if (mgcp.EndPoint.m_point == EndpntConf) // обработка вторичных запросов конференции
-	{
-		loggit("if (mgcp.EndPoint.m_point ==" + EndpntConf + ")");
-		if (mgcp.parMode != MGCP::TMGCP::ConnMode::confrnce)
+		conn->stopMedia();
+		auto CallID = mgcp.getCallID();
+
+		const auto& epMGCP = mgcp.EndPoint;
+		unsigned id = 0;
+		if (qi::parse(epMGCP.m_point.cbegin(), epMGCP.m_point.cend(),
+			"ann/" >> qi::uint_[phoenix::ref(id) = qi::_1]))
 		{
-			reply(mgcp.ResponseBAD(400) + "mode should be confrnce", udpTO);//
+			reply(mgcp.ResponseOK(250), udpTO);
+			thsetAnnIdInUse.unreg(id);
 			return;
 		}
-
-		auto DestRoom = FindRoom(atoi(EndpntConf.c_str()));
-		if (!DestRoom)
-		{
-			reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
-			return;
-		}
-		loggit("found room with ID=" + EndpntConf);
-		int mode = SDPFindMode(mgcp.SDP);
-		if (mode == -1)
-		{
-			loggit("unsupported mode in SDP");
-			reply(mgcp.ResponseBAD(400) + "unsupported mode in SDP", udpTO);//
-			return;
-		}
-		if (mode == 0)
-		{
-			loggit("Point with ID=" + mgcp.getCallID() + " frozen");
-			
-			auto confparams = FindClient(mgcp.getCallID());
-			confparams->SDPresponse = ChangeSDPMode(confparams->SDPresponse);
-			reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);
-			DestRoom->FindPoint(mgcp.getCallID())->mode = false;
-			DestRoom->Start();
-			loggit("Point with ID=" + mgcp.getCallID() + " frozenDONE");
-		}
-		if (mode == 1)
-		{
-			if (!DestRoom->FindPoint(mgcp.getCallID()))
-			{
-				loggit("Regestring new Point with ID=" + mgcp.getCallID());
-				reply(mgcp.ResponseOK(), udpTO);
-				auto confparams = FindClient(mgcp.getCallID());
-				confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-				DestRoom->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
-			}
-			else
-			{
-				loggit("Point with ID=" + mgcp.getCallID() + " UNfrozen");
-				auto confparams = FindClient(mgcp.getCallID());
-				confparams->SDPresponse = ChangeSDPMode(confparams->SDPresponse);
-				reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);
-				DestRoom->FindPoint(mgcp.getCallID())->mode = true;
-				DestRoom->Start();
-			}
-		}
-		loggit("MDCX:" + EndpntConf + "ENDED");
-		return;
 	}
-	else { reply(mgcp.ResponseBAD(400) + "didnt`t find room with this code", udpTO); return; }
+	else { reply(mgcp.ResponseBAD(400) + "didn`t find connection", udpTO); return; }
 }
 //--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-//--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedCRCX_CNF_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
-{
-	string strResponse;
-
-	if (mgcp.parMode != MGCP::TMGCP::ConnMode::confrnce)
-	{
-		reply(mgcp.ResponseBAD(400) + "cnf/$ - mode! must be confrnce", udpTO);//
-		return;
-	}
-
-	Connectivity(mgcp);
-	auto room = CreateNewRoom();
-	assert(room);
-	auto confparams = FillinConfParam(mgcp);
-	loggit("room->NewInitPoint(mgcp.SDP);");
-
-	confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-	room->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
-	strResponse = mgcp.ResponseOK() + confparams->SDPresponse;
-	reply(strResponse, udpTO);//
-}
-//--------------------------------------------------------------------------------------------
-void CMGCPServer::proceedCRCX_CNF_N(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
-{
-	using namespace MGCP;
-
-	string num = GetRoomIDConn(mgcp.EndPoint.m_point); // получаем номер, куда обращаемся
-	string EndpntConf = "cnf/" + num;// создаем вид обращения
-
-	if (mgcp.parMode != MGCP::TMGCP::ConnMode::inactive)
-	{
-		reply(mgcp.ResponseBAD(400) + "cnf/* - mode! must be inactive", udpTO);//
-		return;
-	}
-
-	//Connectivity(mgcp);
-	TEndPoint mgcpEndPnt = { EndpntConf, mgcp.EndPoint.m_addr };
-	auto shpConnect = std::make_shared<CMGCPConnection>(*this, mgcp);
-	m_cllConnections[mgcpEndPnt] = shpConnect;
-	mgcp.addResponseParam({ TMGCP_Param::SpecificEndPointId, mgcpEndPnt.toString() });
-	mgcp.addResponseParam({ TMGCP_Param::ConnectionId, str(boost::format("%1%") % shpConnect->Id()) });
-
-	auto confparams = FillinConfParam(mgcp);
-	/*if (confparams.error == 1)
-	{
-	reply(mgcp.ResponseBAD(400) + "error in type of filling params", udpTO);
-	return;
-	}*/
-	reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);//
-}
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::proceedCRCX_ANN_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 {
@@ -524,10 +338,12 @@ void CMGCPServer::Connectivity(MGCP::TMGCP &mgcp)
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void CMGCPServer::SetFreePort(SHP_CConfRoom room, int port/*string CallID*/)
+void CMGCPServer::SetFreePort(int port)
 {
+	loggit("freeing port");
 	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), port),
 		PortsinUse_.end()); // удаляем порт из занятых
+	loggit("freeing port done");
 }
 //--------------------------------------------------------------------------------------------
 bool CMGCPServer::FindPort(int port)

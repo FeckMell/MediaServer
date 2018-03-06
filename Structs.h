@@ -52,6 +52,24 @@ struct RTP_struct
 	RTP header;
 	long TS;
 	int amount;
+	void rtp_config()
+	{
+		this->header.version = 2;
+		this->header.marker = 0;
+		this->header.csrc_len = 0;
+		this->header.extension = 0;
+		this->header.padding = 0;
+		this->header.ssrc = htons(10);
+		this->header.payload_type = 8;
+		this->header.timestamp = htonl(0);
+		this->header.seq_no = htons(0);
+	}
+	void rtp_modify()
+	{
+		++this->amount;
+		this->header.seq_no = htons(this->amount);
+		this->header.timestamp = htonl(160 * this->amount);
+	}
 };
 //-----------------------------------------------------------
 //-----------------------------------------------------------

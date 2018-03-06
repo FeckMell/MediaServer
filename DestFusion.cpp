@@ -77,6 +77,7 @@ int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 
 	const auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%")
 		% rtpdest.strAddr % rtpdest.portDest %  rtpdest.portSrc);
+	LogMain(strRTP);
 	
 	RETURN_AVERROR(
 		avformat_alloc_output_context2(&ctxFormat_, nullptr, "rtp", strRTP.c_str()),
@@ -129,6 +130,7 @@ int CDestFusion::openFile(const char *filename)
 			this->_cleanup();
 	};
 	AVIOContext *output_io_context = nullptr;
+	LogMain(filename);
 	RETURN_AVERROR(
 		avio_open(&output_io_context, filename, AVIO_FLAG_WRITE),
 		boost::format("Could not open output file '%s'") % filename
