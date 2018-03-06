@@ -1,19 +1,24 @@
+#pragma once
 #include "stdafx.h"
 #include "Functions.h"
 #include "Structs.h"
 #include "Logger.h"
-extern Logger CLogger;
+#include "ConfPoint.h"
+extern Logger* CLogger;
 extern string DateStr;
+extern string MusicPath;
 using namespace std;
 using namespace std::chrono;
 
 class Ann
 {
 public:
+	Ann(){ running = false; }
+	Ann(SHP_CConfPoint Point);
 	Ann(string SDP, int my_port, string CallID);
 	void Send(string file);
 	string CallID_;
-	void Stop(){ running = false; }
+	void Stop(){ running = false; if (type){ th->join(); } }
 	int GetPort(){ return my_port_; }
 private:
 	boost::asio::io_service io_service_;
@@ -22,9 +27,8 @@ private:
 	void openFile(string filename);
 	void openRTP();
 	void Run();
-	int encode_audio_frame(AVFrame *frame, int *data_present);
-	int decode_audio_frame(AVFrame *frame, int *data_present);
-	void init_packet(AVPacket *packet);
+	int encode_audio_frame(SHP_CAVFrame frame, int *data_present);
+	int decode_audio_frame(SHP_CAVFrame frame, int *data_present);
 	void freeall();
 	void reinit();
 
@@ -50,5 +54,8 @@ private:
 	AVFormatContext *ifmt_ctx = NULL, *ofmt_ctx = NULL;
 
 	bool running;
+	bool type=false;
+	boost::shared_ptr<boost::thread> th;
+
 };
 typedef std::shared_ptr<Ann> SHP_Ann;

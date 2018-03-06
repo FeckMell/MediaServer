@@ -1,11 +1,10 @@
-#pragma once
 #include "stdafx.h"
-#include "CMixInit.h"
+#include "CFilterInit.h"
 #include "Functions.h"
 
 //-*/-----------------------------------------------------------------------------------------
 //-*/-----------------------------------------------------------------------------------------
-void CMixInit::loggit(string a)
+void CFilterInit::loggit(string a)
 {
 	time_t rawtime;
 	struct tm * t;
@@ -14,19 +13,28 @@ void CMixInit::loggit(string a)
 	steady_clock::time_point t1 = steady_clock::now();
 	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	result += " ID=" + to_string(ID_) + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
-	CLogger.AddToLog(4, "\n" + result + a); 
+	CLogger->AddToLog(4, "\n" + result + a); 
 }
 //-*/-----------------------------------------------------------------------------------------
 //-*/-----------------------------------------------------------------------------------------
-CMixInit::CMixInit(vector<AVCodecContext*>iccx, vector<AVCodecContext*>out_iccx, int ID) :iccx_(iccx), out_iccx_(out_iccx), tracks(iccx.size()), ID_(ID)
+//-*/-----------------------------------------------------------------------------------------
+//-*/-----------------------------------------------------------------------------------------
+CFilterInit::CFilterInit(vector<SHP_CConfPoint>Caller, int ID) :Caller_(Caller), tracks(Caller.size()), ID_(ID)
 {
-	loggit("init for tracks=" + to_string(tracks));
+	string log = "";
+	for (auto &e : Caller_)
+	{
+		log += to_string(e->my_port_) + "->" + e->remote_ip_ + ":" + to_string(e->remote_port_)+"\n";
+	}
+	log += "\n";
+	for (auto &e : Caller_)
+	{
+		log += e->SDP_ + "\n";
+	}
+	loggit("init for tracks=" + to_string(tracks)+"\n route:\n"+log);
+	
+
 	int err;
-	av_log_set_level(0);
-	av_register_all();
-	avcodec_register_all();
-	avfilter_register_all();
-	avformat_network_init();
 	data.afcx.resize(tracks);
 	for (int i = 0; i < tracks; ++i)
 		data.afcx[i].src.resize(tracks - 1);
@@ -40,12 +48,13 @@ CMixInit::CMixInit(vector<AVCodecContext*>iccx, vector<AVCodecContext*>out_iccx,
 			system("pause");
 		}
 	}
+	loggit("Mixer init DONE");
 }
 //-*/-----------------------------------------------------------------------------------------
 //-*/-----------------------------------------------------------------------------------------
-int CMixInit::init_filter_graph(int ForClient)
+int CFilterInit::init_filter_graph(int ForClient)
 {
-	loggit("int CRTPReceive::init_filter_graph");
+	loggit("int ConfAudio::init_filter_graph");
 	AVFilter        *mix_filter;
 	AVFilterContext *mix_ctx;
 	AVFilter        *abuffersink;
@@ -81,13 +90,13 @@ int CMixInit::init_filter_graph(int ForClient)
 		}
 		/*источник буффера: раскодированные фреймы из декодера будут в здесь*/
 		/* buffer audio source: the decoded frames from the decoder will be inserted here. */
-		if (!iccx_[i]->channel_layout)
+		if (!Caller_[i]->iccx->channel_layout)
 		{
-			iccx_[i]->channel_layout = av_get_default_channel_layout(iccx_[i]->channels);
+			Caller_[i]->iccx->channel_layout = av_get_default_channel_layout(Caller_[i]->iccx->channels);
 
 		}
-		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%"PRIx64,
-			iccx_[i]->sample_rate, av_get_sample_fmt_name(iccx_[i]->sample_fmt), iccx_[i]->channel_layout);
+		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
+			Caller_[i]->iccx->sample_rate, av_get_sample_fmt_name(Caller_[i]->iccx->sample_fmt), Caller_[i]->iccx->channel_layout);
 		//snprintf(arg, sizeof(arg), "src%d-%d", ForClient, i);
 		snprintf(arg, sizeof(arg), "src");
 		//разбиение индекса для SSource.
@@ -213,12 +222,12 @@ int CMixInit::init_filter_graph(int ForClient)
 	data.graphVec.push_back(filter_graph);
 	data.sinkVec.push_back(abuffersink_ctx);
 
-	loggit("int CRTPReceive::init_filter_graph END");
+	loggit("int ConfAudio::init_filter_graph END");
 	return 0;
 }
 //-*/-----------------------------------------------------------------------------------------
 //-*/-----------------------------------------------------------------------------------------
-void CMixInit::FreeSockFFmpeg()
+void CFilterInit::FreeSockFFmpeg()
 {
 	loggit("Destroing filter");//
 	for (auto &e : data.graphVec)

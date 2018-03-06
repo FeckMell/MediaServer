@@ -2,12 +2,14 @@
 #include "stdafx.h"
 #include "Logger.h"
 #include "Functions.h"
-#include "CRTPReceive.h"
+#include "ConfAudio.h"
 #include "Structs.h"
 #include "ConfPoint.h"
+#include "Ann.h"
+
 //#include <boost/thread/thread.hpp>
 
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
 /************************************************************************
 	CConfRoom
@@ -15,7 +17,9 @@ extern string DateStr;
 class CConfRoom
 {
 public:
-	CConfRoom(){ on = false; loggit("Room construct"); }
+	enum State { OFF, ON, PAUSED, DESTROY };
+	CConfRoom(){ loggit("Room construct"); }
+	~CConfRoom(){ Mixer.reset(); Mixer.~shared_ptr(); }
 
 	void NewPoint(string SDPff, string SDPfc, string CallID, int port);
 	void DeletePoint(string CallID);
@@ -31,10 +35,10 @@ private:
 	void Start();
 	void loggit(string a);
 	
-	SHP_CRTPReceive Mixer;
+	State state_ = OFF;
+	SHP_ConfAudio Mixer;
 	std::vector<SHP_CConfPoint> cllPoints_;
 	int RoomID_;
-	bool on;
 	boost::asio::io_service io_service_;
 };
 typedef std::shared_ptr<CConfRoom> SHP_CConfRoom;

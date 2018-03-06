@@ -6,16 +6,23 @@
 #pragma once
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf _snprintf
-//#ifdef WIN32
-//#include "targetver.h"
-//#endif // _WIN32_
 
-#include <stdio.h>
-#include <tchar.h>
+#define INPUT_SAMPLERATE     8000
+#define INPUT_FORMAT         AV_SAMPLE_FMT_S16
+#define INPUT_CHANNEL_LAYOUT AV_CH_LAYOUT_STEREO
+#define OUTPUT_BIT_RATE 8000
+#define OUTPUT_CHANNELS 1
+#define OUTPUT_SAMPLE_FORMAT AV_SAMPLE_FMT_S16
+#define VOLUME_VAL 0.90
+
+#undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
 #ifdef WIN32
+#define snprintf _snprintf
+#include <tchar.h>
 #include "targetver.h"
-#endif // _WIN32_
+#endif
+#include <stdio.h>
+
 
 //store
 #include <string>
@@ -25,14 +32,15 @@
 //#include <set>
 
 //file
-//#include <iostream>
+#include <iostream>
 #include <fstream>//
-//#include <ostream>
+#include <ostream>
 
 //utils
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <future>         // std::async, std::future
 //#include <atomic>
 //#include <iomanip>                       
 //#include <ctime> 
@@ -72,16 +80,8 @@ extern "C"
 #include <libavutil/samplefmt.h>
 	//
 #include "libavutil/time.h"
-	//#include <libswresample/swresample.h>
-	//#include <libavutil/audio_fifo.h>
-	//#include <libavformat/avio.h>
-	//#include <libavutil/file.h>
-	//#include <libavutil/time.h>
-	//#include <libavcodec/avcodec.h>
 }
-//namespace phoenix = boost::phoenix;
-//namespace qi = boost::spirit::qi;
-//namespace chrono = std::chrono;
+
 
 namespace asio = boost::asio;
 using boost::asio::ip::udp;
@@ -89,13 +89,16 @@ using std::string;
 using std::cerr;
 using std::cout;
 using std::shared_ptr;
+#ifdef WIN32
 #pragma comment (lib,"avformat.lib")
 #pragma comment (lib,"avcodec.lib")
 #pragma comment (lib,"avformat.lib")
 #pragma comment (lib,"avutil.lib")
 #pragma comment (lib,"avfilter.lib")
 #pragma comment (lib,"Winmm.lib")
+#endif
 //Winmm.dll
+typedef std::lock_guard<std::mutex> lock;
 
 
 

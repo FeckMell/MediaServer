@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "Functions.h"
 #include "Structs.h"
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
 
 class CConfPoint
@@ -18,19 +18,22 @@ public:
 	int my_port_; // приписанный этому поинту порт
 	int remote_port_; // порт клиента
 	string remote_ip_;// ip клиента
+	string SDP_; // sdp для ffmpeg
 	bool mode = false; // active, inactive (hold)
 	int error;
 
 	Data RawBuf;
 	CThreadedCircular FrameBuf;
 	RTP_struct rtp;
+
 	AVFormatContext* out_ifcx;
 	AVCodecContext* out_iccx;
-
 	AVFormatContext* ifcx;
 	AVCodecContext* iccx;
+
 	SHP_Socket Sock;
 	udp::endpoint Endpoint;
+
 
 	asio::io_service& io_service_;
 private:
@@ -44,10 +47,10 @@ private:
 	int open_input();
 	int sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **options);
 
-	string SDP_; // sdp для ffmpeg
+//	string SDP_; // sdp для ffmpeg
 	string SDP_for_client;
 
-	//AVCodecID idCodec_;
+	bool need_free = false;
 };
 
 typedef std::shared_ptr<CConfPoint> SHP_CConfPoint;

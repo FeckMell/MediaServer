@@ -5,14 +5,15 @@
 #include "Logger.h"
 #include "Parser.h"
 #include "MGCPserver.h"
-#include "Conf.h"
+#include "ConfRoom.h"
 #include "Ann.h"
 #include "Proxy.h"
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
+extern short int RTPport;
 
 class CMGCPServer;
-class ConfControl
+class MGCPControl
 {
 public:
 	std::string my_IP;
@@ -22,14 +23,16 @@ public:
 	void proceedMDCX(MGCP &mgcp);
 	void proceedRQNT(MGCP &mgcp);
 	void proceedDLCX(MGCP &mgcp);
+
+	int GetFreePort();
+	void SetFreePort(int port);
 private:
 	void loggit(string a);
 
 	int SetRoomID();
 	SHP_CConfRoom CreateNewRoom();
 
-	int GetFreePort();
-	void SetFreePort(int port);
+	
 	
 	SHP_CConfRoom FindConf(string ID);
 	SHP_Ann FindAnn(string ID);
@@ -52,4 +55,4 @@ private:
 	
 };
 
-typedef std::shared_ptr<ConfControl> SHP_ConfControl;
+typedef std::shared_ptr<MGCPControl> SHP_MGCPControl;

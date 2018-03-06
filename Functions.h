@@ -1,14 +1,14 @@
 #pragma once
 #include "stdafx.h"
+#include <boost/type_index.hpp>
 #include "Structs.h"
 #include "Logger.h"
-#include <boost/type_index.hpp>
 #include "boost/date_time/posix_time/posix_time.hpp"
 class Logger;
 extern boost::gregorian::date Date;
 extern string DateStr;
 extern string PathEXE;
-extern Logger CLogger;
+extern Logger* CLogger;
 
 
 //----------------------------------------------------------------------------
@@ -34,6 +34,14 @@ void GetPathExe(char* argv);
 //----------------------------------------------------------------------------
 int sdp_read(void *opaque, uint8_t *buf, int size);
 //----------------------------------------------------------------------------
+std::string get_substr(std::string target, std::string aim, std::string fin);
+//----------------------------------------------------------------------------
+std::string cut_substr(std::string target, std::string aim, std::string fin);
+//*///------------------------------------------------------------------------------------------
+std::string remove_from_str(std::string target, std::string aim);
+//*///------------------------------------------------------------------------------------------
+std::string replace_in_str(std::string target, std::string what, std::string to_what);
+
 
 
 

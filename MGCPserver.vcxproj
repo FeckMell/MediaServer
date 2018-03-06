@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -42,16 +42,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(OutDir)OBJ\$(ProjectName)\</IntDir>
-    <LibraryPath>C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost\stage\lib;C:\Projects\LIBS\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Projects\LIBS\Boost;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost\stage\lib;$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Projects\LIBS\Boost%28old%29\stage\lib;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost%28old%29\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
+    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(OutDir)OBJ\$(ProjectName)\</IntDir>
-    <IncludePath>C:\Projects\LIBS\Boost;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost\stage\lib;$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Projects\LIBS\Boost\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
+    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Projects\LIBS\Boost(old)\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost(old)\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -79,12 +79,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost(old);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -94,7 +94,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;C:\Projects\LIBS\Boost(old)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -105,33 +105,35 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ann.h" />
-    <ClInclude Include="CMixInit.h" />
-    <ClInclude Include="Conf.h" />
-    <ClInclude Include="ConfControl.h" />
+    <ClInclude Include="CFilterInit.h" />
+    <ClInclude Include="ConfRoom.h" />
+    <ClInclude Include="MGCPControl.h" />
     <ClInclude Include="ConfPoint.h" />
-    <ClInclude Include="CRTPReceive.h" />
+    <ClInclude Include="ConfAudio.h" />
     <ClInclude Include="Functions.h" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="MGCPserver.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Proxy.h" />
+    <ClInclude Include="SIPControl.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ann.cpp" />
-    <ClCompile Include="CMixInit.cpp" />
-    <ClCompile Include="Conf.cpp" />
-    <ClCompile Include="ConfControl.cpp" />
+    <ClCompile Include="CFilterInit.cpp" />
+    <ClCompile Include="ConfRoom.cpp" />
+    <ClCompile Include="MGCPControl.cpp" />
     <ClCompile Include="ConfPoint.cpp" />
-    <ClCompile Include="CRTPReceive.cpp" />
+    <ClCompile Include="ConfAudio.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MGCPserver.cpp" />
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="Parcer.cpp" />
     <ClCompile Include="Proxy.cpp" />
+    <ClCompile Include="SIPControl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
