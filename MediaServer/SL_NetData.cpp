@@ -23,12 +23,15 @@ void NET::Init()
 		stoi(CFG::data["mgcpPort"]),
 		outerIO
 		));
-	 
-	socketsOUT[OUTER::sip_].reset(new SOCK(
-		CFG::data["outerIP"],
-		stoi(CFG::data["sipPort"]),
-		outerIO
-		));
+
+	if (CFG::data["sipName"] != "")
+	{
+		socketsOUT[OUTER::sip_].reset(new SOCK(
+			CFG::data["outerIP"],
+			stoi(CFG::data["sipPort"]),
+			outerIO
+			));
+	}
 	 
 }
 

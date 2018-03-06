@@ -58,7 +58,7 @@ void CFG::ParseConfigFile()
 			data[results.str(1)] = results.str(2);
 		}
 		if (data["outerIP"] == "") error = "IP for receiving messages not set in *.cfg file.\n"; 
-		else if (data["sipName"] == "") error = "sipName for receiving messages not set in *.cfg file.\n";
+		//else if (data["sipName"] == "") error = "sipName for receiving messages not set in *.cfg file.\n";
 	}
 	else { error = "Could not open *.cfg file. Check its existance or name. Name Must \"be MGCPInit.cfg\".\n"; }
 	if (error != "")

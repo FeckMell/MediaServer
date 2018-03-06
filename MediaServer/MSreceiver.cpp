@@ -10,8 +10,11 @@ Receiver::Receiver()
 //*///------------------------------------------------------------------------------------------
 void Receiver::Run()
 {
-	NET::GS(NET::OUTER::sip_)->s.async_receive_from(boost::asio::buffer(message.data, 2048), message.sender,
-		boost::bind(&Receiver::ReceiveSIP, this, _1, _2));
+	if (CFG::data["sipName"] != "")
+	{
+		NET::GS(NET::OUTER::sip_)->s.async_receive_from(boost::asio::buffer(message.data, 2048), message.sender,
+			boost::bind(&Receiver::ReceiveSIP, this, _1, _2));
+	}
 	NET::GS(NET::OUTER::mgcp_)->s.async_receive_from(boost::asio::buffer(message.data, 2048), message.sender,
 		boost::bind(&Receiver::ReceiveMGCP, this, _1, _2));
 }

@@ -13,8 +13,6 @@
 
 
 #ifdef WIN32
-#define _SCL_SECURE_NO_WARNINGS
-#define _CRT_SECURE_NO_WARNINGS
 #include <SDKDDKVer.h>
 //#include <tchar.h>//
 #endif
@@ -35,11 +33,9 @@
 /* <\> BOOST*/
 #include <boost/asio.hpp>
 #include <boost/format.hpp>
-//#include <boost/asio/basic_datagram_socket.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/signals2.hpp>
-//#include <boost/exception/all.hpp>
 
 #undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
 /* <\> BOOST LOGS */

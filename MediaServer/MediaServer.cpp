@@ -21,9 +21,11 @@ int main(int argc, char* argv[])
 	
 	ann::Control ann;
 	cnf::Control cnf;
+	mgcp::Control mgcp;
+
 	dtmf::Control dtmf;
 	sip::Control sip;
-	mgcp::Control mgcp;
+	
 	NET::vecSigsIN[NET::INNER::ann].connect(boost::bind(&ann::Control::Preprocessing, &ann, _1));
 	NET::vecSigsIN[NET::INNER::cnf].connect(boost::bind(&cnf::Control::Preprocessing, &cnf, _1));
 	NET::vecSigsIN[NET::INNER::dtmf].connect(boost::bind(&dtmf::Control::Preprocessing, &dtmf, _1));
