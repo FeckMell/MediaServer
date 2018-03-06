@@ -1,5 +1,6 @@
 #pragma once
-
+#include "stdafx.h"
+#ifdef FFFFf
 #include "SrcCommon.h"
 #include "Utils.h"
 #include <boost/scoped_ptr.hpp>
@@ -40,3 +41,4 @@ private:
 	string IP_;
 	asio::io_service &io_service__;
 };
+#endif

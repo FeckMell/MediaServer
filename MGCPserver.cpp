@@ -1,37 +1,11 @@
+#pragma once
 #include "stdafx.h"
+#include "Functions.h"
 #include "MGCPserver.h"
 #include "Utils.h"
-//#include <string>
-//#include <iostream> 
-#include <fstream>
-#include <iostream>
-#include <cstdlib>
-#include <cstddef>
-#include <sstream>
-/*
-#include <boost/chrono.hpp>
-#include <boost/thread/thread.hpp>
-*/
-#include <boost/algorithm/string.hpp>
-#include <boost/scope_exit.hpp>
-#include <boost/config/warning_disable.hpp>
-#include <boost/spirit/include/qi.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <thread>
-#include <boost/thread/thread.hpp>
-//#define BOOST_REGEX_MATCH_EXTRA
-//#include <boost/regex.hpp>
-/*
-#include <boost/algorithm/string/classification.hpp>
-#include <boost/algorithm/string/split.hpp>
-#include <boost/algorithm/string/find_iterator.hpp>
-
-*/
-namespace phoenix = boost::phoenix;
-namespace qi = boost::spirit::qi;
-//FILE *FileLogS;
-
-
+extern boost::gregorian::date Date;
+extern string DateStr;
+extern string PathEXE0;
 
 static ThreadedSet<unsigned> thsetAnnIdInUse;
 static ThreadedSet<unsigned> thsetCnfIdInUse;
@@ -56,7 +30,6 @@ bool parse_filename(Iterator first, Iterator last, string& strOut)
 	return b;
 }
 //--------------------------------------------------------------------------------------------
-
 //--------------------------------------------------------------------------------------------
 void threadSendMedia(SHP_CMGCPConnection conn, string strFile, string CallID)
 {
@@ -68,15 +41,24 @@ void threadSendMedia(SHP_CMGCPConnection conn, string strFile, string CallID)
 ************************************************************************/
 void CMGCPServer::loggit(string a)
 {
-	fprintf(FileLogServer, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
+	time_t rawtime;
+	struct tm * t;
+	time(&rawtime);
+	t = localtime(&rawtime);
+	string time = "";
+	steady_clock::time_point t1 = steady_clock::now();
+	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+
+	fprintf(FileLogServer, ("\n" + time + "       " + a + "\n//-------------------------------------------------------------------").c_str());
 	fflush(FileLogServer);
 }
 //--------------------------------------------------------------------------------------------
 CMGCPServer::CMGCPServer(const TArgs& args)
-: m_args(args), io_service__(args.io_service1), socket_(args.io_service, udp::endpoint(udp::v4(), args.endpnt.port()))
+: m_args(args), io_service__(args.io_service), socket_(args.io_service, /*udp::endpoint(udp::v4(), args.endpnt.port())*/args.endpnt)
 {
+
 	//fopen_s(&FileLogServer, "LOGS_Server.txt", "w");
-	loggit("Server Construct\n");
+	loggit("Server Construct");
 }
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::Run()
@@ -85,7 +67,7 @@ void CMGCPServer::Run()
 	for (;;)
 	{
 		udp::endpoint sender_endpoint;
-		loggit("Waiting for Callagent request...\n");
+		loggit("Waiting for Callagent request...");
 		cout << "Waiting for Callagent request...\n";
 
 		size_t bytes_recvd = socket_.receive_from(
@@ -112,6 +94,7 @@ void CMGCPServer::Run()
 void CMGCPServer::do_receive()
 {
 	loggit("do_receive");
+	
 	socket_.async_receive_from(
 		asio::buffer(data_, max_length), sender_endpoint_,
 		[this](boost::system::error_code ec, std::size_t bytes_recvd)
@@ -172,7 +155,7 @@ void CMGCPServer::reply(const string& str, const udp::endpoint& udpTO)
 void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udpTO)
 {
 	using namespace MGCP;
-	const auto start_tp = std::chrono::high_resolution_clock::now();
+	auto start_tp = steady_clock::now();
 	//cout << "\n==============recieved=================\n";
 	loggit("void CMGCPServer::proceedReceiveBuffer()");
 	cout << boost::format("=================== %1% sent:\n%2%\n===================\n") % udpTO % pCh; // верхн€€ строчка короче
@@ -189,14 +172,7 @@ void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udp
 		return;
 	}
 
-	/*for (int i = 0; i < strlen(pCh); ++i)
-	{
-	if (pCh[i] != '=') continue;
-	sdp = sdp.substr(i - 1, strlen(pCh) - 1);
-	break;
-
-	}*/
-	const auto end_tp = std::chrono::high_resolution_clock::now();
+	auto end_tp = steady_clock::now();
 	const auto dur = std::chrono::duration_cast<std::chrono::microseconds>(end_tp - start_tp);
 	loggit("Parsing duration: " + to_string(dur.count()) + "microseconds");
 	cout << boost::format("Parsing duration: %1% microseconds\n") % dur.count();
@@ -258,7 +234,6 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 			}
 			auto confparams = FindClient(mgcp.getCallID());
 
-			//SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(mgcp.getCallID())), SDPforCRCX_.end());
 			if (DestRoom->DeletePoint(mgcp.getCallID()) == -1)
 			{
 				loggit("going to delete whole room");
@@ -267,7 +242,7 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 					loggit("deleting point with IP=" + DestRoom->GetPointID(i) + "\ndeleting port=" 
 						+ to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort()));
 					SetFreePort(DestRoom, DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort());
-					loggit("port deleted");
+					loggit("port deleted " + to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort()));
 					SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(DestRoom->GetPointID(i))), 
 						SDPforCRCX_.end());
 				}
@@ -285,8 +260,6 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 				loggit("port deleted, room size=" + to_string(DestRoom->GetNumCllPoints()));
 				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());	
 			}
-			cout << "\nRoomsVec_ =" << RoomsVec_.size();
-			cout << "SDPforCRCX_" << SDPforCRCX_.size();
 				
 			reply(mgcp.ResponseOK(250), udpTO);
 		}
@@ -403,13 +376,9 @@ void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 			loggit("Point with ID=" + mgcp.getCallID() + " frozen");
 			
 			auto confparams = FindClient(mgcp.getCallID());
-			//loggit("Point with ID=" + mgcp.getCallID() + " frozen1");
 			confparams->SDPresponse = ChangeSDPMode(confparams->SDPresponse);
-			//loggit("Point with ID=" + mgcp.getCallID() + " frozen2");
 			reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);
-			//loggit("Point with ID=" + mgcp.getCallID() + " frozen3");
 			DestRoom->FindPoint(mgcp.getCallID())->mode = false;
-			//loggit("Point with ID=" + mgcp.getCallID() + " frozen4");
 			DestRoom->Start();
 			loggit("Point with ID=" + mgcp.getCallID() + " frozenDONE");
 		}
@@ -543,7 +512,7 @@ SHP_CMGCPConnection CMGCPServer::findConnection(const MGCP::TMGCP& mgcp) const
 void CMGCPServer::Connectivity(MGCP::TMGCP &mgcp)
 {
 	using namespace MGCP;
-	loggit("void CMGCPServer::Connectivity");
+	//loggit("void CMGCPServer::Connectivity");
 	TEndPoint mgcpEndPnt = { str(boost::format("cnf/%1%") % thsetCnfIdInUse.regnew(1, 1)), mgcp.EndPoint.m_addr };
 	auto shpConnect = std::make_shared<CMGCPConnection>(*this, mgcp);
 	m_cllConnections[mgcpEndPnt] = shpConnect;

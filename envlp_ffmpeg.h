@@ -1,26 +1,10 @@
 #pragma once
-
-extern "C"
-{
-//#include <libavcodec/avcodec.h>
-#include <libavformat/avformat.h>
-//#include <libavformat/avio.h>
-//#include <libavutil/file.h>
-//#include <libavutil/time.h>
-#include <libavutil/opt.h>
-#include <libavfilter/buffersink.h>
-#include <libavfilter/buffersrc.h>
-#include <libavfilter/avfilter.h>
-//#include <libswresample/swresample.h>
-//#include <libavutil/audio_fifo.h>
-#include <libavutil/avstring.h>
-}
-
+#include "stdafx.h"
+#include "Functions.h"
 
 extern const AVFilter* gl_abuffer;
 extern const AVFilter* gl_abuffersink;
 extern const AVFilter* gl_amix;
-string get_error_text(const int error);
 
 struct CAVPacket : AVPacket
 {

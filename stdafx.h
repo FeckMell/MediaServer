@@ -19,6 +19,8 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <fstream>
+#include <ostream>
 #include <string>
 #include <map>
 #include <set>
@@ -46,6 +48,16 @@ using boost::asio::ip::udp;
 #include <boost/thread.hpp>
 #include <boost/asio/basic_datagram_socket.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/thread.hpp>
+//
+#include <boost/algorithm/string.hpp>
+#include <boost/spirit/include/qi.hpp>
+#include <boost/spirit/include/phoenix_operator.hpp>
+#include "boost/date_time/gregorian/gregorian.hpp"
+#include <boost/filesystem/operations.hpp>
+#include <boost/program_options.hpp>
+
+
 
 
 
@@ -69,7 +81,8 @@ extern "C"
 	//#include <libavutil/time.h>
 	//#include <libavcodec/avcodec.h>
 }
-
+namespace phoenix = boost::phoenix;
+namespace qi = boost::spirit::qi;
 namespace chrono = std::chrono;
 using std::string;
 using std::cerr;

@@ -1,11 +1,11 @@
 #pragma once
 //#include "PackMGCP.h"
+//#include "Functions.h"
 #include "Connection.h"
 #include "MGCPparser.h"
 #include "Conf.h"
 //#include "DestFusion.h"
 //struct TMGCP;
-extern FILE *FileLogServer;
 /************************************************************************
 	CMGCPServer
 ************************************************************************/
@@ -14,6 +14,7 @@ typedef MGCP::TEndPoint KEY_MGCPConnection;
 typedef shared_ptr<CMGCPConnection> SHP_CMGCPConnection;
 typedef std::map<KEY_MGCPConnection, SHP_CMGCPConnection> MAP_CMGCPConnections;
 //typedef shared_ptr<CMGCPConnection> SHP_CMGCPConnection;
+extern FILE *FileLogServer;
 
 struct ConfParam
 {
@@ -41,14 +42,13 @@ public:
 		asio::io_service&		io_service; 
 		const udp::endpoint&	endpnt;
 		string					strMmediaPath;
-		asio::io_service&		io_service1;
-
 	};
 	
 	CMGCPServer(const TArgs&);
 	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
 	void Run();
 private:
+/*Отладка*/
 	void loggit(string a);
 
 	void do_receive();

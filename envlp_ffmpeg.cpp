@@ -1,3 +1,4 @@
+#pragma once
 #include "stdafx.h"
 #include "envlp_ffmpeg.h"
 
@@ -9,13 +10,6 @@
 //#pragma comment (lib,"swresample.lib")
 
 //-----------------------------------------------------------------------
-string get_error_text(const int error)
-{
-	char error_buffer[1024];
-	av_strerror(error, error_buffer, sizeof(error_buffer));
-	return std::move(string(error_buffer));
-}
-
 const AVFilter* gl_abuffer;
 const AVFilter* gl_abuffersink;
 const AVFilter* gl_amix;

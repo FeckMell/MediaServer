@@ -1,3 +1,4 @@
+#pragma once
 #include "stdafx.h"
 
 #include <boost/config/warning_disable.hpp>

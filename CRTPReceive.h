@@ -1,8 +1,9 @@
 #pragma once
 #include "stdafx.h"
+#include "Functions.h"
 #include "CMixInit.h"
 #include "Structs.h"
-#include <fstream> 
+
 //#include "Utils.h"
 #define INPUT_SAMPLERATE     8000
 //#define INPUT_SAMPLERATE     44100
@@ -22,11 +23,10 @@ using namespace boost::asio;
 using namespace std;
 extern FILE *FileLogMixer;
 struct Initing;
-struct SSource;
 struct CAVPacket2;
 struct Data;
-struct Buf;
 struct NetworkData;
+struct RTP_struct;
 using namespace std::chrono;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
@@ -38,21 +38,15 @@ public:
 	{ 
 		received = 9999;
 		net_ = net;
-		process_all_running = true;
-		process_all_finished = false;
+		process_all_finishing = false;
 		Initer.reset(new CMixInit(net_));
-		
-		tracks = net_.my_ports.size();
-		
+		ext = Initer->data;
 		reinit_sockets(false);
-		
-		ext = Initer->data;	
-		sockets_stoped = 0;
 	}
 	~CRTPReceive()
 	{
 		cout << "~CRTPReceive()";
-		process_all_running = false;
+		process_all_finishing = true;
 
 		Initer.reset();
 		cout << "~CRTPReceive()";
@@ -61,50 +55,45 @@ public:
 	int process_all();
 	void receive(int i);
 	void destroy_all();
-	boost::asio::io_service io_service_;
-private:
-	void loggit(string a);
-	void reinit_sockets(bool mode);
+	
 
+	
+	
+
+private:
+	boost::asio::io_service io_service_;
+	/*helpers*/
+	void reinit_sockets(bool mode);
+	void loggit(string a, int thread);
+	void rtp_config(int i);
+	void rtp_modify(int i);
+	void clear_memmory();
+	/*main activity*/
 	int init_input_frame(AVFrame **frame);
 	void init_packet(AVPacket *packet);
 	int decode_audio_frame(AVFrame *frame, int *data_present, int i);
 	int encode_audio_frame(AVFrame *frame, int *data_present, int i);
 	int encode_audio_frame_file(AVFrame *frame, int *data_present, int i);
+
+	/*event handling*/
+	void new_process(unsigned i);
+	void add_missing_frame(int i, int j);
+	void get_last_buffer_frame(AVFrame* frame, int i);
 	
-
-
-	int tracks;
 	Initing ext; 
 
-	vector<SHP_CAVPacket2> rtp;
+	//vector<SHP_CAVPacket2> rtp;
+	vector<RTP_struct> rtp2;
 	vector<SHP_Socket> vecSock;
-	vector<SHP_Socket> vecSock2;
 	vector<udp::endpoint> vecEndpoint;
-
-	NetworkData net_;
-
-	uint8_t data[8000];
 	vector<Data> vecData;
-	vector<Data> vecData2;
 	vector<boost::shared_ptr<boost::thread>> receive_threads;
-	//vector<std::chrono::high_resolution_clock::time_point> time_start_receive;
-	vector<steady_clock::time_point> time_start_receive;
-
-	vector<bool> skipper;
-	bool process_all_running = true;
-	bool process_all_finished;
-	SHP_CAVPacket2 send;
+	NetworkData net_;
+	
 	SHP_CMixInit Initer;
 
-	int sockets_stoped=0;
-
+	bool process_all_finishing;
 	int received;
-	//AVPacket input_packet;//decode
-	//SHP_CAVPacket2 shpPacket;//decode
-	//AVPacket output_packet;//encode
-	//AVFrame *frame = NULL;//process_all
-	//AVFrame *filt_frame;//procell_all
 };
 typedef std::shared_ptr<CRTPReceive> SHP_CRTPReceive;
 

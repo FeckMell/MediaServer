@@ -1,5 +1,7 @@
+#pragma once
 #include "stdafx.h"
 #include "SrcAsio.h"
+#ifdef FFFFf
 //#define _DEBUG
 
 /************************************************************************
@@ -132,3 +134,4 @@ void CSrcAsio::_do_receive()
 		_do_receive();
 	});
 }
+#endif

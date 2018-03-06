@@ -1,5 +1,6 @@
 #pragma once
 #include "stdafx.h"
+#include "Functions.h"
 #include "Structs.h"
 #define INPUT_SAMPLERATE     8000
 //#define INPUT_SAMPLERATE     44100
@@ -20,7 +21,7 @@ using namespace std;
 
 extern FILE *FileLogMixerInit;
 struct Initing;
-struct SSource;
+//struct SSource;
 struct NetworkData;
 
 typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;

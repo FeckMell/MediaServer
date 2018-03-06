@@ -1,21 +1,38 @@
+#pragma once
 #include "stdafx.h"
 #include "Conf.h"
-#include <boost/thread/thread.hpp>
-void StartRoom(SHP_CRTPReceive room)
+//#include <boost/thread/thread.hpp>
+void StartRoom(SHP_CRTPReceive mixer)
 {
-	room->process_all();
+	mixer->process_all();
 }
-void AddCall(SHP_CRTPReceive Mixer, NetworkData net)
+void AddCall(SHP_CRTPReceive mixer, NetworkData net)
 {
-	Mixer->add_track(net);
+	mixer->add_track(net);
 }
 void CConfPoint::loggit(string a)
 {
-	fprintf(FileLogConfPoint, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
+	time_t rawtime;
+	struct tm * t;
+	time(&rawtime);
+	t = localtime(&rawtime);
+	string time = "";
+	steady_clock::time_point t1 = steady_clock::now();
+	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+	
+	fprintf(FileLogConfPoint, ("\n" + time + "       " + a/* + "\n//-------------------------------------------------------------------"*/).c_str());
 	fflush(FileLogConfPoint);
 }
 void CConfRoom::loggit(string a)
 {
+	time_t rawtime;
+	struct tm * t;
+	time(&rawtime);
+	t = localtime(&rawtime);
+	string time = "";
+	steady_clock::time_point t1 = steady_clock::now();
+	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
+
 	fprintf(FileLogConfRoom, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
 	fflush(FileLogConfRoom);
 }
@@ -32,6 +49,7 @@ string CConfRoom::Make_addr_from_SDP(string output_SDP)
 	if (found != std::string::npos)
 		temp = output_SDP.substr(found + 8, output_SDP.find(" ", found + 10)- found - 8);
 	result += temp;
+	temp.clear();
 	return result;
 }
 //--------------------------------------------------------------------------
@@ -85,10 +103,7 @@ void CConfRoom::NewInitPoint(string SDP, string CallID, int port)
 void CConfRoom::Start()
 {
 	loggit("CConfRoom::Start()");
-	std::vector<string> SDPs;
-	std::vector<string> IPs;
-	std::vector<int> ports1;
-	std::vector<int> ports2;
+	NetworkData net;
 	counter++;
 	counter = counter % 3;
 	string logSDP = "\n";
@@ -101,17 +116,16 @@ void CConfRoom::Start()
 				entry->ModifySDP(1000*counter);
 				logSDP += entry->GetSDP() + "\n";
 
-				SDPs.push_back(entry->GetSDP());
-				IPs.push_back(entry->GetRemoteIP());
-				ports1.push_back(entry->GetMyPort());
-				ports2.push_back(entry->GetRemotePort());
+				net.input_SDPs.push_back(entry->GetSDP());
+				net.IPs.push_back(entry->GetRemoteIP());
+				net.my_ports.push_back(entry->GetMyPort());
+				net.remote_ports.push_back(entry->GetRemotePort());
 			}
 		}
 
 		on = true;
 		loggit("Creating Mixer for SDPs:" + logSDP);
-		NetworkData net;
-		net = { SDPs, IPs, ports1, ports2 };
+		
 		Mixer.reset(new CRTPReceive(net));
 		boost::thread my_thread(&StartRoom, Mixer);
 		my_thread.detach();
@@ -126,19 +140,19 @@ void CConfRoom::Start()
 				entry->ModifySDP(1000*counter);
 				logSDP += entry->GetSDP() + "\n";
 
-				SDPs.push_back(entry->GetSDP());
-				IPs.push_back(entry->GetRemoteIP());
-				ports1.push_back(entry->GetMyPort());
-				ports2.push_back(entry->GetRemotePort());
+				net.input_SDPs.push_back(entry->GetSDP());
+				net.IPs.push_back(entry->GetRemoteIP());
+				net.my_ports.push_back(entry->GetMyPort());
+				net.remote_ports.push_back(entry->GetRemotePort());
 			}
 
 		}
-		NetworkData net;
-		net = { SDPs, IPs, ports1, ports2 };
 		boost::thread my_thread(&AddCall, Mixer, net);
 		my_thread.detach();
-		loggit("mix->process_all();");
+		loggit("mix->AddCall;");
 	}
+	net.free();
+	logSDP.clear();
 }
 //--------------------------------------------------------------------------
 SHP_CConfPoint CConfRoom::FindPoint(string CallID)

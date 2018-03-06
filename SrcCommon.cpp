@@ -1,15 +1,14 @@
+#pragma once
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 #include "stdafx.h"
+#include "Structs.h"
 #include "SrcCommon.h"
 
 
 /************************************************************************
 	CSrcCommon	
 ************************************************************************/
-struct SdpOpaque {
-	using Vector = std::vector<uint8_t>; Vector data; Vector::iterator pos;
-};
 int CSrcCommon::decode_audio_frame(AVFrame *frame,
 	int *gotted, bool *finished)
 {

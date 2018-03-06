@@ -72,7 +72,7 @@
       <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
+      <PreserveSbr>false</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -86,6 +86,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
+      <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -109,6 +110,7 @@
     <ClInclude Include="CRTPReceive.h" />
     <ClInclude Include="DestFusion.h" />
     <ClInclude Include="envlp_ffmpeg.h" />
+    <ClInclude Include="Functions.h" />
     <ClInclude Include="ISrcFusion.h" />
     <ClInclude Include="MGCPparser.h" />
     <ClInclude Include="MGCPserver.h" />
@@ -132,6 +134,7 @@
     <ClCompile Include="MGCPparser.cpp" />
     <ClCompile Include="MGCPserver.cpp" />
     <ClCompile Include="PackMGCP.cpp" />
+    <ClCompile Include="Functions.cpp" />
     <ClCompile Include="SrcAsio.cpp" />
     <ClCompile Include="SrcCash.cpp" />
     <ClCompile Include="SrcCommon.cpp" />
