@@ -17,8 +17,10 @@ namespace mgcp
 		EP sender;
 		string request;
 		string mgcp = "";
-		string sdp = "";
-		string serverSDP = "";
+		SHP_SDP clientSDP;
+		SHP_SDP serverSDP;
+		//string sdp = "";
+		//string serverSDP = "";
 
 		string outerError = "";
 		string innerError = "";

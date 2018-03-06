@@ -40,6 +40,7 @@
     <ClCompile Include="SL_InnerParser.cpp" />
     <ClCompile Include="SL_Logs.cpp" />
     <ClCompile Include="SL_NetData.cpp" />
+    <ClCompile Include="SL_SDP.cpp" />
     <ClCompile Include="SL_SockStorage.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
@@ -72,6 +73,7 @@
     <ClInclude Include="SL_InnerParser.h" />
     <ClInclude Include="SL_Logs.h" />
     <ClInclude Include="SL_NetData.h" />
+    <ClInclude Include="SL_SDP.h" />
     <ClInclude Include="SL_SockStorage.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

@@ -5,6 +5,7 @@
 #include "SL_Functions.h"
 #include "SL_InnerParser.h"
 #include "SL_Config.h"
+#include "SL_SDP.h"
 // dependant
 #include "SL_Logs.h"
 #include "SL_BasicStructs.h"

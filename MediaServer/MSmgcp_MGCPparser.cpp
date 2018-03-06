@@ -41,6 +41,7 @@ void MGCP::SplitMGCPandSDP()
 		temp = copy_single_n_line(request, line);
 	}
 	line++;
+	string sdp="";
 	temp = copy_single_n_line(request, line);
 	while (temp != "")
 	{
@@ -48,6 +49,8 @@ void MGCP::SplitMGCPandSDP()
 		line++;
 		temp = copy_single_n_line(request, line);
 	}
+	if (sdp == "") clientSDP.reset(new SDP());
+	else clientSDP.reset(new SDP(sdp));
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -90,7 +93,6 @@ void MGCP::ParseRest()
 		line_num++;
 		line = copy_single_n_line(mgcp, line_num);
 	}
-
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -157,6 +159,12 @@ void MGCP::CheckValid()
 		e;
 		return;
 	}
+
+	if (clientSDP->error != "")
+	{
+		outerError = clientSDP->error;
+		return;
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -186,7 +194,7 @@ string MGCP::ResponseOK()
 		result += "\nZ: " + data["EventType"] + "/" + data["EventID"] + "@[" + data["Addr"] + "]";
 		result += "\nI: " + to_string(rand() % 10000);
 
-		result += "\n\n" + serverSDP;
+		result += "\n\n" + serverSDP->sdp;
 	}
 	return result;
 }
@@ -214,6 +222,6 @@ string MGCP::PrintAll()
 {
 	string result = "";
 	for (auto& e : data) result += "\n_" + e.first + "_=_" + e.second + "_";
-	result += "\n" + sdp;
+	result += "\n" + clientSDP->sdp;
 	return result;
 }

@@ -15,8 +15,8 @@ namespace mgcp
 
 		string PrintPoint();
 
-		string serverSDP;
-		string clientSDP;
+		SHP_SDP serverSDP;
+		SHP_SDP clientSDP;
 		string serverPort;
 		string clientPort;
 		string clientIP;
@@ -27,10 +27,10 @@ namespace mgcp
 		bool state = false;//true - sendrecv, false - inactive
 	private:
 
-		string FindSDPmode(string);
-		bool ChangeSDPmode(string);
-		string GetIPfromSDP(string);
-		string GetPortFromSDP(string);
+		//string FindSDPmode(string);
+		//bool ChangeSDPmode(string);
+		//string GetIPfromSDP(string);
+		//string GetPortFromSDP(string);
 	};
 	typedef shared_ptr<Point> SHP_Point;
 }

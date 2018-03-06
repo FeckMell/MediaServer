@@ -6,12 +6,16 @@ using namespace mgcp;
 Point::Point(SHP_MGCP mgcp_)
 {
 	serverSDP = mgcp_->serverSDP;
-	clientSDP = mgcp_->sdp;
-	serverPort= GetPortFromSDP(serverSDP);
-	clientPort = GetPortFromSDP(clientSDP);
-	clientIP = GetIPfromSDP(clientSDP);
+	clientSDP = mgcp_->clientSDP;
+	serverPort = serverSDP->data["Port"];
+	clientPort = clientSDP->data["Port"];
+	clientIP = clientSDP->data["IP"];
 	callID = mgcp_->data["CallID"];
-	if (clientSDP != "") state = true;
+	if (clientSDP != nullptr)
+	{
+		if (clientSDP->data["Mode"] == "sendrecv")
+			state = true;
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

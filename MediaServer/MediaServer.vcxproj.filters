@@ -183,6 +183,9 @@
     <ClCompile Include="MSmgcp.cpp">
       <Filter>MSmgcp\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="SL_SDP.cpp">
+      <Filter>SharedLib\Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -277,6 +280,9 @@
     </ClInclude>
     <ClInclude Include="MSmgcp.h">
       <Filter>MSmgcp\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_SDP.h">
+      <Filter>SharedLib\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
