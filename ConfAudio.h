@@ -35,7 +35,7 @@ private:
 	
 	/*main activity*/
 	int process_all();
-	void new_process();
+	//void new_process();
 	void receive();
 
 
@@ -44,17 +44,18 @@ private:
 	SHP_CAVFrame get_frame_from_filter(int i);
 	void encode_and_send(SHP_CAVFrame, int);
 	void create_silent_frame();
-
-
-
-	int decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
 	SHP_CAVFrame decode(SHP_CAVPacket, int);
-	int encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
+
+
+
+	//int decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
+	
+	//int encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
 	
 	
-	void add_missing_frame(int i, int j);
-	void get_last_buffer_frame(SHP_CAVFrame frame, int i);
-	void add_to_filter(int i, SHP_CAVFrame frame);
+	//void add_missing_frame(int i, int j);
+	//void get_last_buffer_frame(SHP_CAVFrame frame, int i);
+	//void add_to_filter(int i, SHP_CAVFrame frame);
 
 	/*event handling*/
 	void clear_memmory();

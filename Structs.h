@@ -172,28 +172,38 @@ struct Config
 class CThreadedCircular
 {
 public:
-	CThreadedCircular() : buffer_(3){  }
-	CThreadedCircular(size_t sz) : buffer_(sz){  }
+	CThreadedCircular() : buffer_(3), buffer2_(3){  }
+	CThreadedCircular(size_t sz) : buffer_(sz), buffer2_(sz){  }
 	CThreadedCircular(const CThreadedCircular &obj)
 	{
 		buffer_ = obj.buffer_;
+		buffer2_ = obj.buffer2_;
+		size_ = obj.size_;
 	}
 	~CThreadedCircular(){ free(); }
+	//-*/----------------------------------------------------------------------
+	void setAmount(int n)
+	{
+		size_ = n;
+	}
 	//-*/----------------------------------------------------------------------
 	void push(SHP_CAVFrame val)
 	{
 		mutex_.lock();
 		buffer_.push_back(val);
+		std::vector<int> a;
+		a.resize(size_, 0);
+		buffer2_.push_back(a);
 		mutex_.unlock();
 	}
 	//-*/----------------------------------------------------------------------
-	SHP_CAVFrame pop()
+	SHP_CAVFrame pop(int i)
 	{
 		SHP_CAVFrame result;
 		mutex_.lock();
-		if (buffer_.empty()) { result = std::make_shared<CAVFrame>(true); }//cout << "\nempty, size =" << buffer_.size(); }
-		else {result = buffer_.front(); }
-		
+		//if (buffer_.empty()) { result = std::make_shared<CAVFrame>(true); }//cout << "\nempty, size =" << buffer_.size(); }
+		//else {result = buffer_.front(); }
+		result = get_last_frame(i);
 		mutex_.unlock();
 		return result;
 	}
@@ -211,6 +221,7 @@ public:
 	{
 		mutex_.lock();
 		buffer_.clear();
+		buffer2_.clear();
 		mutex_.unlock();
 	}
 	bool empty()
@@ -222,8 +233,29 @@ public:
 		return result;
 	}
 private:
+	SHP_CAVFrame get_last_frame(int i)
+	{
+		if (buffer_.empty()) { return std::make_shared<CAVFrame>(true); }
+		else
+		{
+			for (int j = 0; j < (int)buffer2_.size(); ++j)
+			{
+				if (buffer2_[j][i] == 0)
+				{
+					buffer2_[j][i] = 1;
+					//cout << "\nframe i" << i << " j" << j;
+					return buffer_[j];
+				}
+				//else{ cout << "\nused"<<i; }
+			}
+			//cout << "\nall used";
+			return std::make_shared<CAVFrame>(true);
+		}
+	}
+	int size_;
 	std::mutex  mutex_;
 	boost::circular_buffer<SHP_CAVFrame>	buffer_;
+	boost::circular_buffer<std::vector<int>> buffer2_;
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
