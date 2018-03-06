@@ -1,7 +1,11 @@
 #pragma once
 #include "stdafx.h"
 #include "CRTPReceive.h"
+#include <boost/thread.hpp>
 using namespace std;
+class CRTPReceive;
+
+
 void CRTPReceive::loggit(string a)
 {
 	fprintf(FileLogMixer, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
@@ -9,24 +13,32 @@ void CRTPReceive::loggit(string a)
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-struct SdpOpaque
+int sdp_read1(void *opaque, uint8_t *buf, int size) /*noexcept*/
 {
-	using Vector = std::vector<uint8_t>; Vector data; Vector::iterator pos;
-};
-int sdp_read1(void *opaque, uint8_t *buf, int size);
+	assert(opaque);
+	assert(buf);
+	auto octx = static_cast<SdpOpaque*>(opaque);
+
+	if (octx->pos == octx->data.end()) 
+		return 0;
+	
+	auto dist = static_cast<int>(std::distance(octx->pos, octx->data.end()));
+	auto count = std::min(size, dist);
+	std::copy(octx->pos, octx->pos + count, buf);
+	octx->pos += count;
+
+	return count;
+}
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+void worker_thread(CRTPReceive *a)
+{
+	a->io_service_.run();
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	cout << "\nwaited!!!";
+}
 int CRTPReceive::FirstInit()
 {
-	//fopen_s(&FileLogMixer, "LOGS_Mixer.txt", "w");
-	ff1.open("result1.dat");
-	ff2.open("result2.dat");
-	ff3.open("result3.dat");
-
-	ff11.open("result11.dat");
-	ff22.open("result22.dat");
-	ff33.open("result33.dat");
-
 	loggit("int CRTPReceive::FirstInit()");
 	av_log_set_level(AV_LOG_VERBOSE);
 	av_register_all();
@@ -37,6 +49,10 @@ int CRTPReceive::FirstInit()
 	{
 		AVFormatContext *input_format_context = NULL;
 		AVCodecContext *input_codec_context = NULL;
+		AVFormatContext *output_format_context = NULL;
+		AVCodecContext *output_codec_context = NULL;
+		boost::thread Thread(worker_thread, this);
+		Thread.detach();
 		SSource a;
 
 		for (int j = 0; j < tracks - 1; ++j)
@@ -47,8 +63,8 @@ int CRTPReceive::FirstInit()
 
 		ifcx.push_back(input_format_context);
 		iccx.push_back(input_codec_context);
-		//out_ifcx.push_back(output_format_context);
-		//out_iccx.push_back(output_codec_context);
+		out_ifcx.push_back(output_format_context);
+		out_iccx.push_back(output_codec_context);
 		afcx.push_back(a);
 	}
 	loggit("int CRTPReceive::FirstInit() ENDED");
@@ -56,25 +72,32 @@ int CRTPReceive::FirstInit()
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-int CRTPReceive::init(vector<string> input_SDPs, vector<string> output_SDPs)
+int CRTPReceive::init(vector<string> input_SDPs)
 {
 	loggit("int CRTPReceive::init(vector<string> SDP)");
 	int err;
+	ff1.open("test_in.dat");
+	string logSDP = "";
+	string logSocket = "";
+	//if (input_SDPs.size() != output_SDPs.size())
+	//	assert(true);
+	//else
+	//	SetNumSources(input_SDPs.size());
 
-	string log = "";
-	for (auto &e : input_SDPs)
+	FirstInit();
+	for (int i = 0; i < tracks; ++i)
 	{
-		log += e + "\n";
+		logSDP += input_SDPs[i] + "\n";
+		logSocket += "\nrtp://" + IPs_[i] + ":" + to_string(remote_ports_[i]) + " -> " + to_string(my_ports_[i]);
+		//logAddr += output_SDPs[i] + "\n";
 	}
-	loggit("SDP in filter:" + log + "\n for (int i = 0; i < tracks; ++i) open_input_file");
+	loggit("SDPs in filter:\n" + logSDP + "addresses:" + logSocket);
 	
 	for (int i = 0; i < tracks; ++i)
 	{
-		if (open_input_file(input_SDPs[i], &ifcx[i], &iccx[i]) < 0)
+		if (open_input_file(input_SDPs[i].c_str(), i) < 0)
 		{
 			loggit("Error while opening file " + to_string(i));
-			av_log(NULL, AV_LOG_ERROR, "Error while opening file 1\n");
-			//exit(3);
 			system("pause");
 		}
 		av_dump_format(ifcx[i], 0, input_SDPs[i].c_str(), 0);
@@ -86,35 +109,28 @@ int CRTPReceive::init(vector<string> input_SDPs, vector<string> output_SDPs)
 		if (err < 0)
 		{
 			loggit("Init err =  " + to_string(err));
-			std::printf("Init err = %d\n", err);
+			system("pause");
 		}
 	}
 	loggit("Initing filters DONE\n for (int i = 0; i < tracks; ++i) open_output_file");
-	for (int i = 0; i < tracks; ++i)
+	//for (int i = 0; i < tracks; ++i)
+	for (int i = (tracks - 1); i > -1; --i)
 	{
-		AVFormatContext *output_format_context = NULL;
-		AVCodecContext *output_codec_context = NULL;
-		out_ifcx.push_back(output_format_context);
-		out_iccx.push_back(output_codec_context);
-		//char out[100];
-		//snprintf(out, sizeof(out), "output%d.wav", i);
-		//outputFile.push_back(out);
-
-		//remove(outputFile[i]);
-		av_log(NULL, AV_LOG_INFO, "Output file : %s\n", output_SDPs[i].c_str());
-		err = open_output_file(output_SDPs[i].c_str(), &ifcx[i], iccx[i], &out_ifcx[i], &out_iccx[i]);
+		//av_log(NULL, AV_LOG_INFO, "Output file : %s\n", output_SDPs[i].c_str());
+		cout << "\nopen_output_file(output_SDPs[i].c_str(),i);" << i;
+		char out[100];
+		snprintf(out, sizeof(out), "output%d.wav", i);
+		err = open_output_file(out, i);
+		//cout << "\nopen_output_file " << i << ", " << output_SDPs[i];
 		loggit("open output file err :  " + std::to_string(err));
-		std::printf("open output file err : %d\n", err);
 		//av_dump_format(out_ifcx[i], 0, output_SDPs[i].c_str(), 1);
-
+		
 		if (write_output_file_header(out_ifcx[i]) < 0)
 		{
 			loggit("Error while writing header outputfile  " + std::to_string(err));
-			av_log(NULL, AV_LOG_ERROR, "Error while writing header outputfile\n");
-			//exit(5);
-			system("pause");
+			//cout << "write_output_file_header(out_ifcx[i]) " << output_SDPs[i];
+			//system("pause");
 		}
-
 	}
 	loggit("for (int i = 0; i < tracks; ++i) open_output_file DONE\n init DONE");
 	return 0;
@@ -148,6 +164,7 @@ int CRTPReceive::sdp_open(AVFormatContext **pctx, const char *data, AVDictionary
 
 	auto infmt = av_find_input_format("sdp");
 	loggit("int CRTPReceive::sdp_open DONE");
+	cout << "\n1.1";
 	return avformat_open_input(pctx, "memory.sdp", /*nullptr*/infmt, nullptr/*options*/);
 }
 //------------------------------------------------------------------------------------------
@@ -172,8 +189,8 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Unable to create filter graph.\n");
 		return AVERROR(ENOMEM);
 	}
+
 	/****** abuffer [ForClient][i] ********/
-	
 	for (int i = 0; i < tracks; ++i)
 	{
 		loggit("/****** abuffer [ForClient][i] ********/");
@@ -201,7 +218,6 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%"PRIx64,
 			iccx[i]->sample_rate, av_get_sample_fmt_name(iccx[i]->sample_fmt), iccx[i]->channel_layout);
 		snprintf(arg, sizeof(arg), "src%d-%d", ForClient, i);
-		//err = avfilter_graph_create_filter(&afcx[ForClient].src[i], abuffer0, arg, args, NULL, filter_graph);///// вернуть
 		//разбиение индекса для SSource.
 		if (i < ForClient)
 			err = avfilter_graph_create_filter(&afcx[ForClient].src[i], abuffer0, arg, args, NULL, filter_graph);
@@ -214,7 +230,6 @@ int CRTPReceive::init_filter_graph(int ForClient)
 			return err;
 		}
 	}
-	/****** amix ******* */
 
 	/****** amix ******* */
 	/* Create mix filter. */
@@ -226,7 +241,7 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Could not find the mix filter.\n");
 		return AVERROR_FILTER_NOT_FOUND;
 	}
-	std::printf("\n 8");
+
 	char arg[10];
 	snprintf(arg, sizeof(arg), "amix%d", ForClient);
 	snprintf(args, sizeof(args), "inputs=%d", tracks - 1);
@@ -240,9 +255,8 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Cannot create audio amix filter\n");
 		return err;
 	}
-	std::printf("\n 9");
-	/* Finally create the abuffersink filter;
-	* it will be used to get the filtered data out of the graph. */
+
+	/* Finally create the abuffersink filter;* it will be used to get the filtered data out of the graph. */
 	abuffersink = avfilter_get_by_name("abuffersink");
 	if (!abuffersink)
 	{
@@ -250,7 +264,7 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Could not find the abuffersink filter.\n");
 		return AVERROR_FILTER_NOT_FOUND;
 	}
-	std::printf("\n 10");
+
 	snprintf(arg, sizeof(arg), "sink%d", ForClient);
 	abuffersink_ctx = avfilter_graph_alloc_filter(filter_graph, abuffersink, arg);
 	if (!abuffersink_ctx)
@@ -259,24 +273,22 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Could not allocate the abuffersink instance.\n");
 		return AVERROR(ENOMEM);
 	}
-	std::printf("\n 11");
+
 	/* Same sample fmts as the output file. */
 	const enum AVSampleFormat Fmts[] = { AV_SAMPLE_FMT_S16, AV_SAMPLE_FMT_NONE };
 	err = av_opt_set_int_list(abuffersink_ctx, "sample_fmts", Fmts, AV_SAMPLE_FMT_NONE, AV_OPT_SEARCH_CHILDREN);
-	std::printf("\n 12");
 
-	//uint8_t ch_layout[64];
 	char ch_layout[64];
 	av_get_channel_layout_string(ch_layout, sizeof(ch_layout), 0, OUTPUT_CHANNELS);
 	av_opt_set(abuffersink_ctx, "channel_layout", ch_layout, AV_OPT_SEARCH_CHILDREN);
-	std::printf("\n 13");
+
 	if (err < 0)
 	{
 		loggit("Could set options to the abuffersink instance." + err);
 		av_log(NULL, AV_LOG_ERROR, "Could set options to the abuffersink instance.\n");
 		return err;
 	}
-	std::printf("\n 14");
+
 	err = avfilter_init_str(abuffersink_ctx, NULL);
 	if (err < 0)
 	{
@@ -284,11 +296,11 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Could not initialize the abuffersink instance.\n");
 		return err;
 	}
-	std::printf("\n 15");
+
 	loggit("/* Connect the filters; */");
 	/* Connect the filters; */
 	int indexx = 0;
-	for (int i = 0; i < tracks - 1 ; ++i)// вернуть
+	for (int i = 0; i < tracks - 1 ; ++i)
 	{
 		//if (i == ForClient) continue;
 		err = avfilter_link(afcx[ForClient].src[i], 0, mix_ctx, indexx);
@@ -307,7 +319,8 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Error connecting filters\n");
 		return err;
 	}
-	std::printf("\n 16");
+
+
 	/* Configure the graph. */
 	err = avfilter_graph_config(filter_graph, NULL);
 	if (err < 0) 
@@ -317,168 +330,168 @@ int CRTPReceive::init_filter_graph(int ForClient)
 		av_log(NULL, AV_LOG_ERROR, "Error while configuring graph : %s\n", get_error_text(err));
 		return err;
 	}
-	std::printf("\n 17");
+
 	char* dump = avfilter_graph_dump(filter_graph, NULL);
 	//loggit("Error while configuring graph :" + s);
 	av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
-	std::printf("\n 18");
+
 	graphVec.push_back(filter_graph);
 	sinkVec.push_back(abuffersink_ctx);
-	//sinkVec[0];
-	//graph = filter_graph;
-	//sink = abuffersink_ctx;
-	std::printf("\n 19");
+
 	loggit("int CRTPReceive::init_filter_graph END");
 	return 0;
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-/** Open an input file and the required decoder. */
-int CRTPReceive::open_input_file(string sdp_string, AVFormatContext **input_format_context, AVCodecContext **input_codec_context)
+int CRTPReceive::open_input_file(const char * SDP, int i)
 {
 	loggit("int CRTPReceive::open_input_file");
 	AVCodec *input_codec;
 	int error;
 
 	/** Open the input file to read from it. */
-	error = sdp_open(input_format_context, sdp_string.c_str(), nullptr);
+	//cout << "\n1";
+	error = sdp_open(&ifcx[i], SDP, nullptr);
 	if (error < 0)
 	{
 		string s(get_error_text(error));
 		loggit("Could not open input file (error" + s);
 		av_log(NULL, AV_LOG_ERROR, "Could not open input file '%s' (error '%s')\n",
-			sdp_string.c_str(), get_error_text(error));
-		*input_format_context = NULL;
+			SDP, get_error_text(error));
+		ifcx[i] = NULL;
 		return error;
 	}
-
+	//cout << "\n2";
 	/** Get information on the input file (number of streams etc.). */
-	if ((error = avformat_find_stream_info(*input_format_context, NULL)) < 0) 
+	/*if ((error = avformat_find_stream_info(ifcx[i], NULL)) < 0)
 	{
 		string s(get_error_text(error));
 		loggit("Could not open find stream info (error" + s);
 		av_log(NULL, AV_LOG_ERROR, "Could not open find stream info (error '%s')\n",
 			get_error_text(error));
-		avformat_close_input(input_format_context);
+		avformat_close_input(&ifcx[i]);
 		return error;
-	}
-
+	}*/
+	//cout << "\n3";
 	/** Make sure that there is only one stream in the input file. */
-	if ((*input_format_context)->nb_streams != 1) 
+	if ((ifcx[i])->nb_streams != 1)
 	{
-		loggit("Expected one audio input stream, but found " + (*input_format_context)->nb_streams);
+		loggit("Expected one audio input stream, but found " + (ifcx[i])->nb_streams);
 		av_log(NULL, AV_LOG_ERROR, "Expected one audio input stream, but found %d\n",
-			(*input_format_context)->nb_streams);
-		avformat_close_input(input_format_context);
+			(ifcx[i])->nb_streams);
+		avformat_close_input(&ifcx[i]);
 		return AVERROR_EXIT;
 	}
-
+	//cout << "\n4";
 	/** Find a decoder for the audio stream. */
-	if (!(input_codec = avcodec_find_decoder((*input_format_context)->streams[0]->codec->codec_id )))
+	if (!(input_codec = avcodec_find_decoder((ifcx[i])->streams[0]->codec->codec_id)))
 	{
 		loggit("Could not find input codec");
 		av_log(NULL, AV_LOG_ERROR, "Could not find input codec\n");
-		avformat_close_input(input_format_context);
+		avformat_close_input(&ifcx[i]);
 		return AVERROR_EXIT;
 	}
-
+	//cout << "\n5";
 	/** Open the decoder for the audio stream to use it later. */
-	if ((error = avcodec_open2((*input_format_context)->streams[0]->codec, input_codec, NULL)) < 0) 
+	if ((error = avcodec_open2((ifcx[i])->streams[0]->codec, input_codec, NULL)) < 0)
 	{
 		string s(get_error_text(error));
 		loggit("Could not open input codec (error " + s);
 		av_log(NULL, AV_LOG_ERROR, "Could not open input codec (error '%s')\n",
 			get_error_text(error));
-		avformat_close_input(input_format_context);
+		avformat_close_input(&ifcx[i]);
 		return error;
 	}
 
 	/** Save the decoder context for easier access later. */
-	*input_codec_context = (*input_format_context)->streams[0]->codec;
+	iccx[i] = (ifcx[i])->streams[0]->codec;
 	loggit("int CRTPReceive::open_input_file END");
 	return 0;
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-/**
-* Open an output file and the required encoder.
-* Also set some basic encoder parameters.
-* Some of these parameters are based on the input file's parameters.
-*/
-int CRTPReceive::open_output_file(const char *filename, AVFormatContext **input_format_context, AVCodecContext *input_codec_context,
-	AVFormatContext **output_format_context, AVCodecContext **output_codec_context)
+int CRTPReceive::open_output_file(const char *filename, int i)
 {
 	loggit("int CRTPReceive::open_output_file");
+	AVIOContext *output_io_context = NULL;
 	AVStream *stream = NULL;
 	AVCodec *output_codec = NULL;
 	int error;
 
-	error = avformat_alloc_output_context2(output_format_context, nullptr, "rtp", filename);
-	if (error < 0) { cout << "\navformat_alloc_output_context2 ERRROR"; system("pause"); }
-
 	/** Open the output file to write to it. */
-	if ((error = avio_open(&(*output_format_context)->pb, filename, AVIO_FLAG_WRITE)) < 0)
-	{
-		string s(get_error_text(error));
-		loggit("Could not open output file" + s);
+	if ((error = avio_open(&output_io_context, filename,
+		AVIO_FLAG_WRITE)) < 0) {
 		av_log(NULL, AV_LOG_ERROR, "Could not open output file '%s' (error '%s')\n",
 			filename, get_error_text(error));
 		return error;
 	}
 
-	av_strlcpy((*output_format_context)->filename, filename, sizeof((*output_format_context)->filename));
+	/** Create a new format context for the output container format. */
+	if (!(out_ifcx[i] = avformat_alloc_context())) {
+		av_log(NULL, AV_LOG_ERROR, "Could not allocate output format context\n");
+		return AVERROR(ENOMEM);
+	}
+
+	/** Associate the output file (pointer) with the container format context. */
+	(out_ifcx[i])->pb = output_io_context;
+
+	/** Guess the desired container format based on the file extension. */
+	if (!((out_ifcx[i])->oformat = av_guess_format(NULL, filename,
+		NULL))) {
+		av_log(NULL, AV_LOG_ERROR, "Could not find output file format\n");
+		goto cleanup;
+	}
+
+	av_strlcpy((out_ifcx[i])->filename, filename,
+		sizeof((out_ifcx[i])->filename));
 
 	/** Find the encoder to be used by its name. */
-	if (!(output_codec = avcodec_find_encoder((*input_format_context)->streams[0]->codec->codec_id)))
-	{
-		loggit("Could not find an PCM encoder.");
+	if (!(output_codec = avcodec_find_encoder((ifcx[i])->streams[0]->codec->codec_id))) {
 		av_log(NULL, AV_LOG_ERROR, "Could not find an PCM encoder.\n");
 		goto cleanup;
 	}
 
 	/** Create a new audio stream in the output file container. */
-	if (!(stream = avformat_new_stream(*output_format_context, output_codec))) 
-	{
-		loggit("Could not create new stream");
+	if (!(stream = avformat_new_stream(out_ifcx[i], output_codec))) {
 		av_log(NULL, AV_LOG_ERROR, "Could not create new stream\n");
 		error = AVERROR(ENOMEM);
 		goto cleanup;
 	}
 
 	/** Save the encoder context for easiert access later. */
-	*output_codec_context = stream->codec;
+	out_iccx[i] = stream->codec;
 
-	/** Set the basic encoder parameters.*/
-	(*output_codec_context)->channels = OUTPUT_CHANNELS;
-	(*output_codec_context)->channel_layout = av_get_default_channel_layout(OUTPUT_CHANNELS);
-	(*output_codec_context)->sample_rate = input_codec_context->sample_rate;
-	(*output_codec_context)->sample_fmt = AV_SAMPLE_FMT_S16;
-	(*output_codec_context)->bit_rate       = input_codec_context->bit_rate;
+	/**
+	* Set the basic encoder parameters.
+	*/
+	(out_iccx[i])->channels = OUTPUT_CHANNELS;
+	(out_iccx[i])->channel_layout = av_get_default_channel_layout(OUTPUT_CHANNELS);
+	(out_iccx[i])->sample_rate = iccx[i]->sample_rate;
+	(out_iccx[i])->sample_fmt = AV_SAMPLE_FMT_S16;
+	//(*output_codec_context)->bit_rate       = input_codec_context->bit_rate;
 
-	av_log(NULL, AV_LOG_INFO, "output bitrate %d\n", (*output_codec_context)->bit_rate);
+	av_log(NULL, AV_LOG_INFO, "output bitrate %d\n", (out_iccx[i])->bit_rate);
 
-	/**Some container formats (like MP4) require global headers to be present
-	* Mark the encoder so that it behaves accordingly.*/
-	if ((*output_format_context)->oformat->flags & AVFMT_GLOBALHEADER)
-		(*output_codec_context)->flags |= CODEC_FLAG_GLOBAL_HEADER;
+	/**
+	* Some container formats (like MP4) require global headers to be present
+	* Mark the encoder so that it behaves accordingly.
+	*/
+	if ((out_ifcx[i])->oformat->flags & AVFMT_GLOBALHEADER)
+		(out_iccx[i])->flags |= CODEC_FLAG_GLOBAL_HEADER;
 
 	/** Open the encoder for the audio stream to use it later. */
-	if ((error = avcodec_open2(*output_codec_context, output_codec, NULL)) < 0) 
-	{
-		string s(get_error_text(error));
-		loggit("Could not open output codec (error " + s);
+	if ((error = avcodec_open2(out_iccx[i], output_codec, NULL)) < 0) {
 		av_log(NULL, AV_LOG_ERROR, "Could not open output codec (error '%s')\n",
 			get_error_text(error));
 		goto cleanup;
 	}
-	loggit("int CRTPReceive::open_output_file END");
+
 	return 0;
 
 cleanup:
-	loggit("int CRTPReceive::open_output_file ERROR cleanup");
-	avio_close((*output_format_context)->pb);
-	avformat_free_context(*output_format_context);
-	*output_format_context = NULL;
+	avio_close((out_ifcx[i])->pb);
+	avformat_free_context(out_ifcx[i]);
+	out_ifcx[i] = NULL;
 	return error < 0 ? error : AVERROR_EXIT;
 }
 //------------------------------------------------------------------------------------------
@@ -488,7 +501,6 @@ int CRTPReceive::init_input_frame(AVFrame **frame)
 {
 	if (!(*frame = av_frame_alloc())) 
 	{
-		//string s(get_error_text(error));
 		loggit("Could not allocate input frame");
 		av_log(NULL, AV_LOG_ERROR, "Could not allocate input frame\n");
 		return AVERROR(ENOMEM);
@@ -508,18 +520,53 @@ void CRTPReceive::init_packet(AVPacket *packet)
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 /** Decode one audio frame from the input file. */
-int CRTPReceive::decode_audio_frame(AVFrame *frame, AVFormatContext *input_format_context,
-	AVCodecContext *input_codec_context, int *data_present, int *finished,int i)
+int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int *finished,int i)
 {
+	cout << "\n1";
 	loggit("int CRTPReceive::decode_audio_frame");
 	/** Packet used for temporary storage. */
 	AVPacket input_packet;
 	int error;
 	init_packet(&input_packet);
+	SHP_CAVPacket2 shpPacket;
+	uint8_t data_[8100];
+	cout << " 2";
+	boost::asio::ip::udp::endpoint sender(boost::asio::ip::address::from_string(IPs_[i]), remote_ports_[i]);
+	cout << " 3";
+	SHP_Socket a;
+	a.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_ports_[i])));
+	int szPack;// = vecSock[i]->receive_from(boost::asio::buffer(data_, 2048), sender) - 12;
+	szPack = /*vecSock[i]*/a->receive_from(boost::asio::buffer(data_, 8100), sender);
+	if (szPack > 12)
+	{
+		cout << " size=" << szPack;
+		cout << " ----4";
+		shpPacket.reset(new CAVPacket2(szPack));
+		cout << " 5";
+		memcpy(shpPacket->data, data_ + 12, szPack - 12);
+		cout << " 6";
+	}
 
-	/** Read one audio frame from the input file into a temporary packet. */
-	if ((error = av_read_frame(input_format_context, &input_packet)) < 0) {
-		/** If we are the the end of the file, flush the decoder below. */
+	/*vecSock[i]->async_receive_from(
+		boost::asio::buffer(data, 2048), sender,
+		[this](boost::system::error_code ec, std::size_t bytes_recvd)
+	{
+		size_t RTP_HEADER_SIZE = 12;
+		if (bytes_recvd > RTP_HEADER_SIZE)
+		{
+			//cout << data_;
+			ff1.write((const char*)data, strlen((const char*)data));
+			flush(ff1);
+			const size_t szPack = bytes_recvd - RTP_HEADER_SIZE;
+			shpPacket.reset(new CAVPacket2(szPack));
+			memcpy(shpPacket->data, data + RTP_HEADER_SIZE, szPack);
+		}
+	});*/
+	//input_packet = shpPacket.get();
+	// Read one audio frame from the input file into a temporary packet. 
+	/*if ((error = av_read_frame(ifcx[i], &input_packet)) < 0) 
+	{
+		// If we are the the end of the file, flush the decoder below. 
 		if (error == AVERROR_EOF)
 			*finished = 1;
 		else 
@@ -530,21 +577,6 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, AVFormatContext *input_forma
 				get_error_text(error));
 			return error;
 		}
-	}
-	/*if (i == 0)
-	{
-		ff1.write((const char*)input_packet.data, input_packet.size);
-		flush(ff1);
-	}
-	if (i == 1)
-	{
-		ff2.write((const char*)input_packet.data, input_packet.size);
-		flush(ff2);
-	}
-	if (i == 2)
-	{
-		ff3.write((const char*)input_packet.data, input_packet.size);
-		flush(ff3);
 	}*/
 	/**
 	* Decode the audio frame stored in the temporary packet.
@@ -552,8 +584,8 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, AVFormatContext *input_forma
 	* If we are at the end of the file, pass an empty packet to the decoder
 	* to flush it.
 	*/
-	if ((error = avcodec_decode_audio4(input_codec_context, frame,
-		data_present, &input_packet)) < 0) 
+	cout << " 7";
+	if ((error = avcodec_decode_audio4(iccx[i], frame, data_present, shpPacket.get())) < 0)
 	{
 		string s(get_error_text(error));
 		loggit("Could not decode frame (error" + s);
@@ -562,17 +594,19 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, AVFormatContext *input_forma
 		av_free_packet(&input_packet);
 		return error;
 	}
+	cout << " 8";
 	if (*finished && *data_present)
 		*finished = 0;
 	av_free_packet(&input_packet);
 	loggit("int CRTPReceive::decode_audio_frame END");
+	//free(data_);
+	cout << " 9";
 	return 0;
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 /** Encode one frame worth of audio to the output file. */
-int CRTPReceive::encode_audio_frame(AVFrame *frame, AVFormatContext *output_format_context,
-	AVCodecContext *output_codec_context, int *data_present)
+int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 {
 	loggit("int CRTPReceive::encode_audio_frame");
 	/** Packet used for temporary storage. */
@@ -584,7 +618,7 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, AVFormatContext *output_form
 	* Encode the audio frame and store it in the temporary packet.
 	* The output audio stream encoder is used to do this.
 	*/
-	if ((error = avcodec_encode_audio2(output_codec_context, &output_packet,
+	if ((error = avcodec_encode_audio2(out_iccx[i], &output_packet,
 		frame, data_present)) < 0) 
 	{
 		string s(get_error_text(error));
@@ -597,7 +631,15 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, AVFormatContext *output_form
 
 	/** Write one audio frame from the temporary packet to the output file. */
 	if (*data_present) {
-		if ((error = /*av_write_frame*/av_interleaved_write_frame(output_format_context, &output_packet)) < 0)
+		vecSock[i]->send_to(boost::asio::buffer(frame->buf, strlen((const char*)frame->buf)), udp::endpoint(boost::asio::ip::address::from_string(IPs_[i]), remote_ports_[i]));
+		
+		/*vecSock[i]->async_send_to(
+			boost::asio::buffer(frame->buf, strlen((const char*)frame->buf)), udp::endpoint(boost::asio::ip::address::from_string(IPs_[i]), remote_ports_[i]),
+			[](boost::system::error_code ec, std::size_t bytes_recvd)
+		{
+			//cout << "sent\n";
+		});*/
+		/*if ((error = av_interleaved_write_frame(out_ifcx[i], &output_packet)) < 0)
 		{
 			string s(get_error_text(error));
 			loggit("Could not write frame (error " + s);
@@ -605,7 +647,7 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, AVFormatContext *output_form
 				get_error_text(error));
 			av_free_packet(&output_packet);
 			return error;
-		}
+		}*/
 
 		av_free_packet(&output_packet);
 	}
@@ -634,6 +676,7 @@ int CRTPReceive::process_all()
 	}
 
 	loggit("int CRTPReceive::process_all() initing DONE");
+	cout << "process_all";
 	while (nb_finished < tracks)
 	{
 		loggit(" in the start of while (nb_finished < tracks)");
@@ -648,7 +691,7 @@ int CRTPReceive::process_all()
 
 			if (init_input_frame(&frame) > 0) { std::cout << "\n 2.1"; goto end; }
 			/** Decode one frame worth of audio samples. */
-			if ((ret = decode_audio_frame(frame, ifcx[i], iccx[i], &data_present, &finished, i)))
+			if ((ret = decode_audio_frame(frame, &data_present, &finished, i)))
 			{
 				loggit("if ((ret = decode_audio_frame(frame, ifcx[i], iccx[i], &data_present, &finished))) FAILED");
 				goto end;
@@ -677,7 +720,6 @@ int CRTPReceive::process_all()
 					{
 						loggit("Error writing EOF null frame for input " + to_string(i));
 						av_log(NULL, AV_LOG_ERROR, "Error writing EOF null frame for input %d\n", i);
-						std::cout << "\n 2.3";
 						goto end;
 					}
 				}
@@ -699,15 +741,9 @@ int CRTPReceive::process_all()
 					{
 						loggit("Error writing EOF null frame for input " + to_string(i));
 						av_log(NULL, AV_LOG_ERROR, "Error writing EOF null frame for input %d\n", i);
-						std::cout << "\n 2.3";
 						goto end;
 					}
 				 }
-				/*av_log(NULL, AV_LOG_INFO, "add %d samples on input %d (%d Hz, time=%f, ttime=%f)\n",
-				frame->nb_samples, i, iccx[i]->sample_rate,
-				(double)frame->nb_samples / iccx[i]->sample_rate,
-				(double)(total_samples[i] += frame->nb_samples) / iccx[i]->sample_rate);*/
-
 			}
 
 			av_frame_free(&frame);
@@ -731,29 +767,17 @@ int CRTPReceive::process_all()
 							{
 								input_to_read[i] = 1;
 								loggit("Need to read input " + to_string(i));
-								/*av_log(NULL, AV_LOG_INFO, "Need to read input %d\n", i);*/
 							}
 						}
-
 						break;
 					}
 					if (ret < 0){ std::cout << "\n 2.5"; goto end; }
 					loggit("remove samples from sink ( Hz, time=, ttime=)\n");
-					/*av_log(NULL, AV_LOG_INFO, "remove %d samples from sink%d (%d Hz, time=%f, ttime=%f)\n",
-					filt_frame->nb_samples, k, out_iccx[k]->sample_rate,
-					(double)filt_frame->nb_samples / out_iccx[k]->sample_rate,
-					(double)(total_out_samples += filt_frame->nb_samples) / out_iccx[k]->sample_rate);*/
-
-					//av_log(NULL, AV_LOG_INFO, "Data read from graph\n");
-					//for (int j = 0; j < tracks; ++j)
-					//{
-					if (ret = encode_audio_frame(filt_frame, out_ifcx[k], out_iccx[k], &data_present)< 0)
+					if (ret = encode_audio_frame(filt_frame, &data_present, k)< 0)
 					{ 
 						loggit("if (ret = encode_audio_frame(filt_frame, out_ifcx[k], out_iccx[k], &data_present)< 0) FAILED");
-						std::cout << "\n 2.6"; 
 						goto end; 
 					}
-					//}
 					av_frame_unref(filt_frame);
 				}/**/
 				av_frame_free(&filt_frame);
@@ -778,7 +802,6 @@ end:
 	{
 		loggit("av_log(NULL, AV_LOG_ERROR, Error occurred : \n, av_err2str(ret));");
 		printf("av_log(NULL, AV_LOG_ERROR, Error occurred : \n, av_err2str(ret));");
-		//av_log(NULL, AV_LOG_ERROR, "Error occurred: %s\n", av_err2str(ret));
 		system("pause");
 		exit(1);
 	}
@@ -823,23 +846,6 @@ int CRTPReceive::write_output_file_trailer(AVFormatContext *output_format_contex
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-int sdp_read1(void *opaque, uint8_t *buf, int size) /*noexcept*/
-{
-	assert(opaque);
-	assert(buf);
-	auto octx = static_cast<SdpOpaque*>(opaque);
-
-	if (octx->pos == octx->data.end()) {
-		return 0;
-	}
-
-	auto dist = static_cast<int>(std::distance(octx->pos, octx->data.end()));
-	auto count = std::min(size, dist);
-	std::copy(octx->pos, octx->pos + count, buf);
-	octx->pos += count;
-
-	return count;
-}
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------

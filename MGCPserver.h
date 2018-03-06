@@ -17,11 +17,15 @@ typedef std::map<KEY_MGCPConnection, SHP_CMGCPConnection> MAP_CMGCPConnections;
 
 struct ConfParam
 {
-	bool operator ==(const ConfParam &compare) const //перегрузка оператора сравнения
+	/*Для поиска параметров соединения по CallID*/
+	bool operator ==(const ConfParam &compare) const
 	{
 		return CallID == compare.CallID;
 	}
+	/*Информация*/
 	int my_port;
+	int remote_port;
+	int repote_IP;
 	string input_SDP;
 	string CallID;
 	string SDPresponse;
@@ -46,34 +50,51 @@ public:
 	void Run();
 private:
 	void loggit(string a);
+
 	void do_receive();
 	void do_send(std::size_t length);
 	void respond(const string);
-	// просиды
-	void proceedError(int ErrorCode); // обработчик ошибок
+	void reply(const string&, const udp::endpoint&);
+
+/*Первичная обработка команд*/
 	void proceedReceiveBuffer(const char*, const udp::endpoint&);
 	void proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
 	void proceedRQNT(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
 	void proceedCRCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
 	void proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
-	void reply(const string&, const udp::endpoint&);
-	// соединение
+
+/*Вторичная обработка команд*/
+	void proceedCRCX_CNF_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
+	void proceedCRCX_CNF_N(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
+	void proceedCRCX_ANN_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO);
+	
+/*Соединение*/
 	SHP_CMGCPConnection getConnection(const MGCP::TMGCP&, const udp::endpoint&);
 	SHP_CMGCPConnection findConnection(const MGCP::TMGCP& mgcp) const;
-	SHP_ConfParam FillinConfParam(MGCP::TMGCP &mgcp, int mode); // заполняем порты, адреса и SDP для конфы
 	void Connectivity(MGCP::TMGCP &mgcp); // выполняем стандартные действия подключения
-	// порты
-	void SetFreePort(SHP_CConfRoom room, string CallID); // освобождаем сокет
-	bool FindPort(int sc); // узнаем, занят ли сокет
+
+/* Работа с портами*/
+	/*Освобождаем сокет*/
+	void SetFreePort(SHP_CConfRoom room, string CallID);
+	/*Узнаем, занят ли сокет*/
+	bool FindPort(int sc);
+	/*Получаем номер свободного*/
 	int GetFreePort(); // получаем номер свободного сокета
-	// комната
-	//bool CompareRooms(SHP_CConfRoom i, SHP_CConfRoom j);// сравнение комнат
-	SHP_CConfRoom FindRoom(int ID);//находим комнату по ИД
+
+/* Работа с комнатой*/
+	/*Находим комнату по ID*/
+	SHP_CConfRoom FindRoom(int ID);
+	/* Находим сохраненный поинт из CNF_N */
 	SHP_ConfParam FindClient(string CallID);
-	SHP_CConfRoom CreateNewRoom(/*asio::io_service& io_service*/);// создание комнаты
-	void DeleteRoom(SHP_CConfRoom remRoom); // удаление комнаты
-	string GetRoomIDConn(string s);// узнать к какой комнате обращаются по ИД
-	//bool CheckExistence(string CallID); // узнаем, подключен ли этот CallId к этой комнате
+	/* Создаем новую комнату*/
+	SHP_CConfRoom CreateNewRoom();
+
+/* Работа с информацией*/
+	/* Находим N из CNF_N*/
+	string GetRoomIDConn(string s);
+	/*Создание и заполнение структуры данных для конфы*/
+	SHP_ConfParam FillinConfParam(MGCP::TMGCP &mgcp, int mode);
+	/*Удаление из SDP клиента лишей информации*/
 	string DeleteFromSDP(string inputSDP, int my_port);
 
 	TArgs	m_args;
