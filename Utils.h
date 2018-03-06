@@ -1,9 +1,11 @@
 #pragma once
 #include <condition_variable>
 template<typename _T>
+
 class ThreadedSet
 {
 public:
+	typedef std::lock_guard<std::mutex> lock;
 	_T find(const _T& key)
 	{
 		return *cll_.find(key);
@@ -64,6 +66,7 @@ class CThreadedCircular : boost::noncopyable
 {
 public:
 	typedef std::unique_lock<std::mutex> ulocker;
+	typedef std::lock_guard<std::mutex> lock;
 	CThreadedCircular(size_t sz, bool bBlockIN=true) 
 		: buffer_(sz), bBlockIN_(bBlockIN){
 		bTerminated_ = false;

@@ -105,6 +105,7 @@
   <ItemGroup>
     <ClInclude Include="Conf.h" />
     <ClInclude Include="Connection.h" />
+    <ClInclude Include="CRTPReceive.h" />
     <ClInclude Include="DestFusion.h" />
     <ClInclude Include="envlp_ffmpeg.h" />
     <ClInclude Include="ISrcFusion.h" />
@@ -121,6 +122,7 @@
   <ItemGroup>
     <ClCompile Include="Conf.cpp" />
     <ClCompile Include="Connection.cpp" />
+    <ClCompile Include="CRTPReceive.cpp" />
     <ClCompile Include="DestFusion.cpp" />
     <ClCompile Include="envlp_ffmpeg.cpp" />
     <ClCompile Include="main.cpp" />

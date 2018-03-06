@@ -29,6 +29,7 @@ public:
 		avcodec_register_all();
 		avformat_network_init();
 		avfilter_register_all();
+
 #ifdef _DEBUG
 		av_log_set_level(AV_LOG_VERBOSE);
 #else

@@ -138,7 +138,7 @@ namespace MGCP
 		string ResponseBAD(unsigned short code) const;
 		string getCallID(); // "вытаскивает" CALLID
 		string getsdpparam();// "вытаскивает" из SDP
-
+		
 		MGCPCmd			CMD;
 		unsigned		IdTransact;
 		TEndPoint		EndPoint;
@@ -147,7 +147,9 @@ namespace MGCP
 		unsigned		idConn = 0;
 
 		SHP_TMGCP_Param getSignalParam();
-
+		string SDP;
+		string SDPinput;
+		string SDPoutput;
 		std::set<TMGCP_Param> cllParams;
 		CLL_MGCP_Params cllResponseParams;
 		CLL_SDPs		cllSDPs;

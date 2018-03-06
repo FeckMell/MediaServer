@@ -92,7 +92,6 @@ private:
 	int  _pullAndEncode();
 	int  _proceedIO();
 
-
 	void _reinitFilters();
 	void _dumpGraph();
 	void _cleanup();

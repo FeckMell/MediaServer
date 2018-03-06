@@ -6,6 +6,7 @@
 #pragma once
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#define snprintf _snprintf
 //#ifdef WIN32
 //#include "targetver.h"
 //#endif // _WIN32_
@@ -42,11 +43,35 @@ using boost::asio::ip::udp;
 #include <boost/scope_exit.hpp>
 #include <boost/scoped_ptr.hpp>
 
+
+
+extern "C"
+{
+#include <stdio.h>
+#include <libavformat/avformat.h>
+#include <libavutil/opt.h>
+#include <libavfilter/buffersink.h>
+#include <libavfilter/buffersrc.h>
+#include <libavfilter/avfilter.h>
+#include <libavutil/avstring.h>
+#include <libavutil/md5.h>
+#include <libavutil/mem.h>
+#include <libavutil/opt.h>
+#include <libavutil/samplefmt.h>
+	//#include <libswresample/swresample.h>
+	//#include <libavutil/audio_fifo.h>
+	//#include <libavformat/avio.h>
+	//#include <libavutil/file.h>
+	//#include <libavutil/time.h>
+	//#include <libavcodec/avcodec.h>
+}
+
 namespace chrono = std::chrono;
 using std::string;
 using std::cerr;
 using std::cout;
 using std::shared_ptr;
+//FILE *FileLog;
 
 
 

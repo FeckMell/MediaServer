@@ -30,22 +30,22 @@ int CDestFusion::remSrcRef(SHP_ISrcFusion shpSrc, string CallID)
 int CDestFusion::addSrcRef(SHP_ISrcFusion shpSrc, string CallID)
 {
 	assert(shpSrc);
-	cout << "\naddSrcRef 1";
+	//cout << "\naddSrcRef 1";
 	/* Create the abuffer filter;
 	* it will be used for feeding the data into the graph. */
 	RETERR_ON_FALSE(gl_abuffer, 
 		AVERROR_FILTER_NOT_FOUND, "Could not find the abuffer filter");
-	cout << "\naddSrcRef 2";
+	//cout << "\naddSrcRef 2";
 	static auto frmtFilt = 
 		boost::format("sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64);
 
-	cout << "\naddSrcRef 3";
+	//cout << "\naddSrcRef 3";
 	const AVCodecContext* pCodecCtx = shpSrc->CodecCTX();
 
 	TSrcRef srcRef;
 	srcRef.shpSrc = shpSrc;
 	srcRef.CallID = CallID;
-	cout << "\naddSrcRef 4";
+	//cout << "\naddSrcRef 4";
 	RETURN_AVERROR(
 		avfilter_graph_create_filter(&srcRef.pctxFilter, gl_abuffer,
 			str(boost::format("%1% (%2%)") %  shpSrc->Name() % cllSrcRefs_.size()
@@ -59,32 +59,32 @@ int CDestFusion::addSrcRef(SHP_ISrcFusion shpSrc, string CallID)
 			filtGraf_),
 		"Cannot create audio buffer source"
 		);//stoped here 
-	cout << "\naddSrcRef 5";
+	//cout << "\naddSrcRef 5";
 	cllSrcRefs_.push_back(srcRef);
 	return m_lastError;
 }
 //-----------------------------------------------------------------------
 int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 {
-	cout << "\n RTP OPENED";
+	//cout << "\n RTP OPENED";
 	_cleanup();
-	cout << "\n888888888888888888888888888888888888888888888888888888888888888888\n\n";
-	cout << "rtpdest.strAddr=" << rtpdest.strAddr << "rtpdest.portDest=" << rtpdest.portDest << "rtpdest.portSrc=" << rtpdest.portSrc;
-	cout << "\n\n888888888888888888888888888888888888888888888888888888888888888888\n";
+	//cout << "\n888888888888888888888888888888888888888888888888888888888888888888\n\n";
+	//cout << "rtpdest.strAddr=" << rtpdest.strAddr << "rtpdest.portDest=" << rtpdest.portDest << "rtpdest.portSrc=" << rtpdest.portSrc;
+	//cout << "\n\n888888888888888888888888888888888888888888888888888888888888888888\n";
 	isRTP_ = true;
 	ptimeRTP_ = rtpdest.ptimeRTP;
 
 	const auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%")
 		% rtpdest.strAddr % rtpdest.portDest %  rtpdest.portSrc);
-	cout << "\n--OPENRTP BIND NEXT";
+	
 	RETURN_AVERROR(
 		avformat_alloc_output_context2(&ctxFormat_, nullptr, "rtp", strRTP.c_str()),
 		boost::format("Cannot open RTP output context for %1%") % strRTP);
-	cout << "\n--OPENRTP BIND END";
+	
 	RETURN_AVERROR(
 		avio_open(&ctxFormat_->pb, strRTP.c_str(), AVIO_FLAG_WRITE),
 		boost::format("avio_open error on %1%") % strRTP);
-	cout << "\n--OPENRTP BIND end 2";
+	
 	const AVCodecID idCodec =  AV_CODEC_ID_PCM_ALAW;
 	AVCodec *output_codec = avcodec_find_encoder(idCodec);
 	RETERR_ON_FALSE(output_codec, AVERROR_EXIT, 
@@ -127,7 +127,6 @@ int CDestFusion::openFile(const char *filename)
 		if (this->m_lastError < 0)
 			this->_cleanup();
 	};
-	//printf("\nTEST! If falls here it is a problem.\n");
 	AVIOContext *output_io_context = nullptr;
 	RETURN_AVERROR(
 		avio_open(&output_io_context, filename, AVIO_FLAG_WRITE),
@@ -169,7 +168,6 @@ int CDestFusion::openFile(const char *filename)
 	//ctxCodecOut->bit_rate = 8000;
 	//(*output_codec_context)->bit_rate       = input_codec_context->bit_rate;
 
-//	av_log(NULL, AV_LOG_INFO, "output bitrate %d\n", ctxCodecOut->bit_rate);
 
 	/**
 	* Some container formats (like MP4) require global headers to be present
@@ -217,14 +215,14 @@ int CDestFusion::runBegin()
 		if (isRTP_)
 			pRTPThread_ = new std::thread (&CDestFusion::_threadRTPfunction, this);
 	}
-	cout << "\n    1 Exit from runBegin";
+	//cout << "\n    1 Exit from runBegin";
 	return LastError();
 }
 //-----------------------------------------------------------------------
 int CDestFusion::runEnd()
 {
 	assert(ctxFormat_);
-	cout << "\n    _finalizeRTPThread();";
+	//cout << "\n    _finalizeRTPThread();";
 	_finalizeRTPThread();
 	//cou << "\ncall from runEnd: _finalizeRTPThread(); done";
 
@@ -232,7 +230,7 @@ int CDestFusion::runEnd()
 		av_write_trailer(ctxFormat_),
 		"Could not write output file trailer"
 		);
-	cout << "\n    exit from runEnd;";
+	//cout << "\n    exit from runEnd;";
 	return LastError();
 }
 //-----------------------------------------------------------------------
@@ -260,16 +258,16 @@ int CDestFusion::run()
 	{		
 		_proceedIO();
 	}*/
-	cout << "\n   1 runBegin();";
+	//cout << "\n   1 runBegin();";
 	runBegin();
 	if (isValid())
 	{
-		cout << "\n   1 _proceedIO();";
+		//cout << "\n   1 _proceedIO();";
 		_proceedIO();
-		cout << "\n   1 runEnd();";
+		//cout << "\n   1 runEnd();";
 		runEnd();
 	}
-	cout << "\n   1 Exit from run";
+	//cout << "\n   1 Exit from run";
 	return LastError();
 }
 //-----------------------------------------------------------------------
@@ -286,7 +284,7 @@ void CDestFusion::_cleanup()
 //-----------------------------------------------------------------------
 void CDestFusion::_dumpGraph()
 {
-	cout << "============ dumpGraph ======================\n";
+	//cout << "============ dumpGraph ======================\n";
 	char* dump = avfilter_graph_dump(filtGraf_, nullptr);
 	if (dump)
 	{
@@ -529,7 +527,7 @@ int CDestFusion::proceedIO_step()
 //-----------------------------------------------------------------------
 int CDestFusion::_proceedIO()
 {
-	cout << "\n    1 Call from _proceedIO()";
+	//cout << "\n    1 Call from _proceedIO()";
 	do
 	{
 		//cout << "PIOS-";
@@ -537,7 +535,7 @@ int CDestFusion::_proceedIO()
 		//cout << "PIOSend ";
 	} 
 	while (isValid() && isActive() && ExistsNotFinishedSrc() );
-	cout << "\n    1 Exit from _proceedIO()";
+	//cout << "\n    1 Exit from _proceedIO()";
 	return LastError();
 }
 //-----------------------------------------------------------------------

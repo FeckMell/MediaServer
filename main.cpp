@@ -23,78 +23,49 @@ const auto cmdline_style = cmdstyle::unix_style | cmdstyle::allow_long_disguise;
 
 static opt::options_description descConfig("Command line and config file options");
 static opt::options_description descCmdLine("Command line options");
-
 FILE *FileLog;
+FILE *FileLogConfPoint;
+FILE *FileLogConfRoom;
+FILE *FileLogMixer;
+FILE *FileLogServer;
 
+//extern FILE *FileLogConfPoint;
+
+void LogMain(string a)
+{
+	fprintf(FileLog, a.c_str());
+	fflush(FileLog);
+}
 int main(int argc, char* argv[])
 {
-	/*wchar_t szPath[MAX_PATH + 1];
-	GetModuleFileNameW(0, szPath, sizeof(szPath) / sizeof(*szPath));
-
-	Затем, для нормальной работы со строками используйте std::wstring, вы ж пишете на C++.
-
-		std::wstring path(szPath);
-	auto lastPos = path.find_last_of(L'\\');
-	if (lastPos != std::wstring::npos)
-		path = path.substr(lastPos + 1);*/
 	try
 	{
 		setlocale(LC_ALL, "Russian"/*"ru_RU.UTF-8"*/);
-		char szPath[200];
-		GetModuleFileName(0, (LPWSTR)szPath, 200);
-		printf("Filepath: %ws\n", szPath);
-		char Path[200];
-		int counter1 = 0;
-		int counter2 = 0;
-		for (int i = 0; i < 512; ++i)
-		{
-			if (szPath[i] == '\\')
-			{
-				counter1 = counter2;
-			}
-			if (szPath[i] != szPath[1])
-			{
-				Path[counter2] = szPath[i];
-				++counter2;
-			}
-			if (szPath[i] == '.')
-			{
-				break;
-			}
-		}
-		Path[counter1 + 1] = '\0';
-
-		char PathLog[200];
-		strcpy(PathLog, Path);
-
-		cout << "\n";
-		cout << strcat(PathLog, "LOGS.txt") << "\n";
-
-		fopen_s(&FileLog, PathLog/*"LOGS.txt"*/, "w");
+		fopen_s(&FileLog, "LOGS.txt", "w");
+		fopen_s(&FileLogConfPoint, "LOGS_ConfPoint.txt", "w");
+		fopen_s(&FileLogConfRoom, "LOGS_ConfRoom.txt", "w");
+		fopen_s(&FileLogMixer, "LOGS_Mixer.txt", "w");
+		fopen_s(&FileLogServer, "LOGS_Server.txt", "w");
+		LogMain("\nmain.cpp started");
+		
 		/************************************************************************
 			Парсинг входящих параметров			                                                                     
 		************************************************************************/
 		unsigned short port = 2427;
 		string strMediaPath;
 		string strConfigFile("mgcpserver.cfg");
-		char PathConfig[200];
-		strcpy(PathConfig, Path);
-		cout << strcat(PathConfig, "mgcpserver.cfg") << "\n";
-		char PathMedia[200];
-		strcpy(PathMedia, Path);
-		cout << strcat(PathMedia, "MediaFiles\\") << "\n";
 
 		//Параметры командной строки
 		descCmdLine.add_options()
 			("help,?", "produce help message")
 			//("?", "produce help message")
-			("cfg", opt::value<char>(PathConfig/*&strConfigFile*/), "config file")
+			("cfg", opt::value<string>(&strConfigFile), "config file")
 			;
 
 		//Параметры в файле конфигурации
 		descConfig.add_options()
 			("port,p", opt::value<unsigned short>(&port)->default_value(port), "set MGCPserver port")
-			("mpath,m", opt::value<string>(&strMediaPath)->default_value(PathMedia/*"./MediaFiles"*/), "path to ann mediafiles")
+			("mpath,m", opt::value<string>(&strMediaPath)->default_value("./MediaFiles"), "path to ann mediafiles")
 			;
 
 		//Объединение параметров для командной строки
@@ -107,7 +78,7 @@ int main(int argc, char* argv[])
 		opt::notify(vm);
 		if (vm.count("help") || vm.count("?"))
 		{
-			fprintf(FileLog, "========== Options available ==========\n return 1");
+			LogMain("========== Options available ==========\n return 1");
 			cout << "========== Options available ==========\n" 
 				<< descCmdLine << "\n"; //print usage			
 			return 1;
@@ -115,23 +86,23 @@ int main(int argc, char* argv[])
 		
 		//Парсинг файла конфигурации 
 		//(если указан явно или существует с именем по умолчанию)
-		//std::ifstream ifs(strConfigFile.c_str());
-		std::ifstream ifs(PathConfig);
+		std::ifstream ifs(strConfigFile.c_str());
+		//std::ifstream ifs(PathConfig);
 		if (!ifs)
 		{
-			fprintf(FileLog, "if (!ifs)==true");
+			LogMain("if (!ifs)==true");
 			//Не открылся
 			if (vm.count("cfg"))//Сообщение об ошибке, если имя было указано в опциях
 			{
-				fprintf(FileLog, "can not open config file: return 0");
-				cout << "can not open config file: " << PathConfig/*strConfigFile*/ << "\n";
+				LogMain("can not open config file: return 0");
+				cout << "can not open config file: " << strConfigFile << "\n";
 				return 0;
 			}
 		}
 		else
 		{
-			fprintf(FileLog, "Merge options from config file \n");
-			cout << boost::format("Merge options from config file %1%\n") % PathConfig/*strConfigFile*/;
+			LogMain("Merge options from config file \n");
+			cout << boost::format("Merge options from config file %1%\n") % strConfigFile;
 			store(parse_config_file(ifs, descConfig), vm);
 			notify(vm);
 		}
@@ -144,11 +115,11 @@ int main(int argc, char* argv[])
 		udp::resolver resolver(io_service);
 		udp::resolver::query query(udp::v4(), strHostName, boost::lexical_cast<string>(port));
 		udp::resolver::iterator const end, itr = resolver.resolve(query);
-		fprintf(FileLog, " has been resolved as V4 ip's:\n");
+		LogMain("has been resolved as V4 ip's:\n");
 		cout << strHostName << " has been resolved as V4 ip's:\n";
 		if (itr == end)
 		{
-			fprintf(FileLog, "Can't resolve myself\n");
+			LogMain("Can't resolve myself\n");
 			cerr << boost::format("Can't resolve myself <%1%>\n") % strHostName;
 			return 1;
 		}
@@ -156,21 +127,22 @@ int main(int argc, char* argv[])
 			[](const udp::endpoint& ep){cout << '\t' << ep << std::endl; });
 
 		const udp::endpoint& endpServer = *itr;
-		fprintf(FileLog, "Using:\n\tServer endpnt\t\n\tMedia path\t\n\n");
+		LogMain("Using:Server endpnt and Media path");
 		cout << boost::format("Using:\n\tServer endpnt\t%1%\n\tMedia path\t%2%\n\n") 
 			% endpServer % strMediaPath;
 
 		/************************************************************************
 			Запуск экземляра MGCP-сервера	                                                                     
 		************************************************************************/
-		CMGCPServer s({ io_service, endpServer, strMediaPath, io_service1 }, FileLog);
+		CMGCPServer s({ io_service, endpServer, strMediaPath, io_service1 });
+		LogMain("Запуск экземляра MGCP-сервера	\n");
 		s.Run();
 		//
 		io_service.run();
 	}
 	catch (std::exception& e)
 	{
-		fprintf(FileLog, "Exception:");
+		LogMain("Exception:");
 		cerr << "Exception: " << e.what() << "\n";
 	}
 	fclose(FileLog);
