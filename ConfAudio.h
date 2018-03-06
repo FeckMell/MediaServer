@@ -39,7 +39,7 @@ private:
 	void receive();
 	void ConfAudio::receive2(int i);//debug
 
-	int init_input_frame(AVFrame **frame);
+	//int init_input_frame(AVFrame **frame);
 	void init_packet(AVPacket *packet);
 	int decode_audio_frame(AVFrame *frame, int *data_present, int i);
 	int encode_audio_frame(AVFrame *frame, int *data_present, int i);
@@ -57,11 +57,9 @@ private:
 
 	Initing ext;
 	SHP_CFilterInit Initer;
+	SHP_CAVFrame SilentFrame;
 
 	bool process_all_finishing;
-	//mutex  Mut_io;
-	//mutex  Mut_pr;
-
 
 	int ID_;
 };

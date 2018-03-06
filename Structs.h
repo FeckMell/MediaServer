@@ -79,6 +79,50 @@ struct RTP_struct
 	}
 };
 //-*/----------------------------------------------------------
+class CAVFrame : AVFrame
+{
+public:
+	CAVFrame()
+	{
+		//cout << "\nalloc";
+		frame = av_frame_alloc();
+	}
+	~CAVFrame()
+	{
+		//cout << "\nfree";
+		av_frame_free(&frame);
+	}
+	AVFrame* get()
+	{
+		//cout << "\nget";
+		return frame;
+	}
+private:
+	AVFrame* frame;
+	/*CAVFrame() :AVFrame()
+	{
+		alloc(this);
+	}
+	~CAVFrame()
+	{
+		free();
+	}
+
+	void alloc(AVFrame* fr)
+	{
+		fr = av_frame_alloc();
+	}
+
+	void free()
+	{
+		free_h(this);
+	}
+	void free_h(AVFrame* fr)
+	{
+		av_frame_free(&fr);
+	}*/
+};
+typedef shared_ptr<CAVFrame> SHP_CAVFrame;
 //-*/----------------------------------------------------------
 struct CAVPacket : AVPacket
 {
@@ -165,6 +209,88 @@ struct Config
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
+class CThreadedCircular2
+{
+public:
+	CThreadedCircular2() : buffer_(2), VecDone(2){  }
+	CThreadedCircular2(size_t sz) : buffer_(sz), VecDone(sz){  }
+	CThreadedCircular2(const CThreadedCircular2 &obj)
+	{
+		buffer_ = obj.buffer_;
+	}
+	~CThreadedCircular2(){ free(); }
+	//-*/----------------------------------------------------------------------
+	void setAmount(int n)
+	{
+		size_ = n;
+	}
+	//-*/----------------------------------------------------------------------
+	void push(SHP_CAVFrame val)
+	{
+		mutex_.lock();
+		buffer_.push_back(val);
+		std::vector<int> a;
+		a.resize(size_, 0);
+		VecDone.push_back(a);
+		mutex_.unlock();
+	}
+	//-*/----------------------------------------------------------------------
+	SHP_CAVFrame pop(int n)
+	{
+		SHP_CAVFrame result;
+		mutex_.lock();
+		result = GetLastFrame(n);
+		mutex_.unlock();
+		return result;
+	}
+	//-*/----------------------------------------------------------------------
+	int size()
+	{
+		int result;
+		mutex_.lock();
+		result = buffer_.size();
+		mutex_.unlock();
+		return result;
+	}
+	//-*/----------------------------------------------------------------------
+	void free()
+	{
+		mutex_.lock();
+		buffer_.clear();
+		VecDone.clear();
+		mutex_.unlock();
+	}
+	//-*/----------------------------------------------------------------------
+	bool empty()
+	{
+		bool result;
+		mutex_.lock();
+		result = buffer_.empty();
+		mutex_.unlock();
+		return result;
+	}
+private:
+	SHP_CAVFrame GetLastFrame(int i)
+	{
+		for (int j = 0; j < (int)VecDone.size(); ++i)
+		{
+			if (VecDone[j][i] == 0)
+			{
+				VecDone[j][i] = 1;
+				return buffer_[j];
+			}
+		}
+		SHP_CAVFrame a = std::make_shared<CAVFrame>();
+		return a;
+	}
+	//-*/----------------------------------------------------------------------
+	//-*/----------------------------------------------------------------------
+	std::mutex  mutex_;
+	boost::circular_buffer<SHP_CAVFrame>	buffer_;
+	boost::circular_buffer<std::vector<int>>	VecDone;
+	int size_ = 0;
+};
+
 class CThreadedCircular
 {
 public:
