@@ -87,6 +87,7 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 			memcpy(shpPacket->data, vecData2[i].data + 12, vecData2[i].size - 12);//+12
 			vecData2[i].size = 0;
 			skipper[i] = false;
+			time_start_receive[i] = std::chrono::high_resolution_clock::now();
 		}
 		catch (std::exception& e)
 		{
@@ -94,6 +95,7 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 			cerr << "Exception: " << e.what() << "\n";
 			shpPacket.reset(new CAVPacket2(vecData[i].size-12));
 			skipper[i] = true;
+			time_start_receive[i] = std::chrono::high_resolution_clock::now();
 		}
 	}
 	else
@@ -101,6 +103,7 @@ int CRTPReceive::decode_audio_frame(AVFrame *frame, int *data_present, int i)
 		skipper[i] = true;
 		loggit("no data from port " + to_string(vecEndpoint[i].port()) + " average =" + to_string(vecData[i].size - 12));
 		shpPacket.reset(new CAVPacket2(vecData[i].size-12));
+		time_start_receive[i] = std::chrono::high_resolution_clock::now();
 	}
 	
 #endif
@@ -133,35 +136,31 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 		av_free_packet(&output_packet);
 		return error;
 	}
-	if (std::chrono::milliseconds(20) >(std::chrono::high_resolution_clock::now() - time_start_receive[0]))
+	auto timenow = std::chrono::high_resolution_clock::now();
+	if (std::chrono::milliseconds(20) > (timenow - time_start_receive[i]))
 	{
-		std::this_thread::sleep_for(std::chrono::milliseconds(20) - (std::chrono::high_resolution_clock::now() - time_start_receive[0]));
+		std::this_thread::sleep_for(std::chrono::milliseconds(20) - (timenow - time_start_receive[i]));
+	}//problem
+	
+	try
+	{
+		send.reset(new CAVPacket2(output_packet.size + 12));
+		memcpy(send->data, rtp[i]->data, 12);
+		memcpy(send->data + 12, output_packet.data, output_packet.size);
+		loggit("sending " + to_string(send->size) + "bytes to ip " + vecEndpoint[i].address().to_string() + " and port=" + to_string(vecEndpoint[i].port()));
+		std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(std::chrono::high_resolution_clock::now() - time_start_receive[i]);
+		loggit("it took " + to_string(time_span.count()));
+		vecSock[i]->send_to(boost::asio::buffer(send->data, send->size), vecEndpoint[i]);
+		av_free_packet(&output_packet);
 	}
-	if ((skipper[i]==false)) 
-	{	
-		try
-		{
-			send.reset(new CAVPacket2(output_packet.size + 12));
-			memcpy(send->data, rtp[i]->data, 12);
-			memcpy(send->data + 12, output_packet.data, output_packet.size);
-			loggit("sending " + to_string(send->size) + "bytes to ip " + vecEndpoint[i].address().to_string() + " and port=" + to_string(vecEndpoint[i].port()));
-			std::chrono::high_resolution_clock::time_point t1 = std::chrono::high_resolution_clock::now();
-			std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(t1 - time_start_receive[0]);
-			loggit("it took " + to_string(time_span.count()));
-			vecSock[i]->send_to(boost::asio::buffer(send->data, send->size), vecEndpoint[i]);
-			av_free_packet(&output_packet);
-		}
-		catch (std::exception& e)
-		{
+	catch (std::exception& e)
+	{
 
-			loggit("encode_audio_frame: Exception:" + to_string(*e.what()) + " in thread i=" + to_string(i) + " (Inactive socket skiped port )" + to_string(vecEndpoint[i].port()));
-			av_free_packet(&output_packet);
-		}
+		loggit("encode_audio_frame: Exception:" + to_string(*e.what()) + " in thread i=" + to_string(i) + " (Inactive socket skiped port )" + to_string(vecEndpoint[i].port()));
+		av_free_packet(&output_packet);
 	}
-	else
-	{
-		//loggit("skipped ip " + vecEndpoint[i].address().to_string() + " and port=" + to_string(vecEndpoint[i].port()));
-	}
+	
+
 	
 	//loggit("int CRTPReceive::encode_audio_frame END");
 	return 0;
@@ -170,7 +169,7 @@ int CRTPReceive::encode_audio_frame(AVFrame *frame, int *data_present, int i)
 //------------------------------------------------------------------------------------------
 int CRTPReceive::process_all()
 {
-	loggit("int CRTPReceive::process_all() initing");
+	//loggit("int CRTPReceive::process_all() initing");
 	int ret = 0;
 
 	vector<int> data_present;
@@ -187,12 +186,9 @@ int CRTPReceive::process_all()
 	loggit("int CRTPReceive::process_all() initing DONE");
 	while ((process_all_running == true))
 	{
-		//loggit(" in the start of while (nb_finished < tracks)");
-		int data_present_in_graph = 0;
 		time_start_receive[0] = std::chrono::high_resolution_clock::now();
 		for (int i = 0; i < tracks; ++i)
 		{
-			//input_to_read[i] = 0;
 			AVFrame *frame = NULL;
 
 			init_input_frame(&frame);
@@ -220,48 +216,26 @@ int CRTPReceive::process_all()
 			}
 
 			av_frame_free(&frame);
-			data_present_in_graph = data_present[i] | data_present_in_graph;
+			//data_present_in_graph = data_present[i] | data_present_in_graph;
 		}
-		if (data_present_in_graph)
-		{
-			/* pull filtered audio from the filtergraph */
-			for (int k = 0; k < tracks; ++k)/*****/ //вернуть
-			{
-				AVFrame *filt_frame = av_frame_alloc();
 
-				ret = av_buffersink_get_frame(ext.sinkVec[k], filt_frame);
-				/*if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
-				{
-					loggit("if (ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)");
-					for (int i = 0; i < tracks - 1; i++)
-					{
-						if (av_buffersrc_get_nb_failed_requests(ext.afcx[k].src[i]) > 0)
-						{
-							input_to_read[i] = 1;
-							loggit("Need to read input " + to_string(i));
-						}
-					}
-				}*/
-				if (ret < 0){ add_track(net_); }
-				if (ret = encode_audio_frame(filt_frame, &data_present[k], k) < 0)
-				{
-					loggit("if (ret = encode_audio_frame(filt_frame, out_ifcx[k], out_iccx[k], &data_present)< 0) FAILED");
-				}
-				av_frame_unref(filt_frame);
-				av_frame_free(&filt_frame);
-			}/*****/
-			time_start_receive[0] = std::chrono::high_resolution_clock::now();
-		}
-		else
+		/* pull filtered audio from the filtergraph */
+		for (int k = 0; k < tracks; ++k)/*****/ //вернуть
 		{
-			if (std::chrono::milliseconds(20) >(std::chrono::high_resolution_clock::now() - time_start_receive[0]))
+			AVFrame *filt_frame = av_frame_alloc();
+
+			ret = av_buffersink_get_frame(ext.sinkVec[k], filt_frame);
+
+			if (ret < 0){ add_track(net_); }
+			if (ret = encode_audio_frame(filt_frame, &data_present[k], k) < 0)
 			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(20) - (std::chrono::high_resolution_clock::now() - time_start_receive[0]));
+				loggit("if (ret = encode_audio_frame(filt_frame, out_ifcx[k], out_iccx[k], &data_present)< 0) FAILED");
 			}
-			time_start_receive[0] = std::chrono::high_resolution_clock::now();
-			loggit("No data in graph\n");
-			av_log(NULL, AV_LOG_INFO, "No data in graph\n");
-		}
+			av_frame_unref(filt_frame);
+			av_frame_free(&filt_frame);
+		}/*****/
+		time_start_receive[0] = std::chrono::high_resolution_clock::now();
+
 	}
 	process_all_finished = true;
 	for (unsigned i = 0; i < vecSock.size(); ++i)
