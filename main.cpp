@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "Functions.h"
 #include "Structs.h"
+#include "Functions.h"
 #include "Logger.h"
 #include "MGCPserver.h"
 #include "Mmsystem.h"
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 		DateStr = GetDate();
 		setlocale(LC_ALL, "Russian");
-		cout << "\nВЕРСИЯ 1.5.1 (11.07.2016 / 11:34)";
+		cout << "\nВЕРСИЯ 1.4.0 (13.07.2016 / 12:21)";
 		GetPathExe(argv[0]);
 		CLogger.Create();
 		boost::thread my_thread(&Runner);
@@ -44,7 +44,6 @@ int main(int argc, char* argv[])
 		string strConfigFile(PathEXE + "mgcpserver.cfg");
 		Config cfg;
 		cfg = ParseConfig(strConfigFile, cfg);
-		MusicPath = cfg.MediaPath;
 		RTPport = cfg.RTPport;
 		if (cfg.error == -1){ cout << "\nNO MEDIA " << cfg.error; system("pause"); return 0; }
 		if (cfg.error == 0)
@@ -52,11 +51,9 @@ int main(int argc, char* argv[])
 			cout << "\nparse end:\nUsing IP: " << cfg.IP << " Media Path: " << cfg.MediaPath << " port: " << cfg.port << " RTPPort: " + boost::to_string(cfg.RTPport);
 			LogMain("\nparse end:\nUsing IP: " + cfg.IP + " Media Path: " + cfg.MediaPath + " port: " + boost::to_string(cfg.port)+ " RTPPort: " + boost::to_string(cfg.RTPport));
 		}
-
 		//Инициализация адреса и порта сервера		
 		boost::asio::io_service io_service;
 		const udp::endpoint ep(boost::asio::ip::address::from_string(cfg.IP),cfg.port);
-		const udp::endpoint SIPep(boost::asio::ip::address::from_string(cfg.IP), cfg.SIPport);
 		///////////////////////////////////////////////////////////////////////////
 		av_log_set_level(0);
 		av_register_all();
@@ -66,12 +63,26 @@ int main(int argc, char* argv[])
 		/************************************************************************
 			Запуск экземляра MGCP-сервера	                                                                     
 		************************************************************************/
-		CMGCPServer s({ io_service, ep, SIPep, cfg.MediaPath });
+		CMGCPServer s({ io_service, ep, cfg.MediaPath });
 		LogMain("Запуск экземляра MGCP-сервера");
 		cout << "\n-------------------------------------------------------------------------------\n\n";
-		s.Run();
+
+		MusicPath = cfg.MediaPath;
 		s.RunBuffer();
-		io_service.run();
+		while (true)
+		{
+			try
+			{
+				s.Run();
+				//io_service.run();
+			}
+			catch (std::exception& e)
+			{
+				string es(e.what());
+				if (es.find("receive_from") == std::string::npos) 
+				{ throw e; }
+			}
+		}
 	}
 	catch (std::exception& e)
 	{

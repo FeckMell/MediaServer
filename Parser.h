@@ -1,19 +1,16 @@
 #pragma once
 #include "stdafx.h"
-#include "Functions.h"
 
 extern string DateStr;
 class SIP
 {
 public:
 	//func
-	enum Eventor { INVITE, ACK, BYE, Ringing, OK };
 	SIP(string);
 	SIP() {}
-	std::string ResponseINVITE(int code, string end);
 	std::string ResponseOK(int code, string end);
 	std::string ResponseBAD(int code, string message);
-	std::string ResponseRING(int code, string mess);
+	std::string ResponseRing(int code, string mess);
 
 	void Parse(bool);
 
@@ -23,7 +20,7 @@ public:
 
 	//data
 	std::string sip;
-	Eventor CMD;//
+	std::string CMD;//
 	std::string SDP;
 
 	std::string branch;//ответ с ним же
@@ -32,18 +29,11 @@ public:
 	std::string maxForwards; //- номер транзакции, в ответе она -1
 	std::string CseqNum; // номер, +1
 	std::string CseqCMD; //
-	std::string CallID;
-	std::string tag;
-
 private:
 
-	void P_CMD();
+	void parseCMD();
 	void Remove();
-	void P_MaxForwards();
-	void P_CallID();
-	void P_seq();
-	void P_tag();
-	void P_branch();
+	bool Valid();
 };
 
 class MGCP
@@ -81,7 +71,12 @@ private:
 	void parseCMD();
 	void EventP();
 	void ParamM();
+	void ParamL();
+	void ParamI();
+	void ParamZ();
 	void ParamC();
+	void ParamS();
 	void Remove();
+	bool Valid();	
 };
 typedef shared_ptr<MGCP> SHP_MGCP;

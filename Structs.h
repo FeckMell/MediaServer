@@ -1,9 +1,7 @@
 #pragma once
 #include "stdafx.h"
-//#include "Logger.h"
 #include <boost/circular_buffer.hpp>
-//class Logger;
-//extern Logger CLogger;
+
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 
 struct SSource
@@ -79,52 +77,40 @@ struct RTP_struct
 	}
 };
 //-*/----------------------------------------------------------
-class CAVFrame : AVFrame
+//-*/----------------------------------------------------------
+class CAVFrame
 {
 public:
-	CAVFrame()
-	{
-		//cout << "\nalloc";
-		frame = av_frame_alloc();
-	}
-	~CAVFrame()
-	{
-		//cout << "\nfree";
-		av_frame_free(&frame);
-	}
-	AVFrame* get()
-	{
-		//cout << "\nget";
-		return frame;
-	}
+	CAVFrame(){ frame = av_frame_alloc(); }
+	~CAVFrame(){ av_frame_free(&frame); }
+
+	AVFrame* get(){ return frame; }
+	void free(){ av_frame_free(&frame); }
 private:
 	AVFrame* frame;
-	/*CAVFrame() :AVFrame()
-	{
-		alloc(this);
-	}
-	~CAVFrame()
-	{
-		free();
-	}
-
-	void alloc(AVFrame* fr)
-	{
-		fr = av_frame_alloc();
-	}
-
-	void free()
-	{
-		free_h(this);
-	}
-	void free_h(AVFrame* fr)
-	{
-		av_frame_free(&fr);
-	}*/
 };
 typedef shared_ptr<CAVFrame> SHP_CAVFrame;
 //-*/----------------------------------------------------------
-struct CAVPacket : AVPacket
+//-*/----------------------------------------------------------
+class CAVPacket2
+{
+public:
+	CAVPacket2(){ av_init_packet(&packet); packet.data = nullptr; packet.size = 0; }
+	CAVPacket2(size_t sz){ if (sz > 0)av_new_packet(&packet, sz); }
+	~CAVPacket2(){ av_free_packet(&packet); }
+
+	AVPacket* get(){ return &packet; }
+	int size(){ return packet.size; }
+	uint8_t* data(){ return packet.data; }
+	void free(){ av_free_packet(&packet); }
+	void make_size(int n){ packet.size = n; }
+private:
+	AVPacket packet;
+};
+typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
+//-*/----------------------------------------------------------
+//-*/----------------------------------------------------------
+/*struct CAVPacket : AVPacket
 {
 	CAVPacket() : AVPacket()
 	{
@@ -134,7 +120,8 @@ struct CAVPacket : AVPacket
 	}
 	CAVPacket(size_t sz) : CAVPacket()
 	{
-		if (sz > 0) av_new_packet(this, sz);
+		if (sz > 0)
+			av_new_packet(this, sz);
 	}
 	int grow_by(int by)
 	{
@@ -150,7 +137,7 @@ struct CAVPacket : AVPacket
 	operator bool()const{ return data != nullptr; }
 	//void free(){ av_free_packet(this); }
 };
-typedef shared_ptr<CAVPacket> SHP_CAVPacket;
+typedef shared_ptr<CAVPacket> SHP_CAVPacket;*/
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
 struct Data
@@ -202,126 +189,36 @@ struct Config
 
 	string MediaPath;
 	string IP;
-	short int SIPport = 2429;
 	short int port=2427;
 	short int RTPport = 29500;
 	int error=0;
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
-class CThreadedCircular2
-{
-public:
-	CThreadedCircular2() : buffer_(2), VecDone(2){  }
-	CThreadedCircular2(size_t sz) : buffer_(sz), VecDone(sz){  }
-	CThreadedCircular2(const CThreadedCircular2 &obj)
-	{
-		buffer_ = obj.buffer_;
-	}
-	~CThreadedCircular2(){ free(); }
-	//-*/----------------------------------------------------------------------
-	void setAmount(int n)
-	{
-		size_ = n;
-	}
-	//-*/----------------------------------------------------------------------
-	void push(SHP_CAVFrame val)
-	{
-		mutex_.lock();
-		buffer_.push_back(val);
-		std::vector<int> a;
-		a.resize(size_, 0);
-		VecDone.push_back(a);
-		mutex_.unlock();
-	}
-	//-*/----------------------------------------------------------------------
-	SHP_CAVFrame pop(int n)
-	{
-		SHP_CAVFrame result;
-		mutex_.lock();
-		result = GetLastFrame(n);
-		mutex_.unlock();
-		return result;
-	}
-	//-*/----------------------------------------------------------------------
-	int size()
-	{
-		int result;
-		mutex_.lock();
-		result = buffer_.size();
-		mutex_.unlock();
-		return result;
-	}
-	//-*/----------------------------------------------------------------------
-	void free()
-	{
-		mutex_.lock();
-		buffer_.clear();
-		VecDone.clear();
-		mutex_.unlock();
-	}
-	//-*/----------------------------------------------------------------------
-	bool empty()
-	{
-		bool result;
-		mutex_.lock();
-		result = buffer_.empty();
-		mutex_.unlock();
-		return result;
-	}
-private:
-	SHP_CAVFrame GetLastFrame(int i)
-	{
-		for (int j = 0; j < (int)VecDone.size(); ++i)
-		{
-			if (VecDone[j][i] == 0)
-			{
-				VecDone[j][i] = 1;
-				return buffer_[j];
-			}
-		}
-		SHP_CAVFrame a = std::make_shared<CAVFrame>();
-		return a;
-	}
-	//-*/----------------------------------------------------------------------
-	//-*/----------------------------------------------------------------------
-	std::mutex  mutex_;
-	boost::circular_buffer<SHP_CAVFrame>	buffer_;
-	boost::circular_buffer<std::vector<int>>	VecDone;
-	int size_ = 0;
-};
-
 class CThreadedCircular
 {
 public:
-	CThreadedCircular() : buffer_(2), VecDone(2){  }
-	CThreadedCircular(size_t sz) : buffer_(sz), VecDone(sz){  }
+	CThreadedCircular() : buffer_(3){  }
+	CThreadedCircular(size_t sz) : buffer_(sz){  }
 	CThreadedCircular(const CThreadedCircular &obj)
 	{
 		buffer_ = obj.buffer_;
 	}
 	~CThreadedCircular(){ free(); }
 	//-*/----------------------------------------------------------------------
-	void setAmount(int n)
-	{
-		size_ = n;
-	}
-	//-*/----------------------------------------------------------------------
-	void push(SHP_CAVPacket val)
+	void push(SHP_CAVPacket2 val)
 	{
 		mutex_.lock();
 		buffer_.push_back(val);
-		std::vector<int> a;
-		a.resize(size_, 0);
-		VecDone.push_back(a);
 		mutex_.unlock();
 	}
 	//-*/----------------------------------------------------------------------
-	SHP_CAVPacket pop(int n)
+	SHP_CAVPacket2 pop()
 	{
-		SHP_CAVPacket result;
+		SHP_CAVPacket2 result;
 		mutex_.lock();
-		result = GetLastFrame(n);
+		result = buffer_.front();
+		buffer_.pop_front();
 		mutex_.unlock();
 		return result;
 	}
@@ -339,10 +236,8 @@ public:
 	{
 		mutex_.lock();
 		buffer_.clear();
-		VecDone.clear();
 		mutex_.unlock();
 	}
-	//-*/----------------------------------------------------------------------
 	bool empty()
 	{
 		bool result;
@@ -352,31 +247,8 @@ public:
 		return result;
 	}
 private:
-	SHP_CAVPacket GetLastFrame(int i)
-	{
-		for (int j = 0; j < (int)VecDone.size(); ++i)
-		{
-			if (VecDone[j][i] == 0)
-			{
-				VecDone[j][i] = 1;
-				return buffer_[j];
-			}
-		}
-		//если этот источник уже брал все фреймы из этого буфера, создаем "молчаливый" фрейм
-		SHP_CAVPacket shpPacket;
-		std::string str = "";
-		for (int j = 0; j < 20; ++j) str += "aaaaaaaa";
-		shpPacket.reset(new CAVPacket(160));
-		memcpy(shpPacket->data, str.c_str(), 160);
-		shpPacket->size = 1; // метка, что он "молчаливый"
-		return shpPacket;
-	}
-	//-*/----------------------------------------------------------------------
-	//-*/----------------------------------------------------------------------
 	std::mutex  mutex_;
-	boost::circular_buffer<SHP_CAVPacket>	buffer_;
-	boost::circular_buffer<std::vector<int>>	VecDone;
-	int size_ = 0;
+	boost::circular_buffer<SHP_CAVPacket2>	buffer_;
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------

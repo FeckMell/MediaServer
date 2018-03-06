@@ -52,8 +52,6 @@
     <IncludePath>C:\Projects\LIBS\Boost;$(IncludePath)</IncludePath>
     <ReferencePath>C:\Projects\LIBS\Boost\stage\lib;$(ReferencePath)</ReferencePath>
     <LibraryPath>C:\Projects\LIBS\Boost\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
-    <RunCodeAnalysis>false</RunCodeAnalysis>
-    <EnableManagedIncrementalBuild>false</EnableManagedIncrementalBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -89,9 +87,6 @@
       <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
-      <EnablePREfast>false</EnablePREfast>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -100,8 +95,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
       <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <Version>
-      </Version>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>
@@ -112,9 +105,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ann.h" />
-    <ClInclude Include="FilterInit.h" />
+    <ClInclude Include="CFilterInit.h" />
     <ClInclude Include="ConfRoom.h" />
-    <ClInclude Include="MGCPControl.h" />
+    <ClInclude Include="RequestControl.h" />
     <ClInclude Include="ConfPoint.h" />
     <ClInclude Include="ConfAudio.h" />
     <ClInclude Include="Functions.h" />
@@ -122,16 +115,15 @@
     <ClInclude Include="MGCPserver.h" />
     <ClInclude Include="Parser.h" />
     <ClInclude Include="Proxy.h" />
-    <ClInclude Include="SIPControl.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Structs.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ann.cpp" />
-    <ClCompile Include="FilterInit.cpp" />
+    <ClCompile Include="CFilterInit.cpp" />
     <ClCompile Include="ConfRoom.cpp" />
-    <ClCompile Include="MGCPControl.cpp" />
+    <ClCompile Include="RequestControl.cpp" />
     <ClCompile Include="ConfPoint.cpp" />
     <ClCompile Include="ConfAudio.cpp" />
     <ClCompile Include="Logger.cpp" />
@@ -140,7 +132,6 @@
     <ClCompile Include="Functions.cpp" />
     <ClCompile Include="Parcer.cpp" />
     <ClCompile Include="Proxy.cpp" />
-    <ClCompile Include="SIPControl.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

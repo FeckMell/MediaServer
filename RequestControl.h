@@ -13,10 +13,9 @@ extern string DateStr;
 extern short int RTPport;
 
 class CMGCPServer;
-class MGCPControl
+class RequestControl
 {
 public:
-	MGCPControl(CMGCPServer* s, string IP):server(s), my_IP(IP) {}
 	std::string my_IP;
 	CMGCPServer* server;
 
@@ -54,4 +53,4 @@ private:
 	
 };
 
-typedef std::shared_ptr<MGCPControl> SHP_MGCPControl;
+typedef std::shared_ptr<RequestControl> SHP_RequestControl;

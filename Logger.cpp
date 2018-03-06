@@ -29,7 +29,7 @@ void Logger::Run()
 			Clean();
 			reinit();
 		}
-		//std::this_thread::sleep_for(std::chrono::milliseconds(1));
+		std::this_thread::sleep_for(std::chrono::milliseconds(1));
 	}
 }
 //-*/----------------------------------------------------------
@@ -84,10 +84,9 @@ void Logger::reinit()
 	/*3*/path.push_back(tempPath + "LOGS_Server.txt");
 	/*4*/path.push_back(tempPath + "LOGS_FilterInit.txt");
 	/*5*/path.push_back(tempPath + "LOGS_Ann.txt");
-	/*6*/path.push_back(tempPath + "LOGS_MGCPControl.txt");
+	/*6*/path.push_back(tempPath + "LOGS_RequestControl.txt");
 	/*7*/path.push_back(tempPath + "LOGS_Proxy.txt");
 	/*8*/path.push_back(tempPath + "LOGS_ConfPoint.txt");
-	/*9*/path.push_back(tempPath + "LOGS_SIPControl.txt");
 	file2.resize(path.size());
 	for (unsigned i = 0; i < path.size(); ++i)
 	{

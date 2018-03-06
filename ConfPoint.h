@@ -23,7 +23,7 @@ public:
 	int error;
 
 	Data RawBuf;
-	CThreadedCircular2 FrameBuf;
+	CThreadedCircular FrameBuf;
 	RTP_struct rtp;
 
 	AVFormatContext* out_ifcx;

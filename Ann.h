@@ -27,9 +27,8 @@ private:
 	void openFile(string filename);
 	void openRTP();
 	void Run();
-	int encode_audio_frame(AVFrame *frame, int *data_present);
-	int decode_audio_frame(AVFrame *frame, int *data_present);
-	void init_packet(AVPacket *packet);
+	int encode_audio_frame(SHP_CAVFrame frame, int *data_present);
+	int decode_audio_frame(SHP_CAVFrame frame, int *data_present);
 	void freeall();
 	void reinit();
 
@@ -43,7 +42,7 @@ private:
 	RTP_struct rtp_hdr;
 	SHP_Socket sock;
 	udp::endpoint endpt;
-	SHP_CAVPacket left_data;
+	SHP_CAVPacket2 left_data;
 
 	AVFormatContext* ifcx = nullptr;
 	AVFormatContext* out_ifcx = nullptr;

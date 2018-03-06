@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Logger.h"
 #include "Functions.h"
-#include "FilterInit.h"
+#include "CFilterInit.h"
 #include "Structs.h"
 #include "ConfPoint.h"
 
@@ -35,19 +35,19 @@ private:
 	
 	/*main activity*/
 	int process_all();
-	void new_process(int i);
+	void new_process();
 	void receive();
-	void ConfAudio::receive2(int i);//debug
+	//void ConfAudio::receive2(int i);//debug
 
-	//int init_input_frame(AVFrame **frame);
-	void init_packet(AVPacket *packet);
-	int decode_audio_frame(AVFrame *frame, int *data_present, int i);
-	int encode_audio_frame(AVFrame *frame, int *data_present, int i);
+	//void init_packet(AVPacket *packet);
+
+	int decode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
+	int encode_audio_frame(SHP_CAVFrame frame, int *data_present, int i);
 	
 	
 	void add_missing_frame(int i, int j);
-	void get_last_buffer_frame(AVFrame* frame, int i);
-	void add_to_filter(int i, int j, AVFrame* frame);
+	void get_last_buffer_frame(SHP_CAVFrame frame, int i);
+	void add_to_filter(int i, SHP_CAVFrame frame);
 
 	/*event handling*/
 	void clear_memmory();
@@ -57,10 +57,10 @@ private:
 
 	Initing ext;
 	SHP_CFilterInit Initer;
-	SHP_CAVFrame SilentFrame;
 
 	bool process_all_finishing;
-
+	mutex  Mut_io;
+	mutex  Mut_pr;
 	int ID_;
 };
 typedef std::shared_ptr<ConfAudio> SHP_ConfAudio;

@@ -48,19 +48,16 @@
     <ClInclude Include="ConfPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CFilterInit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="ConfAudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ConfRoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MGCPControl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SIPControl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FilterInit.h">
+    <ClInclude Include="RequestControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -92,19 +89,16 @@
     <ClCompile Include="ConfPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CFilterInit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="ConfAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ConfRoom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MGCPControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SIPControl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FilterInit.cpp">
+    <ClCompile Include="RequestControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
