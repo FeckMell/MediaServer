@@ -1,0 +1,228 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MediaServer">
+      <UniqueIdentifier>{a284ce32-9676-4e11-a54a-7cfed3ac38c1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib">
+      <UniqueIdentifier>{d9da9d66-7e24-4045-a58d-77700720637e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Parsers">
+      <UniqueIdentifier>{efce51fa-05ae-43d0-a17d-4ebdf921703c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Interfaces">
+      <UniqueIdentifier>{37b5bd7d-6815-46e3-9fd0-0fafa2452ee0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Basics">
+      <UniqueIdentifier>{1b362608-3538-4be3-a93f-62f12656eaba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic">
+      <UniqueIdentifier>{38a8c980-843b-40d3-8683-a2918dc26bcb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Activity">
+      <UniqueIdentifier>{07418a20-013b-4c73-b90e-eb46f6033940}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Activity\Ann">
+      <UniqueIdentifier>{28165fbd-7f1d-4bb8-85b6-f7ec59f6ba1b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\MGCP">
+      <UniqueIdentifier>{3e3379a0-c9c3-4d9f-8ae9-62d306dd233a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Logic\SIP">
+      <UniqueIdentifier>{8833799a-1034-4abc-ac9c-268c430a557e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Activity\Cnf">
+      <UniqueIdentifier>{e8f9482b-9d26-4fd2-bd05-ad71a1648e95}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Activity\Prx">
+      <UniqueIdentifier>{736c87ff-c447-4d3b-9b3d-3b465b518116}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Activity\DTMF">
+      <UniqueIdentifier>{9200a363-2b17-43c9-85cd-a59bf7800998}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Receiver">
+      <UniqueIdentifier>{065cd3ce-db64-4858-855c-f3060b45aad2}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>MediaServer</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Functions.h">
+      <Filter>SharedLib\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_BasicStructs.h">
+      <Filter>SharedLib\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Socket.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Config.h">
+      <Filter>SharedLib\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_ffmpeg.h">
+      <Filter>SharedLib\Basics</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_LOG.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Communications.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_SDP.h">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_MGCP.h">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_IPL.h">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_SIP.h">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_ALL.h">
+      <Filter>SharedLib</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Point.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp.h">
+      <Filter>Logic\MGCP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_Cnf.h">
+      <Filter>Logic\MGCP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_Ann.h">
+      <Filter>Logic\MGCP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSsip.h">
+      <Filter>Logic\SIP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSsip_Cnf.h">
+      <Filter>Logic\SIP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSsip_Caller.h">
+      <Filter>Logic\SIP</Filter>
+    </ClInclude>
+    <ClInclude Include="MSann.h">
+      <Filter>Activity\Ann</Filter>
+    </ClInclude>
+    <ClInclude Include="MSann_MusicStore.h">
+      <Filter>Activity\Ann</Filter>
+    </ClInclude>
+    <ClInclude Include="MSann_Ann.h">
+      <Filter>Activity\Ann</Filter>
+    </ClInclude>
+    <ClInclude Include="MSreceiver.h">
+      <Filter>Receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf.h">
+      <Filter>Activity\Cnf</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Cnf.h">
+      <Filter>Activity\Cnf</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Caller.h">
+      <Filter>Activity\Cnf</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Filter.h">
+      <Filter>Activity\Cnf</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Audio.h">
+      <Filter>Activity\Cnf</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>MediaServer</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaServer.cpp">
+      <Filter>MediaServer</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_Functions.cpp">
+      <Filter>SharedLib\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_BasicStructs.cpp">
+      <Filter>SharedLib\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_Socket.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_Config.cpp">
+      <Filter>SharedLib\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_ffmpeg.cpp">
+      <Filter>SharedLib\Basics</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_LOG.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_Communications.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_SDP.cpp">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_MGCP.cpp">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_IPL.cpp">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_SIP.cpp">
+      <Filter>SharedLib\Parsers</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_ALL.cpp">
+      <Filter>SharedLib</Filter>
+    </ClCompile>
+    <ClCompile Include="SL_Point.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp.cpp">
+      <Filter>Logic\MGCP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_Cnf.cpp">
+      <Filter>Logic\MGCP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_Ann.cpp">
+      <Filter>Logic\MGCP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSsip.cpp">
+      <Filter>Logic\SIP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSsip_Cnf.cpp">
+      <Filter>Logic\SIP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSsip_Caller.cpp">
+      <Filter>Logic\SIP</Filter>
+    </ClCompile>
+    <ClCompile Include="MSann.cpp">
+      <Filter>Activity\Ann</Filter>
+    </ClCompile>
+    <ClCompile Include="MSann_MusicStore.cpp">
+      <Filter>Activity\Ann</Filter>
+    </ClCompile>
+    <ClCompile Include="MSann_Ann.cpp">
+      <Filter>Activity\Ann</Filter>
+    </ClCompile>
+    <ClCompile Include="MSreceiver.cpp">
+      <Filter>Receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf.cpp">
+      <Filter>Activity\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Cnf.cpp">
+      <Filter>Activity\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Caller.cpp">
+      <Filter>Activity\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Filter.cpp">
+      <Filter>Activity\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Audio.cpp">
+      <Filter>Activity\Cnf</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
