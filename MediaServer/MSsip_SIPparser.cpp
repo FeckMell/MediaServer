@@ -153,7 +153,8 @@ string SIP::ReplyOK()
 		}
 		else if (temp_line.find("To: ") != string::npos)
 		{
-			result += temp_line + ";tag=MediaServerSIP\r\n";//TODO
+			if(data["CMD"]=="INVITE") result += temp_line + ";tag=MediaServerSIP\r\n";
+			else result += temp_line + "\r\n";
 		}
 		else if (temp_line.find("From: ") != string::npos)
 		{
@@ -179,7 +180,7 @@ string SIP::ReplyOK()
 	}
 	else
 	{
-		result += "Content-Length: 0\r\n";
+		result += "Content-Length: 0\r\n\r\n";
 	}
 	return result;
 }

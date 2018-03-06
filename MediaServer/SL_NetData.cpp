@@ -42,3 +42,7 @@ SHP_SOCK NET::GS(OUTER s_)
 		exit(-1);
 	}
 }
+void NET::SignalInIO(INNER where_, string what_)
+{
+	NET::vecSigsIN[where_](what_);
+}

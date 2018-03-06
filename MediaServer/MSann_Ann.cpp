@@ -14,7 +14,7 @@ Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 		boost::asio::ip::address::from_string(ipl_->data["ClientIP"]),
 		stoi(ipl_->data["ClientPort"])
 		);
-	BOOST_LOG_SEV(LOG::GL(0), info) << "MSANN: ann with id=" << eventID << " started";
+	//BOOST_LOG_SEV(LOG::GL(0), info) << "MSANN: ann with id=" << eventID << " started";
 	th.reset(new std::thread(&Ann::Run, this));
 }
 //*///------------------------------------------------------------------------------------------

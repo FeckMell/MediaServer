@@ -11,7 +11,7 @@ Point::Point(SHP_SIP sip_, string event_id_)
 	eventID = event_id_;
 	callID = sip_->data["CallID"];
 	
-	//ListenDTMF();
+	ListenDTMF();
 	PlayAnn("login.wav");
 	
 }
@@ -20,6 +20,7 @@ Point::Point(SHP_SIP sip_, string event_id_)
 void Point::DTMFResult(SHP_IPL ipl_)
 {
 	StopAnn();
+	StopDTMF();
 	if (state == login)
 	{
 		
@@ -47,6 +48,8 @@ void Point::StopAll()
 //*///------------------------------------------------------------------------------------------
 void Point::PlayAnn(string file_name_)
 {	
+	if (playingAnn == true) { BOOST_LOG_SEV(LOG::GL(0), fatal) << "SIP playing ann ERROR 1"; }
+	playingAnn = true;
 	string result = "";
 	result += "From=sip\n";
 	result += "To=ann\n";
@@ -62,6 +65,8 @@ void Point::PlayAnn(string file_name_)
 //*///------------------------------------------------------------------------------------------
 void Point::StopAnn()
 {
+	if (playingAnn == false) { BOOST_LOG_SEV(LOG::GL(0), fatal) << "SIP playing ann ERROR 2"; }
+	playingAnn = false;
 	string result = "";
 	result += "From=sip\n";
 	result += "To=ann\n";

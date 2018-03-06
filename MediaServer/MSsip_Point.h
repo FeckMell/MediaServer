@@ -28,8 +28,8 @@ namespace sip
 
 		string eventID;
 		string roomID;
-
 		int state = login;
+		bool playingAnn = false;
 	private:
 
 	};

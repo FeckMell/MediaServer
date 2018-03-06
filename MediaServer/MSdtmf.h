@@ -16,10 +16,8 @@ namespace dtmf
 		void CR(SHP_IPL);
 		void DL(SHP_IPL);
 
-		void DeletePoint(SHP_Point);
+		void RemovePoint(SHP_Point);
 		SHP_Point FindPoint(string);
-
-		void Receive(boost::system::error_code, size_t, SHP_Point);
 
 		vector<SHP_Point> vecPoints;
 	};

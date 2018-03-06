@@ -16,10 +16,8 @@ void Control::Preprocessing(string message_)
 	else if (ipl->data["EventType"] == "dl") {DL(ipl);}
 	else
 	{
-
-		exit(-1);
+		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSDTMF: ipl bad:\n" << ipl->ipl;
 	}
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -27,75 +25,25 @@ void Control::CR(SHP_IPL ipl_)
 {
 	SHP_Point new_point = make_shared<Point>(Point(ipl_));
 	vecPoints.push_back(new_point);
-	
-	thread th([new_point,this]()
-	{
-		new_point->socket->s.async_receive_from(
-			boost::asio::buffer(new_point->rawBuf.data, 1000),
-			new_point->endPoint,
-			boost::bind(&Control::Receive, this, _1, _2, new_point)
-			);
-		new_point->socket->io->reset();
-		new_point->socket->io->run();
-	});
-	th.detach();
-	
+	new_point->Run();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Control::DL(SHP_IPL ipl_)
 {
-	
 	SHP_Point found_point = FindPoint(ipl_->data["EventID"]);
 	if (found_point == nullptr)
 	{
 		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSDTMF: DL: point not found id=" << ipl_->data["EventID"];
 		return;
 	}
-	
-	DeletePoint(found_point);
-	
+	RemovePoint(found_point);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Control::Receive(boost::system::error_code ec_, size_t size_, SHP_Point point_)
+void Control::RemovePoint(SHP_Point point_)
 {
-	if (size_ > 12)
-	{
-		uint8_t bytes[2];
-
-		memcpy(&bytes[0], point_->rawBuf.data + 1, 1);
-		memcpy(&bytes[1], point_->rawBuf.data + 12, 1);
-		bool result = point_->Analyze(bytes);
-		if (result == false)
-		{
-			
-			point_->socket->s.async_receive_from(
-				boost::asio::buffer(point_->rawBuf.data, 1000),
-				point_->endPoint,
-				boost::bind(&Control::Receive, this, _1, _2, point_)
-				);
-		}
-		else
-		{
-			DeletePoint(point_);
-		}
-	}
-	else
-	{
-		
-		exit(-1);
-	}
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Control::DeletePoint(SHP_Point point_)
-{
-	
-	point_->socket->s.cancel();
-	point_->socket->io->reset();
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

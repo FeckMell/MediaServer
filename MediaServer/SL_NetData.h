@@ -12,6 +12,7 @@ public:
 
 	static void Init();
 	static SHP_SOCK GS(OUTER);//GetSOCK
+	static void SignalInIO(INNER, string);
 
 	static SHP_IO outerIO;
 	static vector<boost::signals2::signal<void(string)>> vecSigsIN;

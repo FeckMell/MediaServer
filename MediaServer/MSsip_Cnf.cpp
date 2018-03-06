@@ -6,7 +6,7 @@ using namespace sip;
 Cnf::Cnf(SHP_Point point_)
 {
 	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Cnf created with id=" << point_->roomID;
-	//point_->PlayAnn("music_alaw.wav");
+	point_->PlayAnn("music_alaw.wav");
 	vecPoints.push_back(point_);
 	eventID = point_->roomID;
 }
@@ -16,7 +16,6 @@ void Cnf::AddPoint(SHP_Point point_)
 {
 	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Cnf Add point with id=" << point_->callID;
 	vecPoints.push_back(point_);
-	point_->StopAnn();
 	Process();
 }
 //*///------------------------------------------------------------------------------------------
@@ -53,7 +52,9 @@ void Cnf::Process()
 		}
 		else
 		{
+			
 			SendDL();
+			active_points[0]->PlayAnn("music_alaw.wav");
 			state = false;
 		}
 	}
@@ -81,6 +82,7 @@ void Cnf::SendCR(vector<SHP_Point> points_)
 		client_ip += e->clientSDP->data["IP"] + " ";
 		client_port += e->clientSDP->data["Port"] + " ";
 		server_port += e->serverSDP->data["Port"] + " ";
+		if (e->playingAnn == true){ e->StopAnn(); }
 	}
 	client_ip.pop_back();
 	client_port.pop_back();
