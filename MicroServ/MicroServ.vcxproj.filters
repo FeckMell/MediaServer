@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="MAIN">
+      <UniqueIdentifier>{54c2224d-24d2-4f2a-90ca-821cef963ddd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicroService">
+      <UniqueIdentifier>{9b37c185-2c77-47ef-a89d-16a9105f2de8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicroService\OverLoad">
+      <UniqueIdentifier>{50d98fe0-9997-44a5-8847-d5b875e4d735}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicroService\MusicStore">
+      <UniqueIdentifier>{5d424742-72a1-4cb2-ac10-03e2e0735caf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib">
+      <UniqueIdentifier>{a793c666-c4b6-49f3-96aa-e39cad26121e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Protocols">
+      <UniqueIdentifier>{d8b7df4a-bd31-4721-afee-a6e1d50085bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Interfaces">
+      <UniqueIdentifier>{e5ad8259-8e26-4f60-b5b3-fa0ac576d656}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="SharedLib\Basic">
+      <UniqueIdentifier>{a93c7b65-7388-493a-979c-a8c154e438f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tests">
+      <UniqueIdentifier>{436b2807-088c-4682-ad49-65ba989c15c8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicroService\RTPReceiver">
+      <UniqueIdentifier>{5e8551a7-c10f-450f-a551-d3bafa6215d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MicroService\Receiver">
+      <UniqueIdentifier>{13e54bad-7609-4b05-972f-15f035ab31e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Moduls">
+      <UniqueIdentifier>{76a5c491-9f19-4308-afaf-d2268ec4927f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MicroServ.cpp">
+      <Filter>MAIN</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>MAIN</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib.cpp">
+      <Filter>MAIN</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Protocols\IPL.cpp">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\COM.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Config.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Interfaces\Logs.cpp">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\FFmpeg.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Simple.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Socket.cpp">
+      <Filter>SharedLib\Basic</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\MusicStore\MusicStore.cpp">
+      <Filter>MicroService\MusicStore</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\MusicStore\MusicStore_MusicFile.cpp">
+      <Filter>MicroService\MusicStore</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\MusicStore\TEST_MusicStore.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\OverLoad\OverLoad.cpp">
+      <Filter>MicroService\OverLoad</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\OverLoad\OverLoad_Caller.cpp">
+      <Filter>MicroService\OverLoad</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\OverLoad\TEST_OverLoad.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\RTPReceiver\RTPReceiver.cpp">
+      <Filter>MicroService\RTPReceiver</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\RTPReceiver\RTPReceiver_Caller.cpp">
+      <Filter>MicroService\RTPReceiver</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\RTPReceiver\TEST_RTPReceiver.cpp">
+      <Filter>Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\Receiver\Receiver.cpp">
+      <Filter>MicroService\Receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="MicroServices\Receiver\Receiver_Inst.cpp">
+      <Filter>MicroService\Receiver</Filter>
+    </ClCompile>
+    <ClCompile Include="SharedLib\Basic\Functions.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>MAIN</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib.h">
+      <Filter>MAIN</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\IPL.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Protocols\RTP.h">
+      <Filter>SharedLib\Protocols</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\COM.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Config.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Interfaces\Logs.h">
+      <Filter>SharedLib\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\FFmpeg.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Simple.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Socket.h">
+      <Filter>SharedLib\Basic</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\MusicStore\MusicStore.h">
+      <Filter>MicroService\MusicStore</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\MusicStore\MusicStore_MusicFile.h">
+      <Filter>MicroService\MusicStore</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\MusicStore\TEST_MusicStore.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\OverLoad\OverLoad.h">
+      <Filter>MicroService\OverLoad</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\OverLoad\OverLoad_Caller.h">
+      <Filter>MicroService\OverLoad</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\OverLoad\TEST_OverLoad.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\RTPReceiver\RTPReceiver.h">
+      <Filter>MicroService\RTPReceiver</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\RTPReceiver\RTPReceiver_Caller.h">
+      <Filter>MicroService\RTPReceiver</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\RTPReceiver\TEST_RTPReceiver.h">
+      <Filter>Tests</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\Receiver\Receiver.h">
+      <Filter>MicroService\Receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="MicroServices\Receiver\Receiver_Inst.h">
+      <Filter>MicroService\Receiver</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedLib\Basic\Functions.h" />
+  </ItemGroup>
+</Project>

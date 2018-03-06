@@ -1,0 +1,159 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{8C1E9DE9-87E8-455A-BDC0-C061786201B6}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MS</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm150 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm150 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="Functional\FAnn\FAnn.h" />
+    <ClInclude Include="Functional\FAnn\FAnn_Music.h" />
+    <ClInclude Include="Functional\FAnn\FAnn_Point.h" />
+    <ClInclude Include="Functional\FCnf\FCnf.h" />
+    <ClInclude Include="Functional\FCnf\FCnf_Filter.h" />
+    <ClInclude Include="Functional\FCnf\FCnf_Mixer.h" />
+    <ClInclude Include="Functional\FCnf\FCnf_Point.h" />
+    <ClInclude Include="Functional\FCnf\FCnf_Room.h" />
+    <ClInclude Include="Logic\MGCP\LAnn\LMGCP_LAnn.h" />
+    <ClInclude Include="Logic\MGCP\LAnn\LMGCP_LAnnPoint.h" />
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnf.h" />
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnfPoint.h" />
+    <ClInclude Include="Logic\MGCP\LCnf\LMGCP_LCnfRoom.h" />
+    <ClInclude Include="Logic\MGCP\LMGCP.h" />
+    <ClInclude Include="SharedLib\Basic\Basic.h" />
+    <ClInclude Include="SharedLib\Basic\FFmpeg.h" />
+    <ClInclude Include="SharedLib\Basic\Functions.h" />
+    <ClInclude Include="SharedLib\Basic\Jitter.h" />
+    <ClInclude Include="SharedLib\Basic\Timer.h" />
+    <ClInclude Include="SharedLib\Interfaces\Caller.h" />
+    <ClInclude Include="SharedLib\Interfaces\Communication.h" />
+    <ClInclude Include="SharedLib\Interfaces\Config.h" />
+    <ClInclude Include="SharedLib\Interfaces\Logs.h" />
+    <ClInclude Include="SharedLib\Interfaces\Socket.h" />
+    <ClInclude Include="SharedLib\Protocols\DTMF.h" />
+    <ClInclude Include="SharedLib\Protocols\IPL.h" />
+    <ClInclude Include="SharedLib\Protocols\MGCP.h" />
+    <ClInclude Include="SharedLib\Protocols\RTP.h" />
+    <ClInclude Include="SharedLib\Protocols\SDP.h" />
+    <ClInclude Include="SharedLib\Protocols\SIP.h" />
+    <ClInclude Include="SharedLib\All.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Functional\FAnn\FAnn.cpp" />
+    <ClCompile Include="Functional\FAnn\FAnn_Music.cpp" />
+    <ClCompile Include="Functional\FAnn\FAnn_Point.cpp" />
+    <ClCompile Include="Functional\FCnf\FCnf.cpp" />
+    <ClCompile Include="Functional\FCnf\FCnf_Filter.cpp" />
+    <ClCompile Include="Functional\FCnf\FCnf_Mixer.cpp" />
+    <ClCompile Include="Functional\FCnf\FCnf_Point.cpp" />
+    <ClCompile Include="Functional\FCnf\FCnf_Room.cpp" />
+    <ClCompile Include="Logic\MGCP\LAnn\LMGCP_LAnn.cpp" />
+    <ClCompile Include="Logic\MGCP\LAnn\LMGCP_LAnnPoint.cpp" />
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnf.cpp" />
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnfPoint.cpp" />
+    <ClCompile Include="Logic\MGCP\LCnf\LMGCP_LCnfRoom.cpp" />
+    <ClCompile Include="Logic\MGCP\LMGCP.cpp" />
+    <ClCompile Include="MS.cpp" />
+    <ClCompile Include="SharedLib\Basic\Basic.cpp" />
+    <ClCompile Include="SharedLib\Basic\FFmpeg.cpp" />
+    <ClCompile Include="SharedLib\Basic\Functions.cpp" />
+    <ClCompile Include="SharedLib\Basic\Jitter.cpp" />
+    <ClCompile Include="SharedLib\Basic\Timer.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Caller.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Communication.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Config.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Logs.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Socket.cpp" />
+    <ClCompile Include="SharedLib\Protocols\DTMF.cpp" />
+    <ClCompile Include="SharedLib\Protocols\IPL.cpp" />
+    <ClCompile Include="SharedLib\Protocols\MGCP.cpp" />
+    <ClCompile Include="SharedLib\Protocols\RTP.cpp" />
+    <ClCompile Include="SharedLib\Protocols\SDP.cpp" />
+    <ClCompile Include="SharedLib\Protocols\SIP.cpp" />
+    <ClCompile Include="SharedLib\All.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

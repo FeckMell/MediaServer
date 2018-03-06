@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F10814CC-37EB-427D-B141-FECB992276A9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>MicroServ</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm150 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm150 %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="MicroServices\MusicStore\MusicStore.h" />
+    <ClInclude Include="MicroServices\MusicStore\MusicStore_MusicFile.h" />
+    <ClInclude Include="MicroServices\MusicStore\TEST_MusicStore.h" />
+    <ClInclude Include="MicroServices\OverLoad\OverLoad_Caller.h" />
+    <ClInclude Include="MicroServices\Receiver\Receiver_Inst.h" />
+    <ClInclude Include="MicroServices\RTPReceiver\RTPReceiver_Caller.h" />
+    <ClInclude Include="MicroServices\RTPReceiver\RTPReceiver.h" />
+    <ClInclude Include="MicroServices\RTPReceiver\TEST_RTPReceiver.h" />
+    <ClInclude Include="MicroServices\Receiver\Receiver.h" />
+    <ClInclude Include="SharedLib\Basic\FFmpeg.h" />
+    <ClInclude Include="SharedLib\Basic\Functions.h" />
+    <ClInclude Include="SharedLib\Basic\Simple.h" />
+    <ClInclude Include="SharedLib\Basic\Socket.h" />
+    <ClInclude Include="SharedLib\Interfaces\COM.h" />
+    <ClInclude Include="SharedLib\Interfaces\Config.h" />
+    <ClInclude Include="SharedLib\Interfaces\Logs.h" />
+    <ClInclude Include="MicroServices\OverLoad\OverLoad.h" />
+    <ClInclude Include="MicroServices\OverLoad\TEST_OverLoad.h" />
+    <ClInclude Include="SharedLib.h" />
+    <ClInclude Include="SharedLib\Protocols\IPL.h" />
+    <ClInclude Include="SharedLib\Protocols\RTP.h" />
+    <ClInclude Include="stdafx.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MicroServices\MusicStore\MusicStore.cpp" />
+    <ClCompile Include="MicroServices\MusicStore\MusicStore_MusicFile.cpp" />
+    <ClCompile Include="MicroServices\MusicStore\TEST_MusicStore.cpp" />
+    <ClCompile Include="MicroServices\OverLoad\OverLoad_Caller.cpp" />
+    <ClCompile Include="MicroServices\Receiver\Receiver_Inst.cpp" />
+    <ClCompile Include="MicroServices\RTPReceiver\RTPReceiver_Caller.cpp" />
+    <ClCompile Include="MicroServices\RTPReceiver\RTPReceiver.cpp" />
+    <ClCompile Include="MicroServices\RTPReceiver\TEST_RTPReceiver.cpp" />
+    <ClCompile Include="MicroServices\Receiver\Receiver.cpp" />
+    <ClCompile Include="SharedLib\Basic\FFmpeg.cpp" />
+    <ClCompile Include="SharedLib\Basic\Functions.cpp" />
+    <ClCompile Include="SharedLib\Basic\Simple.cpp" />
+    <ClCompile Include="SharedLib\Basic\Socket.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\COM.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Config.cpp" />
+    <ClCompile Include="SharedLib\Interfaces\Logs.cpp" />
+    <ClCompile Include="SharedLib.cpp" />
+    <ClCompile Include="MicroServices\OverLoad\OverLoad.cpp" />
+    <ClCompile Include="MicroServ.cpp" />
+    <ClCompile Include="MicroServices\OverLoad\TEST_OverLoad.cpp" />
+    <ClCompile Include="SharedLib\Protocols\IPL.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
