@@ -24,42 +24,48 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MGCPserver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="Structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Functions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Server.h">
+    <ClInclude Include="Ann.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MGCPparser.h">
+    <ClInclude Include="Parser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MGCPcontrol.h">
+    <ClInclude Include="Logger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventAnn.h">
+    <ClInclude Include="Proxy.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventBase.h">
+    <ClInclude Include="ConfPoint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CallerBase.h">
+    <ClInclude Include="CFilterInit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CallerAnn.h">
+    <ClInclude Include="ConfAudio.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EventCnf.h">
+    <ClInclude Include="ConfRoom.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Conf.h">
+    <ClInclude Include="MGCPControl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="MGCPserver.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
@@ -68,34 +74,31 @@
     <ClCompile Include="Functions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Structs.cpp">
+    <ClCompile Include="Ann.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Server.cpp">
+    <ClCompile Include="Logger.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MGCPparser.cpp">
+    <ClCompile Include="Parcer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MGCPcontrol.cpp">
+    <ClCompile Include="Proxy.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EventAnn.cpp">
+    <ClCompile Include="ConfPoint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EventBase.cpp">
+    <ClCompile Include="CFilterInit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CallerBase.cpp">
+    <ClCompile Include="ConfAudio.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CallerAnn.cpp">
+    <ClCompile Include="ConfRoom.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="EventCnf.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Conf.cpp">
+    <ClCompile Include="MGCPControl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

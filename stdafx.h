@@ -83,12 +83,12 @@ extern "C"
 }
 
 
-//namespace asio = boost::asio;
-//using boost::asio::ip::udp;
-//using std::string;
-//using std::cerr;
-//using std::cout;
-//using std::shared_ptr;
+namespace asio = boost::asio;
+using boost::asio::ip::udp;
+using std::string;
+using std::cerr;
+using std::cout;
+using std::shared_ptr;
 #ifdef WIN32
 #pragma comment (lib,"avformat.lib")
 #pragma comment (lib,"avcodec.lib")

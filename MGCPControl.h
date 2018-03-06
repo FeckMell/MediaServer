@@ -2,26 +2,57 @@
 #include "stdafx.h"
 #include "Structs.h"
 #include "Functions.h"
-#include "MGCPparser.h"
-#include "EventAnn.h"
-#include "EventCnf.h"
+#include "Logger.h"
+#include "Parser.h"
+#include "MGCPserver.h"
+#include "ConfRoom.h"
+#include "Ann.h"
+#include "Proxy.h"
+extern Logger* CLogger;
+extern string DateStr;
+extern short int RTPport;
 
-using namespace std;
-
-extern SHP_InitParams init_Params;
-extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
-
-class MGCPcontrol
+class CMGCPServer;
+class MGCPControl
 {
 public:
-	MGCPcontrol();
+	std::string my_IP;
+	CMGCPServer* server;
 
-	void Preprocessing(SHP_MGCP);
+	void proceedCRCX(MGCP &mgcp);
+	void proceedMDCX(MGCP &mgcp);
+	void proceedRQNT(MGCP &mgcp);
+	void proceedDLCX(MGCP &mgcp);
+
+	int GetFreePort();
+	void SetFreePort(int port);
 private:
-	SHP_EventAnn annControl;
-	SHP_EventCnf cnfControl;
+	void loggit(string a);
+
+	int SetRoomID();
+	SHP_CConfRoom CreateNewRoom();
+
+	
+	
+	SHP_CConfRoom FindConf(string ID);
+	SHP_Ann FindAnn(string ID);
+	SHP_Proxy FindProxy(string ID);
+
+
+	std::string GenSDP(int Port, MGCP &mgcp);
+	int SDPFindMode(string SDP);
+
+
+	std::vector<SHP_CConfRoom> RoomsVec_; // вектор конференций
+	std::vector<SHP_Ann> AnnVec_;// вектор аннонсментов
+	std::vector<SHP_Proxy> ProxyVec_;// вектор прокси
+
+	std::vector<int> PortsinUse_; // вектор занятых портов
+	std::vector<int> RoomsID_; // вектор ID
+	
+
+	std::mutex  mutex_;
+	
 };
-typedef shared_ptr<MGCPcontrol> SHP_MGCPcontrol;
+
+typedef std::shared_ptr<MGCPControl> SHP_MGCPControl;
