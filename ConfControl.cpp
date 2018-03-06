@@ -14,7 +14,8 @@ void ConfControl::loggit(string a)
 	time(&rawtime);
 	t = localtime(&rawtime);
 	string time = "";
-	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000);
+	steady_clock::time_point t1 = steady_clock::now();
+	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(6, "\n" + time + "     " + a);
 }
 //--------------------------------------------------------------------------------------------
@@ -50,69 +51,101 @@ std::string ConfControl::GenSDP(int Port, MGCP &mgcp)
 void ConfControl::proceedCRCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
 	loggit(mgcp.EventEx + " CRCX for " + mgcp.paramC);
-	if (mgcp.Event+mgcp.EventNum == "ann/$")
+
+	switch (mgcp.Event)
 	{
-		mutex_.lock();
+	case MGCP::ann:
+	{
 		auto Port = GetFreePort();
 		mgcp.EventNum = boost::to_string(SetRoomID());
-		mutex_.unlock();
 		loggit("creating Ann with ID=" + mgcp.EventNum + " my_port=" + boost::to_string(Port));
 		SHP_Ann Ann(new Ann(mgcp.SDP, Port, mgcp.paramC));
 		AnnVec_.push_back(Ann);
 
-		server->reply(mgcp.ResponseOK(200, mgcp.Event) + GenSDP(Port, mgcp), udpTO);
+		server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
 		loggit("Ann created");
 		return;
-		//сделать отправку номера и тут и в cnf
-	}
+	}//case ann
 
-	if (mgcp.Event != "cnf/")
+	case MGCP::cnf:
 	{
-		loggit("!= cnf/");
-		server->reply(mgcp.ResponseBAD(400, "!= cnf/"), udpTO);
-		return;
-	}
-
-	if (mgcp.Event + mgcp.EventNum == "cnf/$")
-	{
-		auto Room = CreateNewRoom();
-		mutex_.lock();
-		auto Port = GetFreePort();
-		mutex_.unlock();
-		loggit("creating Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
-		auto my_SDP = GenSDP(Port, mgcp);
-		Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
-		mgcp.EventNum = boost::to_string(Room->GetRoomID());
-		server->reply(mgcp.ResponseOK(200, mgcp.Event) + my_SDP, udpTO);
-		loggit("Conf created");
-		return;
-	}
-	else
-	{
-		auto Room = FindRoom(mgcp.EventNum);
-		if (Room == nullptr)
+		if (mgcp.EventS + mgcp.EventNum == "cnf/$")
 		{
-			loggit("room not found");
-			server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+			auto Room = CreateNewRoom();
+			auto Port = GetFreePort();
+			loggit("creating Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
+			auto my_SDP = GenSDP(Port, mgcp);
+			Room->NewInitPoint(mgcp.SDP, my_SDP, mgcp.paramC, Port);
+			mgcp.EventNum = boost::to_string(Room->GetRoomID());
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, udpTO);
+			loggit("Conf created");
 			return;
 		}
-		mutex_.lock();
-		auto Port = GetFreePort();
-		mutex_.unlock();
-		loggit("join Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
-		auto my_SDP = GenSDP(Port, mgcp);
-		Room->NewInitPoint("", my_SDP, mgcp.paramC, Port);
-		server->reply(mgcp.ResponseOK(200, mgcp.Event) + my_SDP, udpTO);
-		loggit("Conf joined");
+		else
+		{
+			auto Room = FindConf(mgcp.EventNum);
+			if (Room == nullptr)
+			{
+				loggit("room not found");
+				server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
+				return;
+			}
+			auto Port = GetFreePort();
+			loggit("join Conf with ID=" + boost::to_string(Room->GetRoomID()) + " my_port=" + boost::to_string(Port));
+			auto my_SDP = GenSDP(Port, mgcp);
+			Room->NewInitPoint("", my_SDP, mgcp.paramC, Port);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + my_SDP, udpTO);
+			loggit("Conf joined");
+			return;
+		}
+	}//case cnf
+
+	case MGCP::prx:
+	{
+		if (mgcp.EventS + mgcp.EventNum == "prx/$")
+		{
+			auto Port = GetFreePort();
+			mgcp.EventNum = boost::to_string(SetRoomID());
+			loggit("creating Proxy with ID=" + mgcp.EventNum + " my_port=" + boost::to_string(Port));
+			SHP_Proxy proxy(new Proxy(mgcp.SDP, Port, mgcp.EventNum, mgcp.paramC));
+			ProxyVec_.push_back(proxy);
+
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
+			loggit("Proxy created");
+			return;
+		}
+		else
+		{
+			auto proxy = FindProxy(mgcp.EventNum);
+			if (proxy == nullptr)
+			{
+				loggit("Proxy not found");
+				server->reply(mgcp.ResponseBAD(400, "Proxy not found"), udpTO);
+				return;
+			}
+			auto Port = GetFreePort();
+			loggit("join Proxy with ID=" + proxy->GetID() + " my_port=" + boost::to_string(Port));
+			proxy->NewPoint(mgcp.SDP, Port, mgcp.paramC);
+			server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), udpTO);
+			loggit("Proxy joined");
+			return;
+		}
+	}//case MGCP::prx
+
+	default:
+	{
+		server->reply(mgcp.ResponseBAD(400, "Bad Request"), udpTO);
+		loggit("Bad Request");
 		return;
-	}
+	}//default
+	}//switch
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void ConfControl::proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
 	loggit(mgcp.EventEx + " MDCX for " + mgcp.paramC);
-	auto Room = FindRoom(mgcp.EventNum);
+	auto Room = FindConf(mgcp.EventNum);
 	if (Room == nullptr)
 	{
 		server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
@@ -135,7 +168,9 @@ void ConfControl::proceedMDCX(MGCP &mgcp, const udp::endpoint& udpTO)
 void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 {
 	loggit(mgcp.EventEx + " DLCX for " + mgcp.paramC);
-	if (mgcp.Event == "ann/")
+	switch (mgcp.Event)
+	{
+	case MGCP::ann:
 	{
 		auto Ann = FindAnn(mgcp.paramC);
 		if (Ann == nullptr)
@@ -146,17 +181,16 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			return;
 		}
 		Ann->Stop();
-		mutex_.lock();
 		SetFreePort(Ann->GetPort());
-		mutex_.unlock();
 		loggit("Stoped Ann with ID=" + mgcp.EventNum + " and port=" + boost::to_string(Ann->GetPort()));
 		AnnVec_.erase(std::remove(AnnVec_.begin(), AnnVec_.end(), Ann), AnnVec_.end());
 		RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
 		server->reply(mgcp.ResponseOK(250, ""), udpTO);
-	}
-	else if (mgcp.Event == "cnf/")
+		return;
+	}//case MGCP::ann
+	case MGCP::cnf:
 	{
-		auto Room = FindRoom(mgcp.EventNum);
+		auto Room = FindConf(mgcp.EventNum);
 		if (Room == nullptr)
 		{
 			server->reply(mgcp.ResponseBAD(400, "Room not found"), udpTO);
@@ -168,9 +202,7 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 			server->reply(mgcp.ResponseBAD(400, "Point not found"), udpTO);
 			return;
 		}
-		mutex_.lock();
 		SetFreePort(Point->my_port_);
-		mutex_.unlock();
 		loggit("Deleted point with ID=" + mgcp.paramC + " and port=" + boost::to_string(Point->my_port_));
 		Room->DeletePoint(mgcp.paramC);
 		if (Room->GetNumCllPoints() == 0)
@@ -182,7 +214,34 @@ void ConfControl::proceedDLCX(MGCP &mgcp, const udp::endpoint& udpTO)
 		}
 		server->reply(mgcp.ResponseOK(250, ""), udpTO);
 		return;
-	}
+	}//case MGCP::cnf
+	case MGCP::prx:
+	{
+		auto proxy = FindProxy(mgcp.EventNum);
+		if (proxy == nullptr)
+		{
+			loggit("Proxy not found");
+			server->reply(mgcp.ResponseBAD(400, "Proxy not found"), udpTO);
+			return;
+		}
+		SetFreePort(proxy->DeletePoint(mgcp.paramC));
+		loggit("Deleted point from Proxy with ID=" + mgcp.EventNum + " client=" + mgcp.paramC);
+		if (proxy->Size() == 0)
+		{
+			loggit("Deleted Proxy with ID=" + mgcp.EventNum);
+			ProxyVec_.erase(std::remove(ProxyVec_.begin(), ProxyVec_.end(), proxy), ProxyVec_.end());
+			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
+		}
+		server->reply(mgcp.ResponseOK(250, ""), udpTO);
+		return;
+	}//case MGCP::prx
+	default:
+	{
+		server->reply(mgcp.ResponseBAD(400, "Bad Request"), udpTO);
+		loggit("Bad Request");
+		return;
+	}//default
+	}//switch
 	
 }
 //--------------------------------------------------------------------------------------------
@@ -201,7 +260,8 @@ void ConfControl::proceedRQNT(MGCP &mgcp, const udp::endpoint& udpTO)
 	string test = param.substr(param.find("file:///") + 8);
 	test.pop_back();
 	string filepath = server->m_args.strMmediaPath + "\\"+test;
-	boost::thread my_thread(&SendAnn, Ann, filepath);
+
+	boost::thread my_thread(&Ann::Send, Ann, filepath);
 	my_thread.detach();
 	server->reply(mgcp.ResponseOK(200, ""), udpTO);
 }
@@ -224,26 +284,44 @@ int ConfControl::GetFreePort()
 {
 
 	int freeport = 29000; // базовый порт, с которого начинаем
-	if (PortsinUse_.size() == 0) { PortsinUse_.push_back(freeport); sort(PortsinUse_.begin(), PortsinUse_.end()); return freeport; }
+	if (PortsinUse_.size() == 0) 
+	{ 
+		mutex_.lock();
+		PortsinUse_.push_back(freeport); 
+		std::sort(PortsinUse_.begin(), PortsinUse_.end());
+		mutex_.unlock();
+		return freeport;
+	}
 	for (unsigned i = 0; i < PortsinUse_.size(); ++i)
 	{
-		if (PortsinUse_[i] != freeport){ PortsinUse_.push_back(freeport); sort(PortsinUse_.begin(), PortsinUse_.end()); return freeport; }
+		if (PortsinUse_[i] != freeport)
+		{ 
+			mutex_.lock();
+			PortsinUse_.push_back(freeport);
+			std::sort(PortsinUse_.begin(), PortsinUse_.end());
+			mutex_.unlock();
+			return freeport;
+		}
 		freeport += 2;
 	}
+	mutex_.lock();
 	PortsinUse_.push_back(freeport);
-	sort(PortsinUse_.begin(), PortsinUse_.end());
+	std::sort(PortsinUse_.begin(), PortsinUse_.end());
+	mutex_.unlock();
 	return freeport;
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 void ConfControl::SetFreePort(int port)
 {
+	mutex_.lock();
 	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), port),
 		PortsinUse_.end()); // удаляем порт из занятых
+	mutex_.unlock();
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-SHP_CConfRoom ConfControl::FindRoom(string ID)
+SHP_CConfRoom ConfControl::FindConf(string ID)
 {
 	for (auto &room : RoomsVec_)
 	{ 
@@ -258,9 +336,19 @@ SHP_Ann ConfControl::FindAnn(string ID)
 {
 	for (auto &ann : AnnVec_)
 	{
-		//out << "\nID=" + ID + "?=" + ann->CallID_;
 		if (ID == ann->CallID_)
 			return ann;
+	}
+	return nullptr;
+}
+//--------------------------------------------------------------------------------------------
+//--------------------------------------------------------------------------------------------
+SHP_Proxy ConfControl::FindProxy(string ID)
+{
+	for (auto &proxy : ProxyVec_)
+	{
+		if (ID == proxy->GetID())
+			return proxy;
 	}
 	return nullptr;
 }

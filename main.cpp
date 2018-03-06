@@ -28,12 +28,13 @@ int main(int argc, char* argv[])
 		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 		DateStr = GetDate();
 		setlocale(LC_ALL, "Russian");
-		cout << "\nÂÅÐÑÈß 1.1.8 (19.05.2016 / 14:10)";
+		cout << "\nÂÅÐÑÈß 1.1.8 (19.05.2016 / 18:03)";
 		GetPathExe(argv[0]);
 		CLogger.Create();
-		std::thread my_thread(&Runner);
-		std::this_thread::sleep_for(std::chrono::microseconds(50));
+		boost::thread my_thread(&Runner);
 		my_thread.detach();
+		std::this_thread::sleep_for(std::chrono::microseconds(50));
+		
 		LogMain("Using path: " + PathEXE);
 		/************************************************************************
 			Ïàðñèíã âõîäÿùèõ ïàðàìåòðîâ	                                                                     

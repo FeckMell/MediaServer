@@ -27,25 +27,20 @@ public:
 	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
 	void Run();
 	void reply(const string&, const udp::endpoint&);
-	void proceedReceiveBuffer(const char*, const udp::endpoint&);
+	
 	TArgs	m_args;
 private:
 /*Отладка*/
 	void loggit(string a);
 
-	//void do_receive();
-	//void do_send(std::size_t length);
-	//void respond(const string);
-	//void reply(const string&, const udp::endpoint&);
-
 /*Первичная обработка команд*/
-	
+	void proceedReceiveBuffer(const char*, const udp::endpoint&);
 
 	//TArgs	m_args;
 	udp::socket socket_;
 	udp::endpoint sender_endpoint_;
 	enum { max_length = 2048 };
-	char data_[max_length + 1];
+	//char data_[max_length + 1];
 
 	std::mutex  mutex_;
 	asio::io_service& io_service__;

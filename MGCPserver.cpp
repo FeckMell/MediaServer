@@ -7,13 +7,6 @@ extern string DateStr;
 extern string PathEXE;
 
 /************************************************************************
-*************************Handlers****************************************
-************************************************************************/
-void pr(CMGCPServer* server, const char* pCh, const udp::endpoint& udpTO)
-{
-	server->proceedReceiveBuffer(pCh, udpTO);
-}
-/************************************************************************
 ***************************CMGCPServer***********************************
 ************************************************************************/
 void CMGCPServer::loggit(string a)
@@ -25,7 +18,6 @@ void CMGCPServer::loggit(string a)
 	string time = "";
 	steady_clock::time_point t1 = steady_clock::now();
 	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
-
 	CLogger.AddToLog(3, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
 }
 //--------------------------------------------------------------------------------------------
@@ -36,103 +28,51 @@ CMGCPServer::CMGCPServer(const TArgs& args)
 	Conference = ff;
 	Conference->server = this;
 	Conference->my_IP = args.endpnt.address().to_string();
-	loggit("Server Construct");
 }
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::Run()
 {
 	loggit("Server.Run()");
-	//for (;;)
 	while (true)
 	{
 		udp::endpoint sender_endpoint;
 		loggit("Waiting for Callagent request...");
 		cout << "\nWaiting for Callagent request...";
-		
-		size_t bytes_recvd = socket_.receive_from(
-			asio::buffer(data_, max_length), sender_endpoint);//
+		char data_[max_length + 1];
 
-		data_[bytes_recvd] = 0;//
-		boost::thread my_thread(&pr, this, data_, sender_endpoint);
+		size_t bytes_recvd = socket_.receive_from(
+			asio::buffer(data_, max_length), sender_endpoint);
+		data_[bytes_recvd] = 0;
+		boost::thread my_thread(&CMGCPServer::proceedReceiveBuffer, this, data_, sender_endpoint);
 		my_thread.detach();
-		//proceedReceiveBuffer(data_, sender_endpoint);//
 	}
 }
-//--------------------------------------------------------------------------------------------
-/*void CMGCPServer::do_receive()
-{
-	loggit("do_receive");
-	out << "\n???";
-	socket_.async_receive_from(
-		asio::buffer(data_, max_length), sender_endpoint_,
-		[this](boost::system::error_code ec, std::size_t bytes_recvd)
-	{
-		data_[bytes_recvd] = 0;
-		string strTmp(data_);
-		boost::replace_all(strTmp, "\n", "!\n");
-		boost::replace_all(strTmp, "\r!", "!");
-		loggit("void CMGCPServer::do_receive()\n---------" + sender_endpoint_.address().to_string() + " sent:\n" + strTmp);
-		printf("--------- %s sent:\n%s\n--------- len %lu ---------\n\n",
-			sender_endpoint_.address().to_string().c_str(), strTmp.c_str(), bytes_recvd);
-		proceedReceiveBuffer(data_, sender_endpoint_);
-	});
-}  */
-//--------------------------------------------------------------------------------------------
-/*void CMGCPServer::do_send(std::size_t length)
-{
-	out << "\n!!!";
-	socket_.async_send_to(
-		asio::buffer(data_, length), sender_endpoint_,
-		[this](boost::system::error_code , std::size_t )
-	{
-		loggit("void CMGCPServer::do_send");
-		do_receive();
-	});
-}*/
-//--------------------------------------------------------------------------------------------
-/*void CMGCPServer::respond(const string str)
-{
-	out << "\n@@@@";
-	socket_.async_send_to(
-		asio::buffer(str), sender_endpoint_,
-		[this](boost::system::error_code , std::size_t )
-	{
-		loggit("void CMGCPServer::respond");
-		do_receive();
-	});
-}*/
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::reply(const string& str, const udp::endpoint& udpTO)
 {
 	socket_.send_to(asio::buffer(str), udpTO);
-	//auto f = boost::format("----------REPLIED TO %1%:\n%2%\n------------------") % udpTO % str;
-	
-	//out << "\n --------------------Server REPLIED------------------------\n";
 	loggit("void CMGCPServer::reply:\n" + str);
-	//out << boost::format("----------REPLIED TO %1%:\n%2%\n------------------\n")% udpTO % str;
 }
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udpTO)
 {
-	//oggit("void CMGCPServer::proceedReceiveBuffer()");
-	//cout << boost::format("=================== %1% sent:\n%2%\n===================\n") % udpTO % pCh; // верхн€€ строчка короче
 	loggit(str(boost::format("\n%1% sent:\n%2%") % udpTO % pCh));
 	
 	string message(pCh);
 	auto tp1 = steady_clock::now();
 	MGCP mgcp(message);
-	cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx + " ";
 	auto tp2 = steady_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(tp2 - tp1);
+
 	loggit("Parsing duration: " + to_string(duration.count()) + "microseconds");
-	cout << boost::format("Parsing duration: %1% microseconds\n") % duration.count();
+	cout << "\nMessage: " + mgcp.CMD + " " + mgcp.EventEx << boost::format(" Parsing duration: %1% microseconds\n") % duration.count();
+	
 	if (mgcp.error == -1) { reply("Not MGCP", udpTO); return; }
 	if (mgcp.CMD == "CRCX"){ Conference->proceedCRCX(mgcp, udpTO); }
 	else if (mgcp.CMD == "MDCX"){ Conference->proceedMDCX(mgcp, udpTO); }
 	else if (mgcp.CMD == "RQNT"){ Conference->proceedRQNT(mgcp, udpTO); }
 	else if (mgcp.CMD == "DLCX"){ Conference->proceedDLCX(mgcp, udpTO); }
 	else {reply("error 504 Unknown or unsupported command", udpTO);}
-	loggit("proceedReceiveBuffer DONE");
 }
 //--------------------------------------------------------------------------------------------
 

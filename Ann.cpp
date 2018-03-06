@@ -1,18 +1,20 @@
 #include "stdafx.h"
 #include "Ann.h"
+
 void Ann::loggit(string a)
 {
+	using namespace std;
 	time_t rawtime;
 	struct tm * t;
 	time(&rawtime);
 	t = localtime(&rawtime);
 	string time = "time:";
-	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
-	time += DateStr
-		+ "/" + boost::to_string(t->tm_hour) + ":" + boost::to_string(t->tm_min) + ":" + boost::to_string(t->tm_sec) + "/" 
-		+ boost::to_string(t1.time_since_epoch().count() % 1000);
+	chrono::steady_clock::time_point t1 = chrono::steady_clock::now();
+	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(5, "\n" + time + " User=" + CallID_ + "       " + a);
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 Ann::Ann(string SDP, int my_port, string CallID)
 {
 	loggit("Ann construct");
@@ -36,7 +38,8 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	left_data.reset(new CAVPacket(0));
 	loggit("Ann construct DONE");
 }
-
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::openFile(string filename)
 {
 	int err = 0;
@@ -55,6 +58,8 @@ void Ann::openFile(string filename)
 		ifcx->streams[0]->codec->channel_layout = av_get_default_channel_layout(ifcx->streams[0]->codec->channels);
 	loggit("Ann::openFile DONE");
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::openRTP()
 {
 	loggit("Ann::openRTP()");
@@ -80,6 +85,8 @@ void Ann::openRTP()
 	avcodec_open2(strmOut->codec, output_codec, nullptr);
 	loggit("Ann::openRTP() DONE");
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::Send(string file)
 {
 	loggit("Ann::Send");
@@ -90,6 +97,8 @@ void Ann::Send(string file)
 	loggit("Ann::Send init done, calling RUN()");
 	Run();
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::Run()
 {
 	
@@ -103,8 +112,9 @@ void Ann::Run()
 		frame = av_frame_alloc();
 		if (-1 == decode_audio_frame(frame, &data_present))
 		{
-			loggit("Ann::Run() stoped call freeall()");
-			freeall();
+			loggit("Ann::Run() stoped call freeall() badly");
+			//freeall();
+			reinit();
 			return;
 		}
 		encode_audio_frame(frame, &data_present);
@@ -113,6 +123,8 @@ void Ann::Run()
 	loggit("Ann::Run() stoped call freeall()");
 	freeall();
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 int Ann::decode_audio_frame(AVFrame *frame, int *data_present)
 {
 	loggit("Ann::decode_audio_frame");
@@ -138,6 +150,8 @@ int Ann::decode_audio_frame(AVFrame *frame, int *data_present)
 	send->free();
 	return 0;
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 {
 	loggit("Ann::encode_audio_frame");
@@ -203,6 +217,8 @@ int Ann::encode_audio_frame(AVFrame *frame, int *data_present)
 	av_free_packet(&output_packet);
 	return 0;
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::init_packet(AVPacket *packet)
 {
 	av_init_packet(packet);
@@ -210,6 +226,8 @@ void Ann::init_packet(AVPacket *packet)
 	packet->data = NULL;
 	packet->size = 0;
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 void Ann::freeall()
 {
 	left_data->free();
@@ -221,3 +239,20 @@ void Ann::freeall()
 	avformat_free_context(ifcx);
 	loggit("All freed!");
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
+void Ann::reinit()
+{
+	left_data->free();
+	avformat_close_input(&ifcx);
+	ifcx = NULL;
+	avcodec_free_context(&out_iccx);
+	avio_close(out_ifcx->pb);
+	avformat_free_context(ifcx);
+	openFile(filename_);
+	openRTP();
+	loggit("Ann::Send init done, calling RUN()");
+	Run();
+}
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------

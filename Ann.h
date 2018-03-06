@@ -24,6 +24,7 @@ private:
 	int decode_audio_frame(AVFrame *frame, int *data_present);
 	void init_packet(AVPacket *packet);
 	void freeall();
+	void reinit();
 
 
 

@@ -1,33 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Conf.h"
-//#include <boost/thread/thread.hpp>
-void StartRoom(SHP_CRTPReceive mixer, NetworkData net)
-{
-	LogMain("StartRoom");
-	//out << "\nthread StartRoom " << std::this_thread::get_id();
-	mixer->process_all(net);
-	LogMain("StartRoom DONE");
-}
-void AddCall(SHP_CRTPReceive mixer, NetworkData net)
-{
-	LogMain("AddCall");
-	//out << "\nthread AddCall " << std::this_thread::get_id();
-	mixer->add_track(net);
-	LogMain("AddCall DONE");
-}
-void Finish(SHP_CRTPReceive mixer)
-{
-	LogMain("FINISH");
-	//out << "\nthread FINISH " << std::this_thread::get_id();
-	mixer->destroy_all();
-	LogMain("FINISH DONE");
-}
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
-//--------------------------------------------------------------------------
+
 void CConfPoint::ChangeMode(string SDP)
 {
 	std::size_t fd1, fd2;
@@ -160,9 +134,7 @@ void CConfRoom::DeletePoint(string CallID)
 	{
 		loggit("room size == 1, Mixer->destroy_all();");
 		//Mixer->destroy_all();
-		boost::thread my_thread(&Finish, Mixer);
-		//my_thread.detach();
-		loggit("reseting Mixer pointer");
+		boost::thread my_thread(&CRTPReceive::destroy_all, Mixer);
 		my_thread.join();
 		Mixer.reset();
 		cout << "\nMixer pointer reseted";
@@ -209,7 +181,7 @@ void CConfRoom::Start()
 		{
 			on = true;
 			Mixer.reset(new CRTPReceive(net));
-			boost::thread my_thread(&StartRoom, Mixer, net);
+			boost::thread my_thread(&CRTPReceive::process_all, Mixer, net);
 			my_thread.detach();
 			loggit("mix->process_all() for " + boost::to_string(net.input_SDPs.size()) + "clients");
 		}
@@ -219,7 +191,7 @@ void CConfRoom::Start()
 		NetworkData net = FillNetData();
 		if (net.input_SDPs.size() > 1)
 		{
-			boost::thread my_thread(&AddCall, Mixer, net);
+			boost::thread my_thread(&CRTPReceive::add_track, Mixer, net);
 			my_thread.detach();
 			loggit("mix->AddCall for " + boost::to_string(net.input_SDPs.size()) + "clients");
 		}

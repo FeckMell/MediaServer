@@ -1,24 +1,9 @@
 #pragma once
 #include "stdafx.h"
 #include "CMixInit.h"
+#include "Functions.h"
 #define newout
 
-int sdp_read2(void *opaque, uint8_t *buf, int size) /*noexcept*/
-{
-	assert(opaque);
-	assert(buf);
-	auto octx = static_cast<SdpOpaque*>(opaque);
-
-	if (octx->pos == octx->data.end())
-		return 0;
-
-	auto dist = static_cast<int>(std::distance(octx->pos, octx->data.end()));
-	auto count = std::min(size, dist);
-	std::copy(octx->pos, octx->pos + count, buf);
-	octx->pos += count;
-
-	return count;
-}
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
 void CMixInit::loggit(string a)
@@ -28,7 +13,8 @@ void CMixInit::loggit(string a)
 	time(&rawtime);
 	t = localtime(&rawtime);
 	string time = "";
-	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000);
+	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	time += DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	CLogger.AddToLog(4, "\n" + time + "       " + a + "\n//-------------------------------------------------------------------");
 }
 //------------------------------------------------------------------------------------------
@@ -161,7 +147,7 @@ int CMixInit::sdp_open(AVFormatContext **pctx, const char *data, AVDictionary **
 	opaque->data = SdpOpaque::Vector(data, data + strlen(data));
 	opaque->pos = opaque->data.begin();
 
-	auto pbctx = avio_alloc_context(avioBuffer, avioBufferSize, 0, opaque, &sdp_read2, nullptr, nullptr);
+	auto pbctx = avio_alloc_context(avioBuffer, avioBufferSize, 0, opaque, &sdp_read, nullptr, nullptr);
 	assert(pbctx);
 	(*pctx)->pb = pbctx;
 
@@ -411,90 +397,8 @@ int CMixInit::open_input_file(const char * SDP, int i)
 //------------------------------------------------------------------------------------------
 int CMixInit::open_output_file(const char *filename, int i)
 {
-#ifndef newout
-	loggit("int CRTPReceive::open_output_file");
-	AVIOContext *output_io_context = NULL;
-	AVStream *stream = NULL;
-	AVCodec *output_codec = NULL;
-	int error;
 
-	/** Open the output file to write to it. */
-	if ((error = avio_open(&output_io_context, filename,
-		AVIO_FLAG_WRITE)) < 0) {
-		av_log(NULL, AV_LOG_ERROR, "Could not open output file '%s' (error '%s')\n",
-			filename, get_error_text(error));
-		return error;
-	}
-
-	/** Create a new format context for the output container format. */
-	if (!(data.out_ifcx[i] = avformat_alloc_context())) {
-		av_log(NULL, AV_LOG_ERROR, "Could not allocate output format context\n");
-		return AVERROR(ENOMEM);
-	}
-
-	/** Associate the output file (pointer) with the container format context. */
-	(data.out_ifcx[i])->pb = output_io_context;
-
-	/** Guess the desired container format based on the file extension. */
-	if (!((data.out_ifcx[i])->oformat = av_guess_format(NULL, filename,
-		NULL))) {
-		av_log(NULL, AV_LOG_ERROR, "Could not find output file format\n");
-		goto cleanup;
-	}
-
-	av_strlcpy((data.out_ifcx[i])->filename, filename,
-		sizeof((data.out_ifcx[i])->filename));
-
-	/** Find the encoder to be used by its name. */
-	if (!(output_codec = avcodec_find_encoder((data.ifcx[i])->streams[0]->codec->codec_id))) {
-		av_log(NULL, AV_LOG_ERROR, "Could not find an PCM encoder.\n");
-		goto cleanup;
-	}
-
-	/** Create a new audio stream in the output file container. */
-	if (!(stream = avformat_new_stream(data.out_ifcx[i], output_codec))) {
-		av_log(NULL, AV_LOG_ERROR, "Could not create new stream\n");
-		error = AVERROR(ENOMEM);
-		goto cleanup;
-	}
-
-	/** Save the encoder context for easiert access later. */
-	data.out_iccx[i] = stream->codec;
-
-	/**
-	* Set the basic encoder parameters.
-	*/
-	(data.out_iccx[i])->channels = OUTPUT_CHANNELS;
-	(data.out_iccx[i])->channel_layout = av_get_default_channel_layout(OUTPUT_CHANNELS);
-	(data.out_iccx[i])->sample_rate = data.iccx[i]->sample_rate;
-	(data.out_iccx[i])->sample_fmt = AV_SAMPLE_FMT_S16;
-	//(*output_codec_context)->bit_rate       = input_codec_context->bit_rate;
-
-	av_log(NULL, AV_LOG_INFO, "output bitrate %d\n", (data.out_iccx[i])->bit_rate);
-
-	/**
-	* Some container formats (like MP4) require global headers to be present
-	* Mark the encoder so that it behaves accordingly.
-	*/
-	/*if ((data.out_ifcx[i])->oformat->flags & AVFMT_GLOBALHEADER)
-		(data.out_iccx[i])->flags |= CODEC_FLAG_GLOBAL_HEADER;*/
-
-	/** Open the encoder for the audio stream to use it later. */
-	if ((error = avcodec_open2(data.out_iccx[i], output_codec, NULL)) < 0) {
-		av_log(NULL, AV_LOG_ERROR, "Could not open output codec (error '%s')\n",
-			get_error_text(error));
-		goto cleanup;
-	}
-	return 0;
-
-cleanup:
-	avio_close((data.out_ifcx[i])->pb);
-	avformat_free_context(data.out_ifcx[i]);
-	data.out_ifcx[i] = NULL;
-	return error < 0 ? error : AVERROR_EXIT;
-
-#else
-	auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%") % net_.IPs[i]/*remote_ip_*/ % net_.remote_ports[i] /*remote_port_*/ % (net_.my_ports[i] - 1000)/*(my_port_ - 1000)*/);
+	auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%") % net_.IPs[i] % net_.remote_ports[i]  % (net_.my_ports[i] - 1000));
 	//out << "\nrtp to: " << strRTP;
 	avformat_alloc_output_context2(&data.out_ifcx[i], nullptr, "rtp", strRTP.c_str());
 	avio_open(&data.out_ifcx[i]->pb, strRTP.c_str(), AVIO_FLAG_WRITE);
@@ -514,7 +418,6 @@ cleanup:
 	data.out_iccx[i]->time_base = { 1, data.out_iccx[i]->sample_rate };
 
 	avcodec_open2(strmOut->codec, output_codec, nullptr);
-#endif // !newout
 return 0;
 }
 //------------------------------------------------------------------------------------------
@@ -567,4 +470,6 @@ void CMixInit::FreeSockFFmpeg()
 	net_.remote_ports.clear();
 	loggit("Destroing filter DONE!");//
 }
+//------------------------------------------------------------------------------------------
+//------------------------------------------------------------------------------------------
 

@@ -113,22 +113,6 @@ void LogMain(string a)
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
-/*void OpenLogFiles()
-{
-	using namespace boost;
-	gregorian::date TODAY = gregorian::day_clock::local_day();
-	string date = to_string(TODAY.day().as_number()) + "-" + to_string(TODAY.month().as_number()) + "-" + to_string(TODAY.year()) + "_";
-	string tempPath = PathEXE + date;
-	fopen_s( &FileLog,           (tempPath + "LOGS.txt"          ).c_str(),"w");
-	fopen_s( &FileLogConfPoint,  (tempPath + "LOGS_ConfPoint.txt").c_str(),"w");
-	fopen_s( &FileLogConfRoom,   (tempPath + "LOGS_ConfRoom.txt" ).c_str(),"w");
-	fopen_s( &FileLogMixer,      (tempPath + "LOGS_Mixer.txt"    ).c_str(),"w");
-	fopen_s( &FileLogServer,     (tempPath + "LOGS_Server.txt"   ).c_str(),"w");
-	fopen_s( &FileLogMixerInit,  (tempPath + "LOGS_MixerInit.txt").c_str(),"w");
-	fopen_s(&FileLogAnn, (tempPath + "LOGS_Ann.txt").c_str(), "w");
-}*/
-//----------------------------------------------------------------------------
-//----------------------------------------------------------------------------
 inline void MessBoxHelper(string text)
 {
 	//MessageBox(NULL, L"Лалалал", L"Error", MB_OK);
@@ -189,6 +173,22 @@ void GetPathExe(char* argv)
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+int sdp_read(void *opaque, uint8_t *buf, int size) /*noexcept*/
+{
+	assert(opaque);
+	assert(buf);
+	auto octx = static_cast<SdpOpaque*>(opaque);
+
+	if (octx->pos == octx->data.end())
+		return 0;
+
+	auto dist = static_cast<int>(std::distance(octx->pos, octx->data.end()));
+	auto count = std::min(size, dist);
+	std::copy(octx->pos, octx->pos + count, buf);
+	octx->pos += count;
+
+	return count;
+}
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

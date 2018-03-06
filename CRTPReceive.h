@@ -32,24 +32,20 @@ extern Logger CLogger;
 //struct RTP_struct;
 
 using namespace std::chrono;
-typedef std::shared_ptr<udp::socket> SHP_Socket;
-typedef shared_ptr<CAVPacket> SHP_CAVPacket;
+
+//typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 
 class CRTPReceive
 {
 public:
 	CRTPReceive(NetworkData net)
 	{ 
-		received = 9999;
+		//received = 9999;
 		net_ = net;
 		process_all_finishing = false;
 		Initer.reset(new CMixInit(net_));
 		ext = Initer->data;
 		reinit_sockets(false);
-		outfile0.open("ConfResult0.wav", std::ofstream::binary);
-		outfile1.open("ConfResult1.wav", std::ofstream::binary);
-		outfile2.open("ConfResult2.wav", std::ofstream::binary);
-		outfile3.open("ConfResult3.wav", std::ofstream::binary);
 
 	}
 	~CRTPReceive()
@@ -63,6 +59,8 @@ public:
 	int process_all(NetworkData net);
 	void receive(int i);
 	void destroy_all();
+
+	void add_endpoint_info(string new_ip, int new_port, int my_port, bool active);
 	
 private:
 	boost::asio::io_service io_service_;
@@ -79,32 +77,29 @@ private:
 	void new_process(unsigned i);
 	void add_missing_frame(int i, int j);
 	void get_last_buffer_frame(AVFrame* frame, int i);
-	void add_to_filter(int i);
+	void add_to_filter(int i, AVFrame* frame);
 
 	/*event handling*/
 	void reinit_sockets(bool mode);
 	void clear_memmory();
 
-	Initing ext; 
+	
 
 	vector<RTP_struct> rtp2;
 	vector<SHP_Socket> vecSock;
-	vector<udp::endpoint> vecEndpoint;
 	vector<Data> vecData;
 	vector<boost::shared_ptr<boost::thread>> receive_threads;
 	NetworkData net_;
-	vector<AVFrame*> vecFrame;//TODO free
-	//vector<std::mutex> vecMute;
 	
+	Initing ext;
 	SHP_CMixInit Initer;
 
 	bool process_all_finishing;
-	int received;
 	std::mutex  mutex_;
-	std::ofstream outfile0;
-	std::ofstream outfile1;
-	std::ofstream outfile2;
-	std::ofstream outfile3;
+
+	vector<vector<udp::endpoint>> vecEndpoint;
+	NetworkData RecordNet_;
+	void add_endpoint(int i, bool active);
 };
 typedef std::shared_ptr<CRTPReceive> SHP_CRTPReceive;
 

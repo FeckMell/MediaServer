@@ -7,6 +7,7 @@
 #include "MGCPserver.h"
 #include "Conf.h"
 #include "Ann.h"
+#include "Proxy.h"
 extern Logger CLogger;
 extern string DateStr;
 
@@ -26,19 +27,26 @@ private:
 
 	int SetRoomID();
 	SHP_CConfRoom CreateNewRoom();
+
 	int GetFreePort();
 	void SetFreePort(int port);
-	SHP_CConfRoom FindRoom(string ID);
-	int SDPFindMode(string SDP);
+	
+	SHP_CConfRoom FindConf(string ID);
 	SHP_Ann FindAnn(string ID);
+	SHP_Proxy FindProxy(string ID);
+
+
 	std::string GenSDP(int Port, MGCP &mgcp);
+	int SDPFindMode(string SDP);
 
 
-	std::vector<SHP_CConfRoom> RoomsVec_; // вектор существующих комнат
+	std::vector<SHP_CConfRoom> RoomsVec_; // вектор конференций
+	std::vector<SHP_Ann> AnnVec_;// вектор аннонсментов
+	std::vector<SHP_Proxy> ProxyVec_;// вектор прокси
+
 	std::vector<int> PortsinUse_; // вектор занятых портов
-	std::vector<int> RoomsID_;
-	std::vector<SHP_Ann> AnnVec_;
-	std::vector<int>AnnID_;
+	std::vector<int> RoomsID_; // вектор ID
+	
 
 	std::mutex  mutex_;
 	

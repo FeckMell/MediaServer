@@ -39,7 +39,8 @@ public:
 		init(net.input_SDPs);
 	}
 	Initing data;
-	void FreeSockFFmpeg();//
+	void FreeSockFFmpeg();
+
 private:
 	void loggit(string a);
 	int FirstInit();
@@ -55,5 +56,7 @@ private:
 	int tracks;
 
 	NetworkData net_;
+
+	
 };
 typedef std::shared_ptr<CMixInit> SHP_CMixInit;

@@ -90,6 +90,7 @@ void Logger::reinit()
 	/*4*/path.push_back(tempPath + "LOGS_MixerInit.txt");
 	/*5*/path.push_back(tempPath + "LOGS_Ann.txt");
 	/*6*/path.push_back(tempPath + "LOGS_ConfControl.txt");
+	/*7*/path.push_back(tempPath + "LOGS_Proxy.txt");
 	for (unsigned i = 0; i < path.size(); ++i)
 	{
 		file.push_back(CreateFileA(

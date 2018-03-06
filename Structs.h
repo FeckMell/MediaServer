@@ -1,6 +1,8 @@
 #pragma once
 #include "stdafx.h"
 
+typedef std::shared_ptr<udp::socket> SHP_Socket;
+
 struct SSource
 {
 	std::vector<AVFilterContext *> src;
@@ -24,7 +26,9 @@ struct Initing
 //-----------------------------------------------------------
 struct SdpOpaque
 {
-	using Vector = std::vector<uint8_t>; Vector data; Vector::iterator pos;
+	using Vector = std::vector<uint8_t>;
+	Vector data;
+	Vector::iterator pos;
 };
 //-----------------------------------------------------------
 //-----------------------------------------------------------
@@ -105,6 +109,7 @@ typedef shared_ptr<CAVPacket> SHP_CAVPacket;
 //-----------------------------------------------------------
 struct Data
 {
+	~Data(){ free(); }
 	uint8_t* data = new uint8_t[8000];
 	int size;
 	void free()
@@ -116,6 +121,7 @@ struct Data
 //-----------------------------------------------------------
 struct NetworkData
 {
+	~NetworkData(){ free(); }
 	std::vector<string> input_SDPs;
 	std::vector<string> IPs;
 	std::vector<int> my_ports;
@@ -142,6 +148,11 @@ struct NetworkData
 //-----------------------------------------------------------
 struct Config
 {
+	~Config()
+	{
+		MediaPath.~basic_string();
+		IP.~basic_string();
+	}
 	string MediaPath;
 	string IP;
 	short int port=2427;
