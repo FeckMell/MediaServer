@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "ConfPoint.h"
 
 
@@ -100,6 +105,30 @@ void CConfPoint::ModifySDP()
 	std::size_t found = SDP_.find("m=audio");
 	if (found != std::string::npos)
 		SDP_ = SDP_.replace(found + 8, SDP_.find(" ", found + 10) - found - 8, std::to_string(my_port_ - 1000));
+	/*string rtp0 = "a=rtpmap:0";
+	string rtp18 = "a=rtpmap:18";
+	string rtp101 = "a=rtpmap:101";
+	string rtpavp = "RTP/AVP";
+	string fmtp = "a=fmtp:";
+	// delete rtp 18, 101, 0
+	found = SDP_.find(rtp18);
+	if (found != std::string::npos)
+		SDP_.replace(found, SDP_.find("\n", found + 1) - found + 1, "");
+
+	found = SDP_.find(rtp101);
+	if (found != std::string::npos)
+		SDP_.replace(found, SDP_.find("\n", found + 1) - found + 1, "");
+
+	found = SDP_.find(rtp0);
+	if (found != std::string::npos)
+		SDP_.replace(found, SDP_.find("\n", found + 1) - found + 1, "");
+
+	found = SDP_.find(fmtp);
+	while (found != std::string::npos)
+	{
+		SDP_.replace(found, SDP_.find("\n", found + 1) - found + 1, "");
+		found = SDP_.find(fmtp);
+	}*/
 	string NewSDP = "";
 	NewSDP += cut_substr(SDP_, "v=", "\n")+"\n";
 	NewSDP += cut_substr(SDP_, "o=", "\n") + "\n";
@@ -110,6 +139,8 @@ void CConfPoint::ModifySDP()
 	NewSDP += cut_substr(SDP_, "a=rtpmap:8", "\n") + "\n";
 	NewSDP += cut_substr(SDP_, "a=sendrecv", "\n");
 	NewSDP += cut_substr(SDP_, "a=inactive", "\n") + "\n";
+	//NewSDP += cut_substr(SDP_, "", "\n");
+	//NewSDP += cut_substr(SDP_, "", "\n");
 	SDP_ = NewSDP;
 }
 //*///------------------------------------------------------------------------------------------
@@ -164,10 +195,10 @@ int CConfPoint::open_input()
 		av_log(NULL, AV_LOG_ERROR, "Could not open input file '%s' (error '%s')\n",
 			SDP_, get_error_text(error));
 #endif
-#ifdef __linux__
+#ifdef linux
 		;
 #endif
-
+		
 		ifcx = NULL;
 		return error;
 	}
@@ -179,7 +210,7 @@ int CConfPoint::open_input()
 		avformat_close_input(&ifcx);
 		return AVERROR_EXIT;
 	}
-
+	
 	if (!(input_codec = avcodec_find_decoder((ifcx)->streams[0]->codec->codec_id)))
 	{
 		loggit("Could not find input codec");

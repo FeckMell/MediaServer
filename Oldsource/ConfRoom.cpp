@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "ConfRoom.h"
 
 //*///------------------------------------------------------------------------------------------
@@ -59,64 +64,35 @@ void CConfRoom::Start()
 	for (auto& entry : cllPoints_)
 		if (entry->mode == true)
 			callers.push_back(entry);
-	if (state_ == OFF)
+	if ((on == false) && (callers.size() >= 3))
 	{
-		if (callers.size() >= 3)
-		{
-			loggit("Starting conference.");
-			state_ = ON;
-			Mixer.reset(new ConfAudio(callers, RoomID_));
-		}
-		else
-		{
-			loggit("Room state was OFF and callers size=" + to_string(callers.size()) + ", so do nothing.");
-		}
+		loggit("Mixer.reset");
+		on = true;
+		//if (OAnn.use_count > 0) { loggit("Ann exists"); OAnn->Stop(); OAnn.reset(); }
+		Mixer.reset(new ConfAudio(callers, RoomID_));
 	}
-	else if (state_ == ON)
+	else if ((on == true) && (callers.size() >= 2))
 	{
-		if (callers.size() >= 2)
-		{
-			loggit("Adding/removing caller from conference. Now " + to_string(callers.size()) + ".");
-			Mixer->add_track(callers);
-		}
-		else if (callers.size() == 1)
-		{
-			loggit("Conference PAUSED.");
-			Mixer->destroy_all();
-			state_ = PAUSED;
-		}
-		else
-		{
-			loggit("Someting wrong: state=ON, callers size !>=2 or !=1. ERROR.");
-		}
+		loggit("Mixer->add_track");
+		//if (OAnn.use_count() > 0) { loggit("Ann exists"); OAnn->Stop(); OAnn.reset(); }
+		Mixer->add_track(callers);
 	}
-	else if (state_ == PAUSED)
+	else if ((on == true) && (callers.size() == 1))
 	{
-		if (callers.size() == 0)
-		{
-			loggit("Conference is going to be DESTROYED.");
-			state_ = DESTROY;
-			Mixer.reset();
-		}
-		else if (callers.size() >= 2)
-		{
-			loggit("Conference change state from PAUSED to ON");
-			state_ = ON;
-			Mixer.reset(new ConfAudio(callers, RoomID_));
-		}
-		else
-		{
-			loggit("Someting wrong: state=PAUSED, callers size !>=2 or !=0. ERROR.");
-		}
+		loggit("Mixer->Freeze + Start Ann");
+		Mixer->destroy_all();
+		on = false;//
+		//OAnn.reset(new Ann(callers[0]));
 	}
-	else if (state_ == DESTROY)
+	else if ((on == true) && (callers.size() == 0))
 	{
-		loggit("Someting wrong: state=DESTROY, but conference was called. ERROR.");
+		on = false;
+		loggit("Conf Ann destroy");
+		//OAnn->Stop();
+		//OAnn.reset();
+		Mixer.reset();
 	}
-	else
-	{
-		loggit("Someting wrong: call to unknown state. ERROR.");
-	}
+	else{ loggit("Start do nothing"); }
 	loggit("START END");
 }
 //-*/--------------------------Access to data---------------------------------

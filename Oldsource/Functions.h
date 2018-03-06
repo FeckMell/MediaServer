@@ -1,6 +1,11 @@
 #pragma once
+#ifdef WIN32
 #include "stdafx.h"
 #include <boost/type_index.hpp>
+#endif
+#ifdef linux
+#include "stdinclude.h"
+#endif
 #include "Structs.h"
 #include "Logger.h"
 #include "boost/date_time/posix_time/posix_time.hpp"

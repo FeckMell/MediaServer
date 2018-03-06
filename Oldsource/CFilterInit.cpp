@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "CFilterInit.h"
 #include "Functions.h"
 

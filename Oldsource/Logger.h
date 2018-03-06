@@ -1,5 +1,10 @@
 #pragma once
+#ifdef WIN32
 #include "stdafx.h"
+#endif
+#ifdef linux
+#include "stdinclude.h"
+#endif
 #include "Functions.h"
 extern string DateStr;
 extern std::string PathEXE;

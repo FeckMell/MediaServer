@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "Logger.h"
 
 void Logger::OpenLogFiles()
@@ -39,7 +44,7 @@ void Logger::output(std::string text, int i)
 #ifdef WIN32
 	file[i].write(text.c_str(),text.size());
 #endif
-#ifdef __linux__
+#ifdef linux
 	text=replace_in_str(text,"\n","\r\n");
 	file[i].write(text.c_str(),text.size());
 #endif
@@ -84,10 +89,10 @@ void Logger::reinit()
 #ifdef WIN32
 	std::string tempPath = PathEXE +"Logs\\"+ DateStr + "_";
 #endif
-#ifdef __linux__
+#ifdef linux
 	std::string tempPath = PathEXE +"Logs/"+ DateStr + "_";
 #endif
-
+	
 
 	std::vector<std::string> path;
 	/*0*/path.push_back(tempPath + "LOGS_main.txt");
@@ -114,8 +119,8 @@ void Logger::reinit()
 #ifdef WIN32
 		output("\nLogs created on: " + time, i);
 #endif
-#ifdef __linux__
+#ifdef linux
 		output("\r\nLogs created on: " + time, i);
-#endif
+#endif	
 	}
 }

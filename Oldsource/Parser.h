@@ -1,5 +1,10 @@
 #pragma once
+#ifdef WIN32
 #include "stdafx.h"
+#endif
+#ifdef linux
+#include "stdinclude.h"
+#endif
 
 extern string DateStr;
 class SIP
@@ -46,10 +51,6 @@ public:
 	//func
 	MGCP(string);
 	MGCP() {}
-	~MGCP()
-	{
-		
-	}
 	string ResponseOK(int code, string end);
 	std::string ResponseBAD(int code, string message);
 	void Parse(bool);
@@ -63,7 +64,6 @@ public:
 	std::string mgcp;
 	std::string CMD;//
 	Eventor Event;
-
 	std::string EventS; //cnf/,ann/,prx/
 	std::string EventNum;//cnf/n
 	std::string EventEx;//cnf/1@[10.77.7.19]

@@ -2,6 +2,9 @@
 #ifdef WIN32
 #include "Mmsystem.h"
 #endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "Structs.h"
 #include "Functions.h"
 #include "Logger.h"
@@ -27,11 +30,18 @@ int main(int argc, char* argv[])
 		timeBeginPeriod(1);
 		SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 #endif
+#ifdef linux
+		;
+#endif
+		
 		DateStr = GetDate();
 		setlocale(LC_ALL, "Russian");
-		cout << "\nТЕСТ ВЕРСИЯ 1.50 (12.09.2016 / 12:08)";
+		cout << "\nТЕСТ ВЕРСИЯ 1.43 (29.08.2016 / 12:08)";
 		GetPathExe(argv[0]);
-#ifdef __linux__
+#ifdef WIN32
+		;
+#endif
+#ifdef linux
 		PathEXE.pop_back();
 		PathEXE.pop_back();
 		cout<<"\nPATH="<<PathEXE<<"\n";
@@ -40,25 +50,28 @@ int main(int argc, char* argv[])
 		boost::thread my_thread(&Runner);
 		my_thread.detach();
 		std::this_thread::sleep_for(std::chrono::microseconds(50));
-
+		
 		LogMain("Using path: " + PathEXE);
 		/************************************************************************
-			Парсинг входящих параметров
+			Парсинг входящих параметров	                                                                     
 		************************************************************************/
 		string strConfigFile(PathEXE + "mgcpserver.cfg");
 		Config cfg;
 		cfg = ParseConfig(strConfigFile, cfg);
 		RTPport = cfg.RTPport;
-#ifdef __linux__
-		cfg.MediaPath = PathEXE+cfg.MediaPath;
+#ifdef WIN32
+		;
 #endif
+#ifdef linux
+		cfg.MediaPath = PathEXE+cfg.MediaPath;
+#endif		
 		if (cfg.error == -1){ cout << "\nNO MEDIA " << cfg.error; system("pause"); return 0; }
 		if (cfg.error == 0)
 		{
 			cout << "\nparse end:\nUsing IP: " << cfg.IP << "\nMedia Path: " << cfg.MediaPath << "\nMGCPport: " << cfg.MGCPport << "\nSIPport: " << cfg.SIPport << "\nRTPPort: " << cfg.RTPport;
 			LogMain("\nparse end:\nUsing IP: " + cfg.IP + "\nMedia Path: " + cfg.MediaPath + "\nMGCPport: " + boost::to_string(cfg.MGCPport) + "\nSIPport: " + boost::to_string(cfg.SIPport) + "\nRTPPort: " + boost::to_string(cfg.RTPport));
 		}
-		//Инициализация адреса и порта сервера
+		//Инициализация адреса и порта сервера		
 		boost::asio::io_service io_service;
 		const udp::endpoint MGCPep(boost::asio::ip::address::from_string(cfg.IP),cfg.MGCPport);
 		const udp::endpoint SIPep(boost::asio::ip::address::from_string(cfg.IP), cfg.SIPport);
@@ -69,7 +82,7 @@ int main(int argc, char* argv[])
 		avfilter_register_all();
 		avformat_network_init();
 		/************************************************************************
-			Запуск экземляра MGCP-сервера
+			Запуск экземляра MGCP-сервера	                                                                     
 		************************************************************************/
 		CMGCPServer s({ io_service, MGCPep, SIPep, cfg.MediaPath });
 		LogMain("Запуск экземляра MGCP-сервера");
@@ -85,6 +98,9 @@ int main(int argc, char* argv[])
 #ifdef WIN32
 		MessBox("Exception:3" + boost::to_string(e.what()));
 #endif
+#ifdef linux
+		;
+#endif		
 		system("pause");
 	}
 	return 0;

@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "Functions.h"
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -15,7 +20,7 @@ string GetTime()
 	boost::posix_time::ptime t = boost::posix_time::second_clock::local_time();
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	return DateStr + "/" + boost::to_string(t.time_of_day()) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
-
+	
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -75,10 +80,10 @@ Config ParseConfig(string path, Config parsed)
 #ifdef WIN32
 				parsed.MediaPath = PathEXE + temp.substr(found + 6, temp.back());
 #endif
-#ifdef __linux__
+#ifdef linux
                 parsed.MediaPath = /*PathEXE +*/ temp.substr(found + 6, temp.back());
 #endif
-
+                
                 parsed.MediaPath = remove_from_str(parsed.MediaPath,"\r");
                 continue;
             }
@@ -171,10 +176,10 @@ void GetPathExe(char* argv)
 #ifdef WIN32
 	PathEXE = full_path.parent_path().string() + "\\";
 #endif
-#ifdef __linux__
+#ifdef linux
 	PathEXE = full_path.parent_path().string() + "/";
 #endif
-
+	
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

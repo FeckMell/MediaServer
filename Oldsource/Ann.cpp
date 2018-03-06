@@ -1,4 +1,10 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
+
 #include "Ann.h"
 
 void Ann::loggit(string a)
@@ -25,12 +31,12 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	my_port_ = my_port;
 	rtp_hdr.rtp_config();
 	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_)+"_");
-
+	
 	sock.reset(new boost::asio::ip::udp::socket(io_service_));
 	sock->open(udp::v4());
 	sock->set_option(boost::asio::ip::udp::socket::reuse_address(true));
 	sock->bind(udp::endpoint(udp::v4(), my_port_));
-
+	
 	endpt = udp::endpoint(boost::asio::ip::address::from_string(remote_ip_), remote_port_);
 	left_data.reset(new CAVPacket());
 	loggit("Ann construct DONE");
@@ -54,7 +60,7 @@ Ann::Ann(SHP_CConfPoint Point)
 #ifdef WIN32
 	openFile(MusicPath + "\\music_alaw.wav");
 #endif
-#ifdef __linux__
+#ifdef linux
 	openFile(MusicPath + "/music_alaw.wav");
 #endif
 	out_iccx = Point->out_iccx;
@@ -122,7 +128,7 @@ void Ann::Run()
 {
 	loggit("Ann::Run()");
 	int data_present = 0;
-	//int i = 0;
+	int i = 0;
 	while (running)
 	{
 		data_present = 0;
@@ -144,7 +150,7 @@ int Ann::decode_audio_frame(SHP_CAVFrame frame, int *data_present)
 {
 	int error;
 	SHP_CAVPacket input_packet = std::make_shared<CAVPacket>();
-	if ((error = av_read_frame(ifcx, input_packet->get())) < 0)
+	if ((error = av_read_frame(ifcx, input_packet->get())) < 0) 
 	{
 		loggit("Ann::decode_audio_frame error read");
 		return -1;
@@ -161,7 +167,7 @@ int Ann::encode_audio_frame(SHP_CAVFrame frame, int *data_present)
 {
 	//loggit("Ann::encode_audio_frame");
 	SHP_CAVPacket output_packet = std::make_shared<CAVPacket>();
-
+	
 
 	avcodec_encode_audio2(out_iccx, output_packet->get(), frame->get(), data_present);
 	if (left_data->size() == 0)
@@ -224,7 +230,7 @@ void Ann::freeall()
 	avformat_close_input(&ifcx);
 	avformat_free_context(ifcx);
 	ifcx = NULL;
-
+	
 	if (!type)
 	{
 		loggit("freeall for Ann");
@@ -237,7 +243,7 @@ void Ann::freeall()
 		th->~thread();
 		loggit("freeall from Conf");
 	}
-
+	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

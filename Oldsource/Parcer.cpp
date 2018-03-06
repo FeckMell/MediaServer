@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "Parser.h"
 #include "Functions.h"
 
@@ -36,7 +41,11 @@ void MGCP::Parse(bool m)
 	parseCMD();
 	EventP();
 	ParamM();
+	//ParamL();
+	//ParamI();
+	//ParamZ();
 	ParamC();
+	//ParamS();
 	paramL = get_substr(mgcp, "L: ", "\n");
 	paramI = get_substr(mgcp, "I: ", "\n");
 	paramZ = get_substr(mgcp, "Z: ", "\n");

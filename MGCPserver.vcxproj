@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -42,18 +42,16 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IntDir>$(OutDir)OBJ\$(ProjectName)\</IntDir>
-    <LibraryPath>C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost\stage\lib;C:\Projects\LIBS\Visual Leak Detector\lib\Win32;$(LibraryPath)</LibraryPath>
-    <IncludePath>C:\Projects\LIBS\Boost;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost\stage\lib;$(ReferencePath)</ReferencePath>
-    <CodeAnalysisRuleSet>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Team Tools\Static Analysis Tools\Rule Sets\NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <LibraryPath>C:\Projects\LIBS\Boost%28old%29\stage\lib;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost%28old%29\libs;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
+    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <IntDir>$(OutDir)OBJ\$(ProjectName)\</IntDir>
-    <IncludePath>C:\Projects\LIBS\Boost;$(IncludePath)</IncludePath>
-    <ReferencePath>C:\Projects\LIBS\Boost\stage\lib;$(ReferencePath)</ReferencePath>
-    <LibraryPath>C:\Projects\LIBS\Boost\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\LIBS\Boost%28old%29;$(IncludePath)</IncludePath>
+    <ReferencePath>C:\Projects\LIBS\Boost%28old%29\stage\lib;$(ReferencePath)</ReferencePath>
+    <LibraryPath>C:\Projects\LIBS\Boost(old)\libs;C:\Projects\LIBS\ffmpeg-dev\lib;C:\Projects\LIBS\Boost(old)\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,7 +65,6 @@
       <BrowseInformation>true</BrowseInformation>
       <RuntimeTypeInfo>
       </RuntimeTypeInfo>
-      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -75,19 +72,19 @@
       <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
+      <PreserveSbr>false</PreserveSbr>
     </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Disabled</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <SDLCheck>false</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Projects\LIBS\ffmpeg;C:\Projects\LIBS\Boost(old);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BrowseInformation>true</BrowseInformation>
       <AdditionalOptions>/Zm250 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -97,7 +94,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
-      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;C:\Projects\LIBS\Boost\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>C:\Projects\LIBS\ffmpeg\libavformat;C:\Projects\LIBS\Boost(old)\stage\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Bscmake>
       <PreserveSbr>true</PreserveSbr>

@@ -1,5 +1,10 @@
 #pragma once
+#ifdef WIN32
 #include "stdafx.h"
+#endif
+#ifdef linux
+#include "stdinclude.h"
+#endif
 #include "Logger.h"
 #include "Functions.h"
 #include "Structs.h"

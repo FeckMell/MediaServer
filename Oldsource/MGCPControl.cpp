@@ -1,4 +1,9 @@
+//#ifdef WIN32
 #include "stdafx.h"
+//#endif
+//#ifdef linux
+//#include "stdinclude.h"
+//#endif
 #include "MGCPControl.h"
 
 void MGCPControl::loggit(string a)
@@ -47,7 +52,7 @@ std::string MGCPControl::GenSDP(int Port, MGCP &mgcp)
 	}
 	auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\na=sendrecv\n")); // формируем тип ответа
 	return str(f %my_IP %Port % (date + boost::to_string(t1.time_since_epoch().count() % 10000000)) % mgcp.paramC);
-
+	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -62,8 +67,8 @@ void MGCPControl::proceedCRCX(MGCP &mgcp)
 		auto Port = GetFreePort();
 		mgcp.EventNum = boost::to_string(SetRoomID());
 		loggit("creating Ann with ID=" + mgcp.EventNum + " my_port=" + boost::to_string(Port));
-		SHP_Ann New_Ann(new Ann(mgcp.SDP, Port, mgcp.paramC));
-		AnnVec_.push_back(New_Ann);
+		SHP_Ann Ann(new Ann(mgcp.SDP, Port, mgcp.paramC));
+		AnnVec_.push_back(Ann);
 
 		server->reply(mgcp.ResponseOK(200, mgcp.EventS) + GenSDP(Port, mgcp), mgcp.sender, CMGCPServer::mgcp);
 		loggit("Ann created");
@@ -147,32 +152,26 @@ void MGCPControl::proceedCRCX(MGCP &mgcp)
 //*///------------------------------------------------------------------------------------------
 void MGCPControl::proceedMDCX(MGCP &mgcp)
 {
-	switch (mgcp.Event)
+	loggit(mgcp.EventEx + " MDCX for " + mgcp.paramC);
+	auto Room = FindConf(mgcp.EventNum);
+	if (Room == nullptr)
 	{
-	case MGCP::cnf:
-	{
-		loggit(mgcp.EventEx + " MDCX for " + mgcp.paramC);
-		auto Room = FindConf(mgcp.EventNum);
-		if (Room == nullptr)
-		{
-			loggit("Room" + mgcp.EventNum + "not found");
-			server->reply(mgcp.ResponseBAD(400, "Room" + mgcp.EventNum + "not found"), mgcp.sender, CMGCPServer::mgcp);
-			return;
-		}
-		auto Point = Room->FindPoint(mgcp.paramC);
-		if (Point == nullptr)
-		{
-			loggit("Point" + mgcp.paramC + "not found");
-			server->reply(mgcp.ResponseBAD(400, "Point" + mgcp.paramC + "not found"), mgcp.sender, CMGCPServer::mgcp);
-			return;
-		}
-		loggit("modify point with ID=" + mgcp.paramC + " in room with ID=" + boost::to_string(Room->GetRoomID()));
-		auto response = Room->ModifyPoint(Point, mgcp.SDP);
-		server->reply(mgcp.ResponseOK(200, "") + response, mgcp.sender, CMGCPServer::mgcp);
-		loggit("point with ID=" + mgcp.paramC + " in room with ID=" + boost::to_string(Room->GetRoomID()) + " modified");
+		loggit("Room" + mgcp.EventNum + "not found");
+		server->reply(mgcp.ResponseBAD(400, "Room" + mgcp.EventNum + "not found"), mgcp.sender, CMGCPServer::mgcp);
 		return;
-	}//cnf
 	}
+	auto Point = Room->FindPoint(mgcp.paramC);
+	if (Point == nullptr)
+	{
+		loggit("Point" + mgcp.paramC + "not found");
+		server->reply(mgcp.ResponseBAD(400, "Point" + mgcp.paramC + "not found"), mgcp.sender, CMGCPServer::mgcp);
+		return;
+	}
+	loggit("modify point with ID=" + mgcp.paramC + " in room with ID=" + boost::to_string(Room->GetRoomID()));
+	auto response = Room->ModifyPoint(Point, mgcp.SDP);
+	server->reply(mgcp.ResponseOK(200, "") + response, mgcp.sender, CMGCPServer::mgcp);
+	loggit("point with ID=" + mgcp.paramC + " in room with ID="+boost::to_string(Room->GetRoomID())+" modified");
+	return;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -218,12 +217,14 @@ void MGCPControl::proceedDLCX(MGCP &mgcp)
 		loggit("Deleted point with ID=" + mgcp.paramC + " and port=" + boost::to_string(Point->my_port_));
 		Room->DeletePoint(mgcp.paramC);
 		loggit("Delete DONE");
+		cout << "\nCLLPOINTS=" << Room->GetNumCllPoints();
 		if (Room->GetNumCllPoints() == 0)
 		{
 			loggit("delete room " + mgcp.EventNum + ":");
 			RoomsID_.erase(std::remove(RoomsID_.begin(), RoomsID_.end(), stoi(mgcp.EventNum)), RoomsID_.end());
+			Room->testdelete();
 			RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), Room), RoomsVec_.end());
-
+			
 		}
 		server->reply(mgcp.ResponseOK(250, ""), mgcp.sender, CMGCPServer::mgcp);
 		loggit("DLCX DONE.");
@@ -256,7 +257,7 @@ void MGCPControl::proceedDLCX(MGCP &mgcp)
 		return;
 	}//default
 	}//switch
-
+	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -276,10 +277,10 @@ void MGCPControl::proceedRQNT(MGCP &mgcp)
 #ifdef WIN32
 		string filepath = server->m_args.strMmediaPath + "\\"+test;
 #endif
-#ifdef __linux__
+#ifdef linux
 		string filepath = server->m_args.strMmediaPath + "/"+test;
 #endif
-
+	
 	boost::thread my_thread(&Ann::Send, Ann, filepath);
 	my_thread.detach();
 	server->reply(mgcp.ResponseOK(200, ""), mgcp.sender, CMGCPServer::mgcp);
@@ -304,10 +305,10 @@ int MGCPControl::GetFreePort()
 {
 
 	int freeport = RTPport; // базовый порт, с которого начинаем
-	if (PortsinUse_.size() == 0)
-	{
+	if (PortsinUse_.size() == 0) 
+	{ 
 		mutex_.lock();
-		PortsinUse_.push_back(freeport);
+		PortsinUse_.push_back(freeport); 
 		std::sort(PortsinUse_.begin(), PortsinUse_.end());
 		mutex_.unlock();
 		return freeport;
@@ -315,7 +316,7 @@ int MGCPControl::GetFreePort()
 	for (unsigned i = 0; i < PortsinUse_.size(); ++i)
 	{
 		if (PortsinUse_[i] != freeport)
-		{
+		{ 
 			mutex_.lock();
 			PortsinUse_.push_back(freeport);
 			std::sort(PortsinUse_.begin(), PortsinUse_.end());
@@ -344,7 +345,7 @@ void MGCPControl::SetFreePort(int port)
 SHP_CConfRoom MGCPControl::FindConf(string ID)
 {
 	for (auto &room : RoomsVec_)
-	{
+	{ 
 		if (ID == boost::to_string(room->GetRoomID()))
 			return room;
 	}

@@ -1,5 +1,10 @@
 #pragma once
+#ifdef WIN32
 #include "stdafx.h"
+#endif
+#ifdef linux
+#include "stdinclude.h"
+#endif
 #include <boost/circular_buffer.hpp>
 
 typedef std::shared_ptr<udp::socket> SHP_Socket;
@@ -68,7 +73,7 @@ struct RTP_struct
 		this->header.timestamp = htonl(0);
 		this->header.seq_no = htons(0);
 	}
-
+	
 	void rtp_modify()
 	{
 		++this->amount;
@@ -133,7 +138,6 @@ struct NetworkData
 	std::vector<std::string> IPs;
 	std::vector<int> my_ports;
 	std::vector<int> remote_ports;
-	SHP_Socket Sock;
 	void free()
 	{
 		for (unsigned i = 0; i < input_SDPs.size(); ++i)
