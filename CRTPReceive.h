@@ -27,7 +27,7 @@ struct CAVPacket2;
 struct Data;
 struct Buf;
 struct NetworkData;
-
+using namespace std::chrono;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 
@@ -36,6 +36,7 @@ class CRTPReceive
 public:
 	CRTPReceive(NetworkData net)
 	{ 
+		received = 9999;
 		net_ = net;
 		process_all_running = true;
 		process_all_finished = false;
@@ -87,8 +88,9 @@ private:
 	vector<Data> vecData;
 	vector<Data> vecData2;
 	vector<boost::shared_ptr<boost::thread>> receive_threads;
-	vector<std::chrono::high_resolution_clock::time_point> time_start_receive;
-	
+	//vector<std::chrono::high_resolution_clock::time_point> time_start_receive;
+	vector<steady_clock::time_point> time_start_receive;
+
 	vector<bool> skipper;
 	bool process_all_running = true;
 	bool process_all_finished;
@@ -96,6 +98,13 @@ private:
 	SHP_CMixInit Initer;
 
 	int sockets_stoped=0;
+
+	int received;
+	//AVPacket input_packet;//decode
+	//SHP_CAVPacket2 shpPacket;//decode
+	//AVPacket output_packet;//encode
+	//AVFrame *frame = NULL;//process_all
+	//AVFrame *filt_frame;//procell_all
 };
 typedef std::shared_ptr<CRTPReceive> SHP_CRTPReceive;
 

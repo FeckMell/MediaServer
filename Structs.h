@@ -71,7 +71,7 @@ struct Data
 };
 struct Buf
 {
-	uint8_t data[6000];
+	uint8_t data[1000];
 };
 struct NetworkData
 {
