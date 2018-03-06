@@ -20,35 +20,7 @@ using namespace boost::asio;
 using namespace std;
 extern FILE *FileLogMixer;
 //asio::io_service service2456;
-typedef std::shared_ptr<udp::socket> SHP_Socket;
 
-struct CAVPacket2 : AVPacket
-{
-	CAVPacket2() : AVPacket()
-	{
-		av_init_packet(this);
-		data = nullptr;
-		size = 0;
-	}
-	CAVPacket2(size_t sz) : CAVPacket2()
-	{
-		if (sz > 0)
-			av_new_packet(this, sz);
-	}
-	int grow_by(int by)
-	{
-		return av_grow_packet(this, by);
-	}
-	void shrink_to(int to)
-	{
-		av_shrink_packet(this, to);
-	}
-	~CAVPacket2(){ av_free_packet(this); }
-
-	operator bool()const{ return data != nullptr; }
-	//void free(){ av_free_packet(this); }
-};
-typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 struct SdpOpaque
 {
 	using Vector = std::vector<uint8_t>; Vector data; Vector::iterator pos;
@@ -62,30 +34,22 @@ struct SSource
 class CRTPReceive
 {
 public:
-	CRTPReceive(vector<string> input_SDPs, vector<string> IPs, vector<int> my_ports, vector<int> remote_ports)
+	CRTPReceive(vector<string> input_SDPs, vector<string> output_SDPs)
 	{ 
-		tracks = my_ports.size();
-		for (int i = 0; i < tracks; ++i)
-		{
-			SHP_Socket a;
-			a.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_ports[i])));
-			//vecSock.push_back(a);
-		}
-		IPs_ = IPs;
-		my_ports_ = my_ports;
-		remote_ports_ = remote_ports;
+		//asio::io_service service2;
+		//io_service_(service2);
 		//pSocket_1.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port[0])));
 		//pSocket_2.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port[1])));
 		//pSocket_3.reset(new udp::socket(io_service_, udp::endpoint(udp::v4(), my_port[2])));
-		init(input_SDPs); 
+		init(input_SDPs, output_SDPs); 
 	}
 	
 	int process_all();
-	boost::asio::io_service io_service_;
+	//boost::asio::io_service io_service_;
 private:
 	void loggit(string a);
 	int FirstInit();
-	int init(vector<string> input_SDPs);
+	int init(vector<string> input_SDPs, vector<string> output_SDPs);
 	void SetNumSources(int i) { tracks = i; }
 
 	int write_output_file_header(AVFormatContext *output_format_context);
@@ -115,13 +79,7 @@ private:
 
 	//vector<string> IPS_;
 	//vector<int> ports_;
-	vector<SHP_Socket> vecSock;
-	vector<string> IPs_;
-	vector<int> my_ports_;
-	vector<int> remote_ports_;
-	//uint8_t data[2048];
-	ofstream ff1;
-	//SHP_CAVPacket2 shpPacket;
+	
 	//boost::scoped_ptr<udp::socket> pSocket_1;
 	//boost::scoped_ptr<udp::socket> pSocket_2;
 	//boost::scoped_ptr<udp::socket> pSocket_3;

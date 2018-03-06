@@ -80,7 +80,6 @@ namespace MGCP
 		/*string strResult();
 		for (const auto& param : cllParams)
 			strResult += str(param.m_value);*/
-		cllParams;
 		static auto frmHeader = boost::format("");
 		static auto frmParam = boost::format("%1%");
 

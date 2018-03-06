@@ -356,7 +356,7 @@ void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 		//
 		auto confparams = FindClient(mgcp.getCallID());
 		confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-		DestRoom->NewInitPoint(/*mgcp.SDP*/confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
+		DestRoom->NewInitPoint(confparams->input_SDP, mgcp.SDP, mgcp.getCallID(), confparams->my_port);
 		if (DestRoom->GetNumCllPoints() >= 3)
 		{
 			loggit("if (DestRoom->GetNumCllPoints() == 3)");
@@ -389,7 +389,7 @@ void CMGCPServer::proceedCRCX_CNF_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpT
 	loggit("room->NewInitPoint(mgcp.SDP);");
 
 	confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-	room->NewInitPoint(/*mgcp.SDP*/confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
+	room->NewInitPoint(confparams->input_SDP, mgcp.SDP, mgcp.getCallID(), confparams->my_port);
 	strResponse = mgcp.ResponseOK() + confparams->SDPresponse;
 	reply(strResponse, udpTO);//
 }
@@ -486,7 +486,7 @@ void CMGCPServer::Connectivity(MGCP::TMGCP &mgcp)
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::SetFreePort(SHP_CConfRoom room, string CallID)
 {
-	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), room->FindPoint(CallID)->GetMyPort()),
+	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), room->FindPoint(CallID)->GetPort()),
 		PortsinUse_.end()); // удаляем порт из занятых
 }
 //--------------------------------------------------------------------------------------------
@@ -611,8 +611,7 @@ SHP_ConfParam CMGCPServer::FillinConfParam(MGCP::TMGCP &mgcp, int mode)
 	result->SDPresponse = str(f%EndP_Local().address().to_string() % result->my_port % (rand() % 100000) % (rand() % 100000));
 
 	SDPforCRCX_.push_back(result);
-	loggit("CMGCPServer::FillinConfParam:result.SDPresponse:\n" + result->SDPresponse + "\nSDP unmodified From Client:\n" + mgcp.SDP);
-	cout << "\nmy_port= " << result->my_port << " SDPresponse:\n" << result->SDPresponse << "\nSDP modified From Client:\n " << mgcp.SDP << "\nDONE";
+	loggit("CMGCPServer::FillinConfParam:result.SDPresponse:\n" + result->SDPresponse + "\nSDP modified From Client:\n" + mgcp.SDP);
 	return result;
 }
 //--------------------------------------------------------------------------------------------
@@ -626,31 +625,31 @@ string CMGCPServer::DeleteFromSDP(string inputSDP, int my_port)
 	// delete rtp 18, 101
 	std::size_t found = inputSDP.find(rtp18);
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
+	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	found = inputSDP.find(rtp101);
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
+	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	found = inputSDP.find(fmtp);
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
+	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	found = inputSDP.find(fmtp);
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
+	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	found = inputSDP.find(fmtp);
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
+	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	// delete rtp 0
 	found = inputSDP.find(rtp0);
 	if (found != std::string::npos)
 	inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "");
 	//change IP
-	/*found = inputSDP.find("c=IN IP4");
+	found = inputSDP.find("c=IN IP4");
 	if (found != std::string::npos)
 		inputSDP.replace(found, inputSDP.find("\n", found + 1) - found + 1, "c=IN IP4 10.77.7.19\n");
 	//change port
 	found = inputSDP.find("m=audio ");
 	if (found != std::string::npos)
-		inputSDP.replace(found, inputSDP.find("RTP/AVP", found + 1) - found, "m=audio " + std::to_string(my_port) + " ");*/
+		inputSDP.replace(found, inputSDP.find("RTP/AVP", found + 1) - found, "m=audio " + std::to_string(my_port) + " ");
 
 
 	//found = inputSDP.find(rtpavp);

@@ -24,8 +24,6 @@ struct ConfParam
 	}
 	/*Информация*/
 	int my_port;
-	int remote_port;
-	int repote_IP;
 	string input_SDP;
 	string CallID;
 	string SDPresponse;
