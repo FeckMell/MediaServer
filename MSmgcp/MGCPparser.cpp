@@ -21,6 +21,12 @@ void MGCP::Remove()
 		request.erase(request.begin() + fd_pos);
 		fd_pos = request.find("\r");
 	}
+	//auto fd_pos = mgcp.find("\r");
+	//while (fd_pos != string::npos)
+	//{
+	//	mgcp.erase(mgcp.begin() + fd_pos);
+	//	fd_pos = mgcp.find("\r", fd_pos - 1);
+	//}
 	auto fd_pos2 = request.find("  ");
 	while (fd_pos2 != string::npos)
 	{
@@ -168,7 +174,7 @@ void MGCP::ReplyClient()
 		string result;
 		if (innerError != "") result = ResponseBAD();
 		else result = ResponseOK();
-		
+		BOOST_LOG_SEV(LOG::vecLogs, info) << result;
 		NET::GS(NET::mgcp)->s.send_to(boost::asio::buffer(result), sender);
 	}
 }
@@ -196,7 +202,7 @@ string MGCP::ResponseBAD()
 {
 	string result = "400 " + to_string(stoi(data["MessNum"]) + 1) + " BAD";
 	result += "\nZ: innerError " + innerError; 
-	
+	BOOST_LOG_SEV(LOG::vecLogs, fatal) << result << "\nMassage was:" << mgcp;
 	return result;
 }
 //*///------------------------------------------------------------------------------------------
@@ -205,7 +211,7 @@ void MGCP::ReplyNOTMGCP()
 {
 	string result = "400 999 BAD";
 	result += "\nZ: outerError " + outerError;
-	
+	BOOST_LOG_SEV(LOG::vecLogs, warning) << result << "\nMassage was:" << mgcp;
 	NET::GS(NET::mgcp)->s.send_to(boost::asio::buffer(result), sender);
 }
 //*///------------------------------------------------------------------------------------------

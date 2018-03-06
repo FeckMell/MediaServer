@@ -6,29 +6,29 @@ using namespace cnf;
 CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_)
 	: clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
-	
+	BOOST_LOG_SEV(LOG::vecLogs, debug) << "CnfPoint::CnfPoint(...) with serverport=" << s_port_;
 	socket = SSTORAGE::GetSocket(serverPort);
 	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "CnfPoint::CnfPoint(...): net init DONE";
 	InitCodec(&iccx, true);
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "CnfPoint::CnfPoint(...): InitCodec(&iccx, true); DONE";
 	InitCodec(&occx, false);
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "CnfPoint::CnfPoint(...): InitCodec(&occx, false); DONE";
 }
 CnfPoint::~CnfPoint()
 {
-	
+	BOOST_LOG_SEV(LOG::vecLogs, debug) << "CnfPoint::~CnfPoint() with serverport=" << serverPort;
 	avcodec_close(iccx);
 	avcodec_close(occx);
 	avcodec_free_context(&iccx);
 	avcodec_free_context(&occx);
-	
+	BOOST_LOG_SEV(LOG::vecLogs, debug) << "CnfPoint::~CnfPoint() DONE";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, false-encoder
 {
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "CnfPoint::InitCodec()";
 	AVCodec *x_codec;//possible leak
 	if (mode_) x_codec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
 	else x_codec = avcodec_find_encoder(AV_CODEC_ID_PCM_ALAW);
@@ -43,7 +43,7 @@ void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, fals
 	(*xccx_)->time_base = { 1, (*xccx_)->sample_rate };
 
 	avcodec_open2((*xccx_), x_codec, nullptr);
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "CnfPoint::InitCodec() DONE";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

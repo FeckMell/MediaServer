@@ -5,7 +5,7 @@ using namespace mgcp;
 
 MGCPcontrol::MGCPcontrol()
 {
-	
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::MGCPcontrol() BEGIN END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -15,32 +15,32 @@ void MGCPcontrol::Preprocessing(SHP_MGCP mgcp_)
 	string type = mgcp_->data["EventType"];
 	if (cmd == "CRCX" && type == "ann")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) CRCX_ANN";
 		CRCX_ANN(mgcp_);
 	}
 	else if (cmd == "CRCX" && type == "cnf")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) CRCX_CNF";
 		CRCX_CNF(mgcp_);
 	}
 	else if (cmd == "RQNT" && type == "ann")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) RQNT_ANN";
 		RQNT_ANN(mgcp_);
 	}
 	else if (cmd == "MDCX" && type == "cnf")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) MDCX_CNF";
 		MDCX_CNF(mgcp_);
 	}
 	else if (cmd == "DLCX" && type == "ann")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) DLCX_ANN";
 		DLCX_ANN(mgcp_);
 	}
 	else if (cmd == "DLCX" && type == "cnf")
 	{
-		
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "MGCPcontrol::Preprocessing(...) DLCX_CNF";
 		DLCX_CNF(mgcp_);
 	}
 	else 
@@ -61,7 +61,9 @@ void MGCPcontrol::CRCX_CNF(SHP_MGCP mgcp_)
 	}
 
 	
-	GenSDP(SSTORAGE::ReservePort(), mgcp_);
+	//string server_port = ReservePort();
+	//string server_sdp = GenSDP(server_port, mgcp_);
+	GenSDP(/*ReservePort()*/SSTORAGE::ReservePort(), mgcp_);
 	SHP_Point new_point = make_shared<Point>(Point(mgcp_));
 	vecPoints.push_back(new_point);
 
@@ -97,6 +99,8 @@ void MGCPcontrol::CRCX_ANN(SHP_MGCP mgcp_)
 	}
 	mgcp_->data["EventID"] = SSTORAGE::ReserveEventID();
 
+	//string new_port = ReservePort();
+	//string new_sdp = GenSDP(new_port, mgcp_);
 	GenSDP(SSTORAGE::ReservePort(), mgcp_);
 	SHP_Point new_point = make_shared<Point>(Point(mgcp_));
 	vecPoints.push_back(new_point);
@@ -213,6 +217,7 @@ void MGCPcontrol::RemovePoint(SHP_Point point_)
 {
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
 	SSTORAGE::FreePort(point_->serverPort);
+	//FreePort(point_->serverPort);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -227,6 +232,7 @@ void MGCPcontrol::RemoveCnf(SHP_Cnf cnf_)
 {
 	vecCnfs.erase(std::remove(vecCnfs.begin(), vecCnfs.end(), cnf_), vecCnfs.end());
 	SSTORAGE::FreeEventID(cnf_->eventID);
+	//FreeEventID(cnf_->eventID);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -241,6 +247,7 @@ void MGCPcontrol::RemoveAnn(SHP_Ann ann_)
 {
 	vecAnns.erase(std::remove(vecAnns.begin(), vecAnns.end(), ann_), vecAnns.end());
 	SSTORAGE::FreeEventID(ann_->eventID);
+	//FreeEventID(ann_->eventID);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -261,6 +268,7 @@ string MGCPcontrol::GenSDP(string server_port_, SHP_MGCP mgcp_)
 		)); // формируем тип ответа
 	string result = str(template_sdp
 		%CFG::data[CFG::outerIP]
+		//%init_Params->data[STARTUP::outerIP]
 		% server_port_
 		%lastSDP_ID
 		%mgcp_->data["CallID"]
@@ -271,3 +279,62 @@ string MGCPcontrol::GenSDP(string server_port_, SHP_MGCP mgcp_)
 
 	return result;
 }
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+/*string MGCPcontrol::ReservePort()
+{
+	//int free_port = stoi(init_Params->data[STARTUP::rtpPort]);
+	int free_port = stoi(CFG::data[CFG::rtpPort]);
+	if (usedPorts.size() == 0)
+	{
+		usedPorts.push_back(free_port);
+		return to_string(free_port);
+	}
+	for (unsigned i = 0; i < usedPorts.size(); ++i)
+	{
+		if (usedPorts[i] != free_port)
+		{
+			usedPorts.push_back(free_port);
+			sort(usedPorts.begin(), usedPorts.end());
+			return to_string(free_port);
+		}
+		free_port += 2;
+	}
+	usedPorts.push_back(free_port);
+	sort(usedPorts.begin(), usedPorts.end());
+	return to_string(free_port);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+/*void MGCPcontrol::FreePort(string port_)
+{
+	usedPorts.erase(remove(usedPorts.begin(), usedPorts.end(), stoi(port_)), usedPorts.end());
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+/*string MGCPcontrol::ReserveEventID()
+{
+	int free_event_id = 0;
+	if (usedEventID.size() == 0) { usedEventID.push_back(free_event_id);  return to_string(free_event_id); }
+	for (unsigned i = 0; i < usedEventID.size(); ++i)
+	{
+		if (usedEventID[i] != free_event_id)
+		{
+			usedEventID.push_back(free_event_id);
+			sort(usedEventID.begin(), usedEventID.end());
+			return to_string(free_event_id);
+		}
+		free_event_id++;
+	}
+	usedEventID.push_back(free_event_id);
+	sort(usedEventID.begin(), usedEventID.end());
+	return to_string(free_event_id);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+/*void MGCPcontrol::FreeEventID(string event_id_)
+{
+	usedEventID.erase(remove(usedEventID.begin(), usedEventID.end(), stoi(event_id_)), usedEventID.end());
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------

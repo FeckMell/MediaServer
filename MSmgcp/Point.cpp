@@ -69,7 +69,7 @@ string Point::FindSDPmode(string sdp_)
 		if (sdp_.find(e) != string::npos)
 			return e;
 	}
-	
+	BOOST_LOG_SEV(LOG::vecLogs, fatal) << "Point::FindSDPmode(...): not found";
 	return "error";
 }
 //*///------------------------------------------------------------------------------------------

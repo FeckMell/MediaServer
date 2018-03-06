@@ -176,6 +176,7 @@ string SIP::ResponseBAD()
 //*///------------------------------------------------------------------------------------------
 void SIP::ReplyClient(SHP_SOCK s_, string str_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, warning) << "Reply is:\n" << str_;
 	s_->s.send_to(boost::asio::buffer(str_), sender);
 }
 //*///------------------------------------------------------------------------------------------

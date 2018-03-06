@@ -5,113 +5,143 @@ using namespace sip;
 
 SIPcontrol::SIPcontrol()
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::SIPcontrol() BEGIN-END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::Preprocessing(SHP_IPL ipl_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( IPL )";
 	SHP_Point found_point = FindPoint(ipl_->data["CallID"]);
 	if (found_point == nullptr)
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, fatal) << "SIPcontrol::Preprocessing() ERROR : found_point == nullptr. IPL was\n" << ipl_->ipl;
 		exit(-1);
 	}
 	else if (ipl_->data["From"] == "dtmf")
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing() ipl_->data[\"From\"] == \"dtmf\"";
 		found_point->DTMFResult(ipl_);
 	}
 	else if (ipl_->data["From"] == "sql")
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing() ipl_->data[\"From\"] == \"sql\"";
 		found_point->SQLResult(ipl_);
 	}
 	else
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, fatal) << "SIPcontrol::Preprocessing() ERROR : not this modul. IPL was\n"<<ipl_->ipl;
 		exit(-1);
 	}
 
 	if (found_point->state == Point::ready) ConfProcess(found_point, false);
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( IPL ) END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::Preprocessing(SHP_SIP sip_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( SIP )";
 	if (sip_->GetParam(SIP::CMD) == "INVITE")
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( SIP ) INVITE";
 		Invite(sip_);
 	}
 	else if (sip_->GetParam(SIP::CMD) == "ACK")
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( SIP ) ACK";
 		Ack(sip_);
 	}
 	else if (sip_->GetParam(SIP::CMD) == "BYE")
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( SIP ) BYE";
 		Bye(sip_);
 	}
 	else
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, fatal) << "SIPcontrol::Preprocessing( SIP ) UNSUPPORTED COMMAND";
 		sip_->ReplyClient(NET::GS(NET::OUTER::sip), sip_->ResponseBAD());
 	}
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Preprocessing( SIP ) END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::Invite(SHP_SIP sip_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Invite(...)";
 	string new_port = ReservePort();
 	string event_id = ReserveEventID();
 	string new_sdp = GenSDP(new_port, sip_);
-
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Invite(...) inited data:\n1)Port=" << new_port << "\n2)EventID=" << event_id << "\n3)SDP=\n" << new_sdp << "\n\nNow initing point with this params.";
 	SHP_Point new_point = make_shared<Point>(Point(sip_, new_sdp, new_port, event_id));
 	vecPoints.push_back(new_point);
-
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Invite(...) Point created and added";
 	sip_->ReplyClient(NET::GS(NET::OUTER::sip), sip_->ReplyRinging());
 	sip_->ReplyClient(NET::GS(NET::OUTER::sip), sip_->ReplyOK(new_sdp));
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Invite(...) END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::Bye(SHP_SIP sip_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) with CallID" << sip_->GetParam(SIP::CallID);
 	SHP_Point found_point = FindPoint(sip_->GetParam(SIP::CallID));
 	if (found_point == nullptr)
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) found_point == nullptr.";
 		sip_->ResponseBAD();
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) END";
 		return;
 	}
 	if (found_point->state == Point::ready)
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) found_point->state == Point::ready";
 		ConfProcess(found_point, true);
 	}
 	else
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) found_point->state != Point::ready";
 		found_point->StopAll();
 	}
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) Removing point";
 	RemovePoint(found_point);
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) Removed point";
 	sip_->ReplyClient(NET::GS(NET::OUTER::sip), sip_->ReplyOK(""));
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Bye(...) with CallID" << sip_->GetParam(SIP::CallID) << " END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::Ack(SHP_SIP)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::Ack() BEGIN END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIPcontrol::ConfProcess(SHP_Point point_, bool remove_)
 {
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) point_->roomID=" << point_->roomID;
 	SHP_Cnf found_cnf = FindCnf(point_->roomID);
 	if (remove_ == true)
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) remove_ == true";
 		if (found_cnf->RmPoint(point_)) RemoveCnf(found_cnf); 
 	}
 	else
 	{
+		BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) remove_ == false";
 		if (found_cnf == nullptr)
 		{
+			BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) remove_ == false, found_cnf == nullptr";
 			SHP_Cnf new_cnf = make_shared<Cnf>(Cnf(point_));
 			vecCnfs.push_back(new_cnf);
 		}
 		else
 		{
+			BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) remove_ == false, found_cnf != nullptr";
 			found_cnf->AddPoint(point_);
 		}
 	}
+	BOOST_LOG_SEV(LOG::vecLogs, trace) << "SIPcontrol::ConfProcess(...) END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -153,6 +183,7 @@ string SIPcontrol::GenSDP(string port_s_, SHP_SIP sip_)
 		)); // формируем тип ответа
 	auto result = str(template_sdp
 		%CFG::data[CFG::outerIP]
+		//%init_Params->data[STARTUP::outerIP]
 		% port_s_
 		%lastSDP_ID
 		%sip_->GetParam(SIP::CallID)
@@ -164,6 +195,7 @@ string SIPcontrol::GenSDP(string port_s_, SHP_SIP sip_)
 //*///------------------------------------------------------------------------------------------
 string SIPcontrol::ReservePort()
 {
+	//int free_port = stoi(init_Params->data[STARTUP::rtpPort])+1000;
 	int free_port = stoi(CFG::data[CFG::rtpPort]) + 1000;
 	if (usedPorts.size() == 0)
 	{
