@@ -332,9 +332,9 @@ struct TmplMGCPparser : qi::grammar<Iterator>
 			_MGCP
 			, std::cout
 			<< val("============ Error in parsing! ============\nExpecting:\n")
-			<< _4                               // what failed?
+			<< boost::spirit::_4                               // what failed?
 			<< val("\nhere:\n")
-			<< construct<std::string>(_3, _2)   // iterators to error-pos, end
+			<< construct<std::string>(boost::spirit::_3, boost::spirit::_2)   // iterators to error-pos, end
 			<< val("\n==============\n")
 			);
 #pragma endregion error_handling

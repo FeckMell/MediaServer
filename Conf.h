@@ -36,16 +36,16 @@ public:
 
 	
 	void ModifySDP(int a);
-
+	bool mode = true;
 private:
 	friend class CConfRoom;
 	void loggit(string a);
 	string SDP_;
-	//string output_addr;
 	string idPoint; // CALLID поинта
 	int my_port_; // приписанный этому поинту порт
 	int remote_port_; // порт клиента
 	string remote_ip_;// ip клиента
+	
 
 	
 };
@@ -60,6 +60,7 @@ class CConfRoom : public boost::noncopyable
 {
 public:
 	CConfRoom(){ on = false; loggit("Room construct"); }
+	std::vector<SHP_CConfPoint> GetAllPoints(){ return cllPoints_; }
 	int DeletePoint(string CallID);
 	void NewInitPoint(string SDP, string CallID, int port);
 	void Start();
@@ -68,6 +69,7 @@ public:
 	int GetNumCllPoints(){ return cllPoints_.size(); }
 	string Make_addr_from_SDP(string output_SDP);
 	SHP_CConfPoint FindPoint(string CallID);
+	string GetPointID(int i){ return cllPoints_[i]->GetID(); }
 
 	string MakeRemotePort(string SDP);
 	string MakeRemoteIP(string SDP);
@@ -77,6 +79,7 @@ private:
 	std::vector<SHP_CConfPoint> cllPoints_;
 	int RoomID_;
 	bool on;
+	int counter = 0;
 	boost::shared_ptr<boost::thread> thread;
 	//boost::shared_ptr<boost::thread> thread(new boost::thread thread);
 	

@@ -75,7 +75,7 @@ private:
 
 /* Работа с портами*/
 	/*Освобождаем сокет*/
-	void SetFreePort(SHP_CConfRoom room, string CallID);
+	void SetFreePort(SHP_CConfRoom room, int port/*string CallID*/);
 	/*Узнаем, занят ли сокет*/
 	bool FindPort(int sc);
 	/*Получаем номер свободного*/
@@ -93,9 +93,13 @@ private:
 	/* Находим N из CNF_N*/
 	string GetRoomIDConn(string s);
 	/*Создание и заполнение структуры данных для конфы*/
-	SHP_ConfParam FillinConfParam(MGCP::TMGCP &mgcp, int mode);
+	SHP_ConfParam FillinConfParam(MGCP::TMGCP &mgcp);
 	/*Удаление из SDP клиента лишей информации*/
 	string DeleteFromSDP(string inputSDP, int my_port);
+	/*Поиск типа соединения(inactive/sendrecv) в SDP*/
+	int SDPFindMode(string SDP);
+	/*Смена в SDP типа соединения*/
+	string ChangeSDPMode(string SDP);
 
 	TArgs	m_args;
 	udp::socket socket_;

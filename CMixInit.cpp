@@ -197,14 +197,14 @@ int CMixInit::init_filter_graph(int ForClient)
 	/****** abuffer [ForClient][i] ********/
 	for (int i = 0; i < tracks; ++i)
 	{
-		loggit("/****** abuffer [ForClient][i] ********/");
+		//loggit("/****** abuffer [ForClient][i] ********/");
 		/*for i==ForClient we dont set buffer*/
 		if (i == ForClient) continue;// вернуть
 		AVFilter *abuffer0;
-		loggit("start i=" + to_string(i) + "ForClient=" + to_string(ForClient));
+		//loggit("start i=" + to_string(i) + "ForClient=" + to_string(ForClient));
 		/* Создаем абуффер фильтр. он используется для "скармливания" информации в граф */
 		abuffer0 = avfilter_get_by_name("abuffer");
-		loggit("abuffer0 = avfilter_get_by_name");
+		//loggit("abuffer0 = avfilter_get_by_name");
 		if (!abuffer0)
 		{
 			//string s(get_error_text(error));
@@ -216,28 +216,28 @@ int CMixInit::init_filter_graph(int ForClient)
 		/* buffer audio source: the decoded frames from the decoder will be inserted here. */
 		if (!data.iccx[i]->channel_layout)
 		{
-			loggit("if (!iccx[i]->channel_layout)");
+			//loggit("if (!iccx[i]->channel_layout)");
 			data.iccx[i]->channel_layout = av_get_default_channel_layout(data.iccx[i]->channels);
 
 		}
-		loggit("snprintf");
+		//loggit("snprintf");
 		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%"PRIx64,
 			data.iccx[i]->sample_rate, av_get_sample_fmt_name(data.iccx[i]->sample_fmt), data.iccx[i]->channel_layout);
 		//snprintf(arg, sizeof(arg), "src%d-%d", ForClient, i);
 		snprintf(arg, sizeof(arg), "src");
-		loggit("snprintf(arg, sizeof(arg);");
+		//loggit("snprintf(arg, sizeof(arg);");
 		//разбиение индекса для SSource.
 		if (i < ForClient)
 		{
-			loggit("if (i < ForClient)");
+			//loggit("if (i < ForClient)");
 			err = avfilter_graph_create_filter(&data.afcx[ForClient].src[i], abuffer0, arg, args, NULL, filter_graph);
-			loggit("if (i < ForClient) end");
+			//loggit("if (i < ForClient) end");
 		}
 		else
 		{
-			loggit("else");
+			//loggit("else");
 			err = avfilter_graph_create_filter(&data.afcx[ForClient].src[i - 1], abuffer0, arg, args, NULL, filter_graph);
-			loggit("else end");
+			//loggit("else end");
 		}
 
 		if (err < 0)
@@ -246,12 +246,12 @@ int CMixInit::init_filter_graph(int ForClient)
 			av_log(NULL, AV_LOG_ERROR, "Cannot create audio buffer source\n");
 			return err;
 		}
-		loggit("разбиение индекса для SSource.");
+		//loggit("разбиение индекса для SSource.");
 	}
 
 	/****** amix ******* */
 	/* Create mix filter. */
-	loggit("/****** amix ******* */\n/* Create mix filter. */");
+	//loggit("/****** amix ******* */\n/* Create mix filter. */");
 	mix_filter = avfilter_get_by_name("amix");
 	if (!mix_filter)
 	{
@@ -316,7 +316,7 @@ int CMixInit::init_filter_graph(int ForClient)
 		return err;
 	}
 
-	loggit("/* Connect the filters; */");
+	//loggit("/* Connect the filters; */");
 	/* Connect the filters; */
 	int indexx = 0;
 	for (int i = 0; i < tracks - 1; ++i)
@@ -510,4 +510,12 @@ cleanup:
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
+void CMixInit::freesock()
+{
+	for (int i = 0; i < tracks; ++i)
+	{
+		avformat_close_input(&data.ifcx[i]);
+		data.ifcx[i] = NULL;
+	}
+}
 

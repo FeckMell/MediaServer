@@ -52,6 +52,8 @@ int CConfRoom::DeletePoint(string CallID)
 	}
 	else
 	{
+		cout << "Mixer->destroy_all();";
+		Mixer->destroy_all();
 		Mixer.reset();
 		return -1;
 	}
@@ -87,19 +89,23 @@ void CConfRoom::Start()
 	std::vector<string> IPs;
 	std::vector<int> ports1;
 	std::vector<int> ports2;
+	counter++;
+	counter = counter % 3;
 	string logSDP = "\n";
 	if (on == false)
 	{
 		for (auto &entry : cllPoints_)
 		{
-			entry->ModifySDP(0);
-			logSDP += entry->GetSDP() + "\n";
+			if (entry->mode == true)
+			{
+				entry->ModifySDP(1000*counter);
+				logSDP += entry->GetSDP() + "\n";
 
-			SDPs.push_back(entry->GetSDP());
-			IPs.push_back(entry->GetRemoteIP());
-			ports1.push_back(entry->GetMyPort());
-			ports2.push_back(entry->GetRemotePort());
-
+				SDPs.push_back(entry->GetSDP());
+				IPs.push_back(entry->GetRemoteIP());
+				ports1.push_back(entry->GetMyPort());
+				ports2.push_back(entry->GetRemotePort());
+			}
 		}
 
 		on = true;
@@ -113,17 +119,21 @@ void CConfRoom::Start()
 	{
 		for (auto &entry : cllPoints_)
 		{
-			entry->ModifySDP(1000);
-			logSDP += entry->GetSDP() + "\n";
+			if (entry->mode == true)
+			{
+				entry->ModifySDP(1000*counter);
+				logSDP += entry->GetSDP() + "\n";
 
-			SDPs.push_back(entry->GetSDP());
-			IPs.push_back(entry->GetRemoteIP());
-			ports1.push_back(entry->GetMyPort());
-			ports2.push_back(entry->GetRemotePort());
+				SDPs.push_back(entry->GetSDP());
+				IPs.push_back(entry->GetRemoteIP());
+				ports1.push_back(entry->GetMyPort());
+				ports2.push_back(entry->GetRemotePort());
+			}
 
 		}
 		boost::thread my_thread(&AddCall, Mixer, SDPs, IPs, ports1, ports2);
 		my_thread.detach();
+		loggit("mix->process_all();");
 	}
 }
 //--------------------------------------------------------------------------
@@ -134,7 +144,6 @@ SHP_CConfPoint CConfRoom::FindPoint(string CallID)
 		if (e->GetID() == CallID)
 			return e;
 	}
-	assert(true);
 	return NULL;
 }
 //--------------------------------------------------------------------------
@@ -158,5 +167,5 @@ void CConfPoint::ModifySDP(int a)
 {
 	std::size_t found = SDP_.find("m=audio");
 	if (found != std::string::npos)
-		SDP_ = SDP_.replace(found + 8, SDP_.find(" ", found + 10) - found - 8, to_string(GetMyPort() - 2000 - a));
+		SDP_ = SDP_.replace(found + 8, SDP_.find(" ", found + 10) - found - 8, to_string(GetMyPort() - 1000 - a));
 }

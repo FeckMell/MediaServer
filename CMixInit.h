@@ -21,10 +21,12 @@ using namespace std;
 extern FILE *FileLogMixerInit;
 struct Initing;
 struct SSource;
+typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 
 class CMixInit
 {
 public:
+	CMixInit(){ tracks=0; }
 	CMixInit(vector<string> input_SDPs, vector<string> IPs, vector<int> my_ports, vector<int> remote_ports)
 	{
 		tracks = my_ports.size();
@@ -34,6 +36,7 @@ public:
 		init(input_SDPs);
 	}
 	Initing data;
+	void freesock();
 private:
 	void loggit(string a);
 	int FirstInit();

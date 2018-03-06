@@ -63,3 +63,13 @@ struct CAVPacket2 : AVPacket
 	operator bool()const{ return data != nullptr; }
 	//void free(){ av_free_packet(this); }
 };
+struct Data
+{
+	//boost::asio::mutable_buffer data;
+	uint8_t data[8000];
+	int size;
+};
+struct Buf
+{
+	uint8_t data[6000];
+};

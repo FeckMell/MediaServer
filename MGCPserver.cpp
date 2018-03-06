@@ -256,8 +256,38 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 				reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
 				return;
 			}
+			auto confparams = FindClient(mgcp.getCallID());
+
+			//SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(mgcp.getCallID())), SDPforCRCX_.end());
 			if (DestRoom->DeletePoint(mgcp.getCallID()) == -1)
+			{
+				loggit("going to delete whole room");
+				for (int i = 0; i < DestRoom->GetNumCllPoints(); ++i)
+				{
+					loggit("deleting point with IP=" + DestRoom->GetPointID(i) + "\ndeleting port=" 
+						+ to_string(DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort()));
+					SetFreePort(DestRoom, DestRoom->FindPoint(DestRoom->GetPointID(i))->GetMyPort());
+					loggit("port deleted");
+					SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), FindClient(DestRoom->GetPointID(i))), 
+						SDPforCRCX_.end());
+				}
+				loggit("deleting point with IP=" + mgcp.getCallID() + "\ndeleting port=" + to_string(confparams->my_port));
+				SetFreePort(DestRoom, confparams->my_port);
+				loggit("port deleted");
+				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());
 				RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), DestRoom), RoomsVec_.end());
+				DestRoom.reset();
+			}
+			else
+			{
+				loggit("deleting point with IP=" + mgcp.getCallID() + "\ndeleting port=" + to_string(confparams->my_port));
+				SetFreePort(DestRoom, confparams->my_port);
+				loggit("port deleted, room size=" + to_string(DestRoom->GetNumCllPoints()));
+				SDPforCRCX_.erase(std::remove(SDPforCRCX_.begin(), SDPforCRCX_.end(), confparams), SDPforCRCX_.end());	
+			}
+			cout << "\nRoomsVec_ =" << RoomsVec_.size();
+			cout << "SDPforCRCX_" << SDPforCRCX_.size();
+				
 			reply(mgcp.ResponseOK(250), udpTO);
 		}
 		else { reply(mgcp.ResponseBAD(400) + "didn`t find connection code", udpTO); return; }
@@ -348,32 +378,61 @@ void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 	if (mgcp.EndPoint.m_point == EndpntConf) // обработка вторичных запросов конференции
 	{
 		loggit("if (mgcp.EndPoint.m_point ==" + EndpntConf + ")");
-
 		if (mgcp.parMode != MGCP::TMGCP::ConnMode::confrnce)
 		{
-			reply(mgcp.ResponseBAD(400) + "cnf/* - mode! must be confrnce", udpTO);//
+			reply(mgcp.ResponseBAD(400) + "mode should be confrnce", udpTO);//
 			return;
 		}
-		//auto confparams = FillinConfParam(mgcp, 2);
-		auto DestRoom = FindRoom(atoi(EndpntConf.c_str()));
 
+		auto DestRoom = FindRoom(atoi(EndpntConf.c_str()));
 		if (!DestRoom)
 		{
 			reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
 			return;
 		}
-		loggit("found room with ID=" + EndpntConf + "\nDestRoom->NewInitPoint(mgcp.SDP);");
-		//
-		reply(mgcp.ResponseOK(), udpTO);
-		auto confparams = FindClient(mgcp.getCallID());
-		confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-		DestRoom->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
-		/*if (DestRoom->GetNumCllPoints() >= 3)
+		loggit("found room with ID=" + EndpntConf);
+		int mode = SDPFindMode(mgcp.SDP);
+		if (mode == -1)
 		{
-			loggit("if (DestRoom->GetNumCllPoints() == 3)");
+			loggit("unsupported mode in SDP");
+			reply(mgcp.ResponseBAD(400) + "unsupported mode in SDP", udpTO);//
+			return;
+		}
+		if (mode == 0)
+		{
+			loggit("Point with ID=" + mgcp.getCallID() + " frozen");
+			
+			auto confparams = FindClient(mgcp.getCallID());
+			//loggit("Point with ID=" + mgcp.getCallID() + " frozen1");
+			confparams->SDPresponse = ChangeSDPMode(confparams->SDPresponse);
+			//loggit("Point with ID=" + mgcp.getCallID() + " frozen2");
+			reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);
+			//loggit("Point with ID=" + mgcp.getCallID() + " frozen3");
+			DestRoom->FindPoint(mgcp.getCallID())->mode = false;
+			//loggit("Point with ID=" + mgcp.getCallID() + " frozen4");
 			DestRoom->Start();
-		}*/
-		
+			loggit("Point with ID=" + mgcp.getCallID() + " frozenDONE");
+		}
+		if (mode == 1)
+		{
+			if (!DestRoom->FindPoint(mgcp.getCallID()))
+			{
+				loggit("Regestring new Point with ID=" + mgcp.getCallID());
+				reply(mgcp.ResponseOK(), udpTO);
+				auto confparams = FindClient(mgcp.getCallID());
+				confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
+				DestRoom->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
+			}
+			else
+			{
+				loggit("Point with ID=" + mgcp.getCallID() + " UNfrozen");
+				auto confparams = FindClient(mgcp.getCallID());
+				confparams->SDPresponse = ChangeSDPMode(confparams->SDPresponse);
+				reply(mgcp.ResponseOK() + confparams->SDPresponse, udpTO);
+				DestRoom->FindPoint(mgcp.getCallID())->mode = true;
+				DestRoom->Start();
+			}
+		}
 		loggit("MDCX:" + EndpntConf + "ENDED");
 		return;
 	}
@@ -395,7 +454,7 @@ void CMGCPServer::proceedCRCX_CNF_0(MGCP::TMGCP &mgcp, const udp::endpoint& udpT
 	Connectivity(mgcp);
 	auto room = CreateNewRoom();
 	assert(room);
-	auto confparams = FillinConfParam(mgcp, 3);
+	auto confparams = FillinConfParam(mgcp);
 	loggit("room->NewInitPoint(mgcp.SDP);");
 
 	confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
@@ -424,7 +483,7 @@ void CMGCPServer::proceedCRCX_CNF_N(MGCP::TMGCP &mgcp, const udp::endpoint& udpT
 	mgcp.addResponseParam({ TMGCP_Param::SpecificEndPointId, mgcpEndPnt.toString() });
 	mgcp.addResponseParam({ TMGCP_Param::ConnectionId, str(boost::format("%1%") % shpConnect->Id()) });
 
-	auto confparams = FillinConfParam(mgcp, 1);
+	auto confparams = FillinConfParam(mgcp);
 	/*if (confparams.error == 1)
 	{
 	reply(mgcp.ResponseBAD(400) + "error in type of filling params", udpTO);
@@ -494,9 +553,9 @@ void CMGCPServer::Connectivity(MGCP::TMGCP &mgcp)
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-void CMGCPServer::SetFreePort(SHP_CConfRoom room, string CallID)
+void CMGCPServer::SetFreePort(SHP_CConfRoom room, int port/*string CallID*/)
 {
-	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), room->FindPoint(CallID)->GetMyPort()),
+	PortsinUse_.erase(std::remove(PortsinUse_.begin(), PortsinUse_.end(), port),
 		PortsinUse_.end()); // удаляем порт из занятых
 }
 //--------------------------------------------------------------------------------------------
@@ -610,13 +669,13 @@ string CMGCPServer::GetRoomIDConn(string s)
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
-SHP_ConfParam CMGCPServer::FillinConfParam(MGCP::TMGCP &mgcp, int mode)
+SHP_ConfParam CMGCPServer::FillinConfParam(MGCP::TMGCP &mgcp)
 {
 	/* Создаем и запоняем структуру, содержащую всю нужную информацию*/
 	SHP_ConfParam result(new ConfParam());
 	result->my_port = GetFreePort();
 	result->CallID = mgcp.getCallID();
-	auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\n")); // формируем тип ответа
+	auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 8\na=rtpmap:8 PCMA/8000\na=ptime:20\na=sendrecv\n")); // формируем тип ответа
 	//auto f = boost::format(string("\n\nv=0\no=- %3% 0 IN IP4 %1%\ns=%4%\nc=IN IP4 %1%\nt=0 0\na=tool:libavformat 57.3.100\nm=audio %2% RTP/AVP 97\nb=AS:705\na=rtpmap:97 PCMU/44100/2\n"));// формируем тип ответа
 	result->SDPresponse = str(f%EndP_Local().address().to_string() % result->my_port % (rand() % 100000) % (rand() % 100000));
 
@@ -671,8 +730,54 @@ string CMGCPServer::DeleteFromSDP(string inputSDP, int my_port)
 }
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+int CMGCPServer::SDPFindMode(string SDP)
+{
+	string str = "inactive";
+	std::size_t found = SDP.find(str);
+	if (found != std::string::npos)
+		return 0;
+	str = "sendrecv";
+	found = SDP.find(str);
+	if (found != std::string::npos)
+		return 1;
+	return -1;
+}
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
+string CMGCPServer::ChangeSDPMode(string SDP)
+{
+	loggit("changing SDP. It was:\n" + SDP);
+	std::size_t found = SDP.find("o=");
+	if (found != std::string::npos)
+	{
+		found = SDP.find(" ", found + 1);
+		if (found != std::string::npos)
+		{
+			found = SDP.find(" ", found + 1);
+			if (found != std::string::npos)
+			{
+				string temp = SDP.substr(found + 1, SDP.find(" ", found + 1));
+				int temp2 = stoi(temp) + 1;
+				SDP.replace(found, SDP.find(" ", found + 1) - found + 1, " " + to_string(temp2) + " ");
+			}
+		}
+	}
+	found = SDP.find("inactive");
+	if (found != std::string::npos)
+	{
+		SDP.replace(found, SDP.find("\n", found + 1) - found + 1, "sendrecv\n");
+		return SDP;
+	}
+	found = SDP.find("sendrecv");
+	if (found != std::string::npos)
+	{
+		SDP.replace(found, SDP.find("\n", found + 1) - found + 1, "inactive\n");
+		return SDP;
+	}
+	loggit("SDP CHANGED!\n" + SDP);
+	return SDP;
+		
+}
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------------------
