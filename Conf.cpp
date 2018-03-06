@@ -5,9 +5,9 @@ void StartRoom(SHP_CRTPReceive room)
 {
 	room->process_all();
 }
-void AddCall(SHP_CRTPReceive room, vector<string> SDPs, vector<string> IPs, vector<int> ports1, vector<int> ports2)
+void AddCall(SHP_CRTPReceive Mixer, NetworkData net)
 {
-	room->add_track(SDPs, IPs, ports1, ports2);
+	Mixer->add_track(net);
 }
 void CConfPoint::loggit(string a)
 {
@@ -110,7 +110,9 @@ void CConfRoom::Start()
 
 		on = true;
 		loggit("Creating Mixer for SDPs:" + logSDP);
-		Mixer.reset(new CRTPReceive(SDPs, IPs, ports1, ports2));
+		NetworkData net;
+		net = { SDPs, IPs, ports1, ports2 };
+		Mixer.reset(new CRTPReceive(net));
 		boost::thread my_thread(&StartRoom, Mixer);
 		my_thread.detach();
 		loggit("mix->process_all();");
@@ -131,7 +133,9 @@ void CConfRoom::Start()
 			}
 
 		}
-		boost::thread my_thread(&AddCall, Mixer, SDPs, IPs, ports1, ports2);
+		NetworkData net;
+		net = { SDPs, IPs, ports1, ports2 };
+		boost::thread my_thread(&AddCall, Mixer, net);
 		my_thread.detach();
 		loggit("mix->process_all();");
 	}

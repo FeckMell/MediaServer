@@ -73,3 +73,10 @@ struct Buf
 {
 	uint8_t data[6000];
 };
+struct NetworkData
+{
+	std::vector<string> input_SDPs;
+	std::vector<string> IPs;
+	std::vector<int> my_ports;
+	std::vector<int> remote_ports;
+};

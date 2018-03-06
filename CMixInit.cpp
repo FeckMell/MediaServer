@@ -30,7 +30,13 @@ char *const get_error_text2(const int error)
 //------------------------------------------------------------------------------------------
 void CMixInit::loggit(string a)
 {
-	fprintf(FileLogMixerInit, ("\n" + a + "\n//-------------------------------------------------------------------").c_str());
+	time_t rawtime;
+	struct tm * t;
+	time(&rawtime);
+	t = localtime(&rawtime);
+	string time = "";
+	time += to_string(t->tm_year + 1900) + "." + to_string(t->tm_mon + 1) + "." + to_string(t->tm_mday) + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(GetTickCount() % 1000) + "\n          ";
+	fprintf(FileLogMixerInit, ("\n" + time + a + "\n//-------------------------------------------------------------------").c_str());
 	fflush(FileLogMixerInit);
 }
 //------------------------------------------------------------------------------------------
@@ -78,7 +84,7 @@ int CMixInit::init(vector<string> input_SDPs)
 	for (int i = 0; i < tracks; ++i)
 	{
 		logSDP += input_SDPs[i] + "\n";
-		logSocket += "\nrtp://" + IPs_[i] + ":" + to_string(remote_ports_[i]) + " -> " + to_string(my_ports_[i]);
+		logSocket += "\nrtp://" + net_.IPs[i] + ":" + to_string(net_.remote_ports[i]) + " -> " + to_string(net_.my_ports[i]);
 	}
 	loggit("SDPs in filter:\n" + logSDP + "addresses:" + logSocket);
 
@@ -510,7 +516,7 @@ cleanup:
 }
 //------------------------------------------------------------------------------------------
 //------------------------------------------------------------------------------------------
-void CMixInit::freesock()
+void CMixInit::FreeSockFFmpeg()
 {
 	for (int i = 0; i < tracks; ++i)
 	{

@@ -21,22 +21,22 @@ using namespace std;
 extern FILE *FileLogMixerInit;
 struct Initing;
 struct SSource;
+struct NetworkData;
+
 typedef shared_ptr<CAVPacket2> SHP_CAVPacket2;
 
 class CMixInit
 {
 public:
 	CMixInit(){ tracks=0; }
-	CMixInit(vector<string> input_SDPs, vector<string> IPs, vector<int> my_ports, vector<int> remote_ports)
+	CMixInit(NetworkData net)
 	{
-		tracks = my_ports.size();
-		IPs_ = IPs;
-		my_ports_ = my_ports;
-		remote_ports_ = remote_ports;
-		init(input_SDPs);
+		tracks = net.my_ports.size();
+		net_ = net;
+		init(net.input_SDPs);
 	}
 	Initing data;
-	void freesock();
+	void FreeSockFFmpeg();
 private:
 	void loggit(string a);
 	int FirstInit();
@@ -51,8 +51,6 @@ private:
 
 	int tracks;
 
-	vector<string> IPs_;
-	vector<int> my_ports_;
-	vector<int> remote_ports_;
+	NetworkData net_;
 };
 typedef std::shared_ptr<CMixInit> SHP_CMixInit;

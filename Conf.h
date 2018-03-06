@@ -3,7 +3,11 @@
 //#include "SrcCash.h"
 #include "CRTPReceive.h"
 #include "DestFusion.h"
+#include "Structs.h"
 #include <boost/thread/thread.hpp>
+
+struct NetworkData;
+
 extern FILE *FileLogConfPoint;
 extern FILE *FileLogConfRoom;
 /************************************************************************
