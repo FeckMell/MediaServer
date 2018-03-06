@@ -8,7 +8,7 @@ namespace cnf
 	class CnfPoint
 	{
 	public:
-		CnfPoint(string, string, string, string/*, boost::asio::io_service&*/);
+		CnfPoint(string, string, string, string);
 		~CnfPoint();
 
 		void SetMaxTimesTook(int);
@@ -24,7 +24,6 @@ namespace cnf
 		SHP_SOCK socket;
 		RTP_struct rtp;
 		EP endPoint;
-		//IO& ioCnf;
 
 	private:
 		void InitCodec(AVCodecContext**, bool);//true-decoder, false-encoder

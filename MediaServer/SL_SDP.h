@@ -8,6 +8,7 @@ class SDP
 public:
 	SDP(){}
 	SDP(string);
+	SDP(string, string);//GENERATE
 	
 	void ChangeModeS(string);
 	static SDP Generate(string, string);

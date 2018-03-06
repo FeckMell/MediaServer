@@ -19,17 +19,18 @@ void Ann::Delete()
 //*///------------------------------------------------------------------------------------------
 void Ann::RequestMusic(SHP_MGCP mgcp_)
 {
-	
 	fileName = get_substr(mgcp_->data["S"], ",file:///", ")");
-	
 	if (CheckFileExistance() == false)
 	{
-		
 		mgcp_->innerError = "File does not exist";
 		return;
 	}
-	state = true;
-	SendToAnnModul("cr");
+	
+	if (point->state == true)
+	{
+		state = true;
+		SendToAnnModul("cr");
+	}
 	
 }
 //*///------------------------------------------------------------------------------------------
@@ -49,9 +50,9 @@ void Ann::SendToAnnModul(string event_)
 	result += "To=ann\n";
 	result += "EventID=mgcp" + eventID + "\n";
 	result += "EventType=" + event_ + "\n";
-	result += "ClientIP=" + point->clientIP + "\n";
-	result += "ClientPort=" + point->clientPort + "\n";
-	result += "ServerPort=" + point->serverPort + "\n";
+	result += "ClientIP=" + point->clientSDP->data["IP"] + "\n";
+	result += "ClientPort=" + point->clientSDP->data["Port"] + "\n";
+	result += "ServerPort=" + point->serverSDP->data["Port"] + "\n";
 	result += "FileName=" + fileName + "\n";
 	NET::vecSigsIN[NET::INNER::ann](result);
 	

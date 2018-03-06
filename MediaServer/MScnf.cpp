@@ -11,13 +11,15 @@ Control::Control()
 //*///------------------------------------------------------------------------------------------
 void Control::Preprocessing(string message_)
 {
+	cout << "\nControl::Preprocessing";
+	cout << "IPL:\n" << message_;
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
 
 	if (ipl->data["EventType"] == "cr") CR(ipl);
-	else if (ipl->data["EventType"] == "md") MD(ipl);
 	else if (ipl->data["EventType"] == "dl") DL(ipl);
 	else
 	{
+		cout << "\n66";
 		return;
 	}
 }
@@ -25,54 +27,41 @@ void Control::Preprocessing(string message_)
 //*///------------------------------------------------------------------------------------------
 void Control::CR(SHP_IPL ipl_)
 {
-	
-	if (FindCnf(ipl_) != nullptr)
-	{
-		cout << "\n5";
-		return;
+	SHP_Cnf found_cnf = FindCnf(ipl_->data["EventID"]);
+	cout << "\na1";
+	if (found_cnf != nullptr)
+	{ 
+		cout << "\na3";
+		found_cnf->~Cnf();
+		RemoveCnf(found_cnf); 
 	}
-	
+	cout << "\na2";
+
 	SHP_Cnf new_cnf = make_shared<Cnf>(ipl_);
+	cout << "\na4";
 	vecCnf.push_back(new_cnf);
-	
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Control::MD(SHP_IPL ipl_)
-{
-	
-	SHP_Cnf found_cnf = FindCnf(ipl_);
-	if (found_cnf == nullptr)
-	{
-		cout << "\n6";
-		return;
-	}
-	
-	found_cnf->MD(ipl_);
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Control::DL(SHP_IPL ipl_)
 {
-	
-	SHP_Cnf found_cnf = FindCnf(ipl_);
+	SHP_Cnf found_cnf = FindCnf(ipl_->data["EventID"]);
 	if (found_cnf == nullptr)
 	{
 		cout << "\n7";
 		return;
 	}
-	
-	found_cnf->DL(ipl_);
-	
-	RemoveCnf(found_cnf);
-	
+	else
+	{
+		found_cnf->~Cnf();
+		RemoveCnf(found_cnf);
+	}	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-SHP_Cnf Control::FindCnf(SHP_IPL ipl_)
+SHP_Cnf Control::FindCnf(string event_id_)
 {
-	for (auto& cnf : vecCnf) if (cnf->cnfID == ipl_->data["EventID"]) return cnf;
+	for (auto& cnf : vecCnf) if (cnf->cnfID == event_id_) return cnf;
 	return nullptr;
 }
 //*///------------------------------------------------------------------------------------------

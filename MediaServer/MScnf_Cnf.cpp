@@ -5,123 +5,58 @@ using namespace cnf;
 
 Cnf::Cnf(SHP_IPL ipl_)
 {
-	
 	cnfID = ipl_->data["EventID"];
-	
+	cout << "\nb1";
 	ParsePoints(ipl_);
-	
+	cout << "\nb2";
 	mixerAudio.reset(new Audio(vecPoints));
-	
+	cout << "\nb3";
 }
 Cnf::~Cnf()
 {
-	
-	vecPoints.clear(); 
+	//mixerAudio->Stop();
 	mixerAudio.reset();
-	
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Cnf::MD(SHP_IPL ipl_)
-{
-	
-	mixerAudio->Stop();
-	
-	AddRmPoint({
-		ipl_->data["ClientPort"],
-		ipl_->data["ServerPort"],
-		ipl_->data["ClientIP"]
-	});
-	
-	mixerAudio->MD(vecPoints);	
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Cnf::DL(SHP_IPL ipl_)
-{
-	
-	mixerAudio->Stop();
-	
+	vecPoints.clear(); 
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::ParsePoints(SHP_IPL ipl_)
 {
-	
-	vector<vector<string>> points_params;
-	points_params.resize(3);
-
-	string client_ports = ipl_->data["ClientPort"];
-	string server_ports = ipl_->data["ServerPort"];
-	string client_IPs = ipl_->data["ClientIP"];
-	size_t fd=0;
-	while (fd != string::npos)
-	{
-		fd = client_ports.find(" ");
-		points_params[0].push_back(client_ports.substr(0, fd));
-		
-		if (fd == string::npos) break;
-		client_ports = client_ports.substr(fd+1);
-	}fd = 0;
-	
-	while (fd != string::npos)
-	{
-		fd = server_ports.find(" ");
-		points_params[1].push_back(server_ports.substr(0, fd));
-		
-		if (fd == string::npos) break;
-		server_ports = server_ports.substr(fd+1);
-	}fd = 0;
-	while (fd != string::npos)
-	{
-		fd = client_IPs.find(" ");
-		points_params[2].push_back(client_IPs.substr(0, fd));
-		
-		if (fd == string::npos) break;
-		client_IPs = client_IPs.substr(fd+1);
-	}fd = 0;
-
-	
-	CreatePoints(points_params);
+	cout << "\nc1";
+	vector<string> client_ports = ParseLine(ipl_->data["ClientPort"]);
+	vector<string> server_ports = ParseLine(ipl_->data["ServerPort"]);
+	vector<string> client_ips = ParseLine(ipl_->data["ClientIP"]);
+	cout << "\nc2";
+	CreatePoints({ client_ports, server_ports, client_ips });
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::CreatePoints(vector<vector<string>> data_)
 {
-	
+	cout << "\nc3";
 	for (int i = 0; i < (int)data_[0].size(); ++i)
 	{
 		vecPoints.push_back(make_shared<CnfPoint>(data_[0][i], data_[1][i], data_[2][i], CFG::data[CFG::outerIP]));
 	}
+	cout << "\nc4";
 	for (int i = 1; i < (int)vecPoints.size(); ++i)
 	{
 		vecPoints[i]->socket->ChangeIO(vecPoints[0]->socket->io);
 	}
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Cnf::AddRmPoint(vector<string> params_)
+vector<string> Cnf::ParseLine(string line_)
 {
-	
-	for (int i = 0; i < (int)vecPoints.size(); ++i)
+	vector<string> result;
+	size_t fd = 0;
+	while (fd != string::npos)
 	{
-		if (vecPoints[i]->serverPort == params_[1])
-		{
-			
-			vecPoints.erase(remove(vecPoints.begin(), vecPoints.end(), vecPoints[i]), vecPoints.end());
-			return;
-		}
+		fd = line_.find(" ");
+		result.push_back(line_.substr(0, fd));
+
+		if (fd == string::npos) break;
+		line_ = line_.substr(fd + 1);
 	}
-	vecPoints.push_back(
-		make_shared<CnfPoint>(
-		params_[0],
-		params_[1],
-		params_[2],
-		CFG::data[CFG::outerIP]
-		));
-	vecPoints.back()->socket->ChangeIO(vecPoints[0]->socket->io);
-	
+	return result;
 }
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------

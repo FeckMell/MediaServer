@@ -49,8 +49,7 @@ void MGCP::SplitMGCPandSDP()
 		line++;
 		temp = copy_single_n_line(request, line);
 	}
-	if (sdp == "") clientSDP.reset(new SDP());
-	else clientSDP.reset(new SDP(sdp));
+	if (sdp != "") clientSDP.reset(new SDP(sdp));
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -160,10 +159,14 @@ void MGCP::CheckValid()
 		return;
 	}
 
-	if (clientSDP->error != "")
+	// Check SDP
+	if (clientSDP != nullptr)
 	{
-		outerError = clientSDP->error;
-		return;
+		if (clientSDP->error != "")
+		{
+			outerError = clientSDP->error;
+			return;
+		}
 	}
 }
 //*///------------------------------------------------------------------------------------------
@@ -194,7 +197,7 @@ string MGCP::ResponseOK()
 		result += "\nZ: " + data["EventType"] + "/" + data["EventID"] + "@[" + data["Addr"] + "]";
 		result += "\nI: " + to_string(rand() % 10000);
 
-		result += "\n\n" + serverSDP->sdp;
+		if (serverSDP != nullptr) result += "\n\n" + serverSDP->sdp;
 	}
 	return result;
 }
@@ -222,6 +225,6 @@ string MGCP::PrintAll()
 {
 	string result = "";
 	for (auto& e : data) result += "\n_" + e.first + "_=_" + e.second + "_";
-	result += "\n" + clientSDP->sdp;
+	if (clientSDP != nullptr) result += "\n" + clientSDP->sdp;
 	return result;
 }

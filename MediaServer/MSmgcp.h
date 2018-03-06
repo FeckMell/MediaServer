@@ -14,7 +14,6 @@ namespace mgcp
 	public:
 
 		Control();
-		//void Preprocessing(SHP_MGCP);
 		void PreprocessingIN(string);
 		void PreprocessingOUT(REQUEST);
 
@@ -35,18 +34,6 @@ namespace mgcp
 		void RemoveCnf(SHP_Cnf);// delete ID
 		SHP_Ann FindAnn(string);
 		void RemoveAnn(SHP_Ann);// delete ID
-
-		string GenSDP(string, SHP_MGCP);
-
-		//string ReservePort();
-		//void FreePort(string);
-
-		//string ReserveEventID();
-		//void FreeEventID(string);
-
-		//vector<int> usedPorts;
-		//vector<int> usedEventID;
-		int lastSDP_ID;
 
 		vector<SHP_Point> vecPoints;
 		vector<SHP_Ann> vecAnns;

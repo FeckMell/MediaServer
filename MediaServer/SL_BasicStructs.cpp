@@ -11,15 +11,18 @@ SOCK::SOCK(string ip_, int port_, SHP_IO io_) :s(*io_.get()), io(io_)
 }
 void SOCK::ChangeIO(SHP_IO io_)
 {
-	auto ep_old = s.local_endpoint();
-	s.cancel();
-	s.close();
+	if (io_ != io)
+	{
+		auto ep_old = s.local_endpoint();
+		s.cancel();
+		s.close();
 
-	s = boost::asio::ip::udp::socket(*io_.get());
-	s.open(boost::asio::ip::udp::v4());
-	s.set_option(boost::asio::ip::udp::socket::reuse_address(true));
-	s.bind(ep_old);
-	io = io_;
+		s = boost::asio::ip::udp::socket(*io_.get());
+		s.open(boost::asio::ip::udp::v4());
+		s.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+		s.bind(ep_old);
+		io = io_;
+	}
 }
 SOCK::~SOCK()
 {

@@ -12,13 +12,14 @@ namespace mgcp
 		Cnf(SHP_Point, string);
 		void AddPoint(SHP_Point);
 		bool DeletePoint(SHP_Point);
-		void Process(SHP_Point);
+		void Process();
 
 		string eventID;
 	private:
-		int GetNumOfActivePoints();
+		void SendDL();
+		void SendCR(vector<SHP_Point>);
+
 		bool state = false;
-		void SendCnfModul(string);
 		vector<SHP_Point> vecPoints;
 	};
 	typedef shared_ptr<Cnf> SHP_Cnf;

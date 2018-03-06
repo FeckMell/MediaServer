@@ -11,8 +11,9 @@ namespace cnf
 	{
 	public:
 		Audio(vector<SHP_CnfPoint>);
-		void MD(vector<SHP_CnfPoint>);
-		void Stop();
+		~Audio();
+		//void MD(vector<SHP_CnfPoint>);
+		//void Stop();
 
 	private:
 		/*initing and reiniting*/

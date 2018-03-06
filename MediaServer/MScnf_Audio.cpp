@@ -5,15 +5,18 @@ using namespace cnf;
 
 Audio::Audio(vector<SHP_CnfPoint> points_) : vecPoints(points_)
 {
-	
 	filter.reset(new  Filter(vecPoints));
-	
 	CreateSilentFrame();
-	
 	for (int i = 0; i < (int)vecPoints.size(); ++i) vecPoints[i]->SetMaxTimesTook(vecPoints.size());
 	
 	Run();
-	
+}
+Audio::~Audio()
+{
+	state = false;
+	for (auto& e : vecPoints) e->socket->s.cancel();
+	eventThread->join();
+	filter.reset();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -32,21 +35,17 @@ void Audio::CreateSilentFrame()
 //*///------------------------------------------------------------------------------------------
 void Audio::Run()
 {
-	
 	state = true;
 	for (unsigned i = 0; i < vecPoints.size(); ++i)
 	{
-		
 		vecPoints[i]->socket->s.async_receive_from(
 			boost::asio::buffer(rawBuf.data, 1000), 
 			vecPoints[i]->endPoint,
 			boost::bind(&Audio::Receive, this, _1, _2, i)
 			);
 	}
-	this_thread::sleep_for(chrono::milliseconds(30));
-	
+
 	eventThread.reset(new thread(&Audio::RunIO, this));
-	
 }
 void Audio::RunIO()
 {
@@ -58,7 +57,6 @@ void Audio::RunIO()
 //*///------------------------------------------------------------------------------------------
 void Audio::Receive(boost::system::error_code ec_, size_t size_, int i_)
 {
-	//
 	if (state)
 	{
 		if (size_ > 12)
@@ -136,30 +134,8 @@ void Audio::EncodeAndSend(SHP_FRAME frame_, int i_)
 	}
 	catch (std::exception& e)
 	{
-		
+		e;
 	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Audio::MD(vector<SHP_CnfPoint> vecPoints_)
-{
-	
-	vecPoints = vecPoints_;
-	for (int i = 0; i < (int)vecPoints.size(); ++i) vecPoints[i]->SetMaxTimesTook(vecPoints.size());
-	
-	filter.reset(new Filter(vecPoints));
-	
-	Run();
-	
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Audio::Stop()
-{
-	
-	state = false;
-	for (auto &e : vecPoints) e->socket->s.cancel();
-	
-	eventThread->join();
-	
-}

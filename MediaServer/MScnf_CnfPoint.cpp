@@ -6,23 +6,23 @@ using namespace cnf;
 CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_)
 	: clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
-	
+	cout << "\nd1";
 	socket = SSTORAGE::GetSocket(serverPort);
+	cout << "\nd2";
 	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
+	cout << "\nd3";
 	
 	InitCodec(&iccx, true);
-	
+	cout << "\nd4";
 	InitCodec(&occx, false);
-	
+	cout << "\nd5";
 }
 CnfPoint::~CnfPoint()
 {
-	
 	avcodec_close(iccx);
 	avcodec_close(occx);
 	avcodec_free_context(&iccx);
 	avcodec_free_context(&occx);
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

@@ -8,105 +8,86 @@ Cnf::Cnf(SHP_Point point_, string event_id_)
 	
 	vecPoints.push_back(point_);
 	eventID = event_id_;
-	
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::AddPoint(SHP_Point point_)
 {
-	
 	vecPoints.push_back(point_);
-	Process(point_);
-	
+	state = false;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 bool Cnf::DeletePoint(SHP_Point point_)
 {
-	
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
-	if (vecPoints.size() == 0)
-	{
-		
-		return true;
-	}
-	else 
-	{ 
-		
-		Process(point_);
-		return false; 
-	}
+
+	if (vecPoints.size() == 0){ return true; }
+	else { return false; }
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Cnf::Process(SHP_Point point_)
+void Cnf::Process()
 {
-	
-	int active_points = GetNumOfActivePoints();
+	vector<SHP_Point> active_points;
+	for (auto& e : vecPoints) if (e->state == true) active_points.push_back(e);
+
 	if (state == false)
 	{
-		
-		if (active_points == 2)
+		if (active_points.size() == 2)
 		{
+			SendCR(active_points);
 			state = true;
-			
-			string client_ip = vecPoints[0]->clientIP + " " + point_->clientIP;
-			string client_port = vecPoints[0]->clientPort + " " + point_->clientPort;
-			string server_port = vecPoints[0]->serverPort + " " + point_->serverPort;
-
-			string result = "";
-			result += "From=mgcp\n";
-			result += "To=cnf\n";
-			result += "EventID=mgcp" + eventID + "\n";
-			result += "EventType=cr\n";
-			result += "ClientIP=" + client_ip + "\n";
-			result += "ClientPort=" + client_port + "\n";
-			result += "ServerPort=" + server_port + "\n";
-			NET::vecSigsIN[NET::INNER::cnf](result);
 		}
 	}
 	else
 	{
-		
-		if (active_points == 1)
+		if (active_points.size() >= 2)
 		{
+			SendCR(active_points);
+			state = true;
+		}
+		else
+		{
+			SendDL();
 			state = false;
-
-			string result = "";
-			result += "From=mgcp\n";
-			result += "To=cnf\n";
-			result += "EventID=mgcp" + eventID + "\n";
-			result += "EventType=dl\n";
-			NET::vecSigsIN[NET::INNER::cnf](result);
-		}
-		else if (active_points > 1 )
-		{
-			
-			string result = "";
-			result += "From=mgcp\n";
-			result += "To=cnf\n";
-			result += "EventID=mgcp" + eventID + "\n";
-			result += "EventType=md\n";
-			result += "ClientIP=" + point_->clientIP + "\n";
-			result += "ClientPort=" + point_->clientPort + "\n";
-			result += "ServerPort=" + point_->serverPort + "\n";
-			NET::vecSigsIN[NET::INNER::cnf](result);
-		}
-		else 
-		{
-			cout << "\n4";
-			system("pause");
 		}
 	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-int Cnf::GetNumOfActivePoints()
+void Cnf::SendDL()
 {
-	int result = 0;
-	for (auto point : vecPoints) if (point->state == true) result++;
-	
-	return result;
+	string result = "From=mgcp\n";
+	result += "To=cnf\n";
+	result += "EventID=mgcp" + eventID + "\n";
+	result += "EventType=dl\n";
+	NET::vecSigsIN[NET::INNER::cnf](result);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+void Cnf::SendCR(vector<SHP_Point> points_)
+{
+	string client_ip = "";
+	string client_port = "";
+	string server_port = "";
+
+	for (auto&e : points_)
+	{
+		client_ip += e->clientSDP->data["IP"] + " ";
+		client_port += e->clientSDP->data["Port"] + " ";
+		server_port += e->serverSDP->data["Port"] + " ";
+	}
+	client_ip.pop_back();
+	client_port.pop_back();
+	server_port.pop_back();
+
+	string result = "From=mgcp\n";
+	result += "To=cnf\n";
+	result += "EventID=mgcp" + eventID + "\n";
+	result += "EventType=cr\n";
+	result += "ClientIP=" + client_ip + "\n";
+	result += "ClientPort=" + client_port + "\n";
+	result += "ServerPort=" + server_port + "\n";
+	NET::vecSigsIN[NET::INNER::cnf](result);
+}
