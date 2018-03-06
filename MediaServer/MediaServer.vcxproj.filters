@@ -19,15 +19,6 @@
     <Filter Include="SharedLib\Header">
       <UniqueIdentifier>{52cb22aa-e349-4117-b502-fd7df570e37d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="MediaServer\Source">
-      <UniqueIdentifier>{f44a2694-709a-48d0-bcd2-e387a5ea2837}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MediaServer\Resource">
-      <UniqueIdentifier>{41913094-3d32-48a9-a753-e291e5cf047a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="MediaServer\Header">
-      <UniqueIdentifier>{dd1d1c1a-ff33-4918-a0d7-8b8d6f4a0f93}</UniqueIdentifier>
-    </Filter>
     <Filter Include="MSann\Source">
       <UniqueIdentifier>{d1af8bfd-8f89-4166-b6bb-05314efd6fce}</UniqueIdentifier>
     </Filter>
@@ -90,9 +81,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>MediaServer\Resource</Filter>
-    </ClCompile>
     <ClCompile Include="SharedLib.cpp">
       <Filter>SharedLib\Resource</Filter>
     </ClCompile>
@@ -159,9 +147,6 @@
     <ClCompile Include="MSsip_SIPparser.cpp">
       <Filter>MSsip\Source</Filter>
     </ClCompile>
-    <ClCompile Include="MediaServer.cpp">
-      <Filter>MediaServer\Source</Filter>
-    </ClCompile>
     <ClCompile Include="MSann.cpp">
       <Filter>MSann\Resource</Filter>
     </ClCompile>
@@ -186,14 +171,14 @@
     <ClCompile Include="MScnf_Point.cpp">
       <Filter>MScnf\Source</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>MediaServer</Filter>
+    </ClCompile>
+    <ClCompile Include="MediaServer.cpp">
+      <Filter>MediaServer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>MediaServer\Resource</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>MediaServer\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="SharedLib.h">
       <Filter>SharedLib\Resource</Filter>
     </ClInclude>
@@ -283,6 +268,9 @@
     </ClInclude>
     <ClInclude Include="MScnf_Point.h">
       <Filter>MScnf\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>MediaServer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -15,10 +15,8 @@
 #ifdef WIN32
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf _snprintf //use boost format or something else
-#include "targetver.h"
-#include <tchar.h>
-#include "targetver.h"
+#include <SDKDDKVer.h>
+//#include <tchar.h>//
 #endif
 
 

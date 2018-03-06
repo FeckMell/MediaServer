@@ -7,7 +7,6 @@ class SSTORAGE
 public:
 
 	static SHP_SOCK GetSocket(string);
-	//static SHP_SOCK GetSocket(string, SHP_IO);
 
 	static string ReservePort();
 	static void FreePort(string);

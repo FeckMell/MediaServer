@@ -11,7 +11,7 @@ Point::Point(SHP_SIP sip_, string event_id_)
 	eventID = event_id_;
 	callID = sip_->data["CallID"];
 	
-	ListenDTMF();
+	//ListenDTMF();
 	PlayAnn("login.wav");
 	
 }

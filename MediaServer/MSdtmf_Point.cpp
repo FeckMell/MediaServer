@@ -25,24 +25,22 @@ bool Point::Analyze(uint8_t ch[2])
 	{
 		
 		int button = (int)ch[1];
-		if (button < 10)
+		if (button < 10 && button >= 0)
 		{
-			
 			buttons.push_back(button);
 			return false;
 		}
-		else if (button == 10 || button==11) 
+		else if (button==11) 
 		{
-			
 			SendModul();
 			return true;
 		}
-		else
+		else if (button ==10)
 		{
-			
+			buttons.clear();
 			return false;
 		}
-		
+		else return false;
 	}
 	else
 	{

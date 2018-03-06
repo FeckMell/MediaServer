@@ -5,12 +5,6 @@
 class CFG
 {
 public:
-	enum ParamNames
-	{
-		outerIP, innerIP, innerPort, logLevel, mgcpPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
-		mediaPath, homePath, sipPort,
-		maxParamNames
-	};
 	//Methods for Data.
 	static void Init(char*);
 	static string GetParams();
@@ -18,6 +12,7 @@ public:
 	static void ParseConfigFile();
 
 	//Data.
-	static vector<string> data;
+	static map<string, string> data;
 	static string error;
+	static string slash;
 };

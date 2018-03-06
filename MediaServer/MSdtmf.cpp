@@ -49,8 +49,8 @@ void Control::DL(SHP_IPL ipl_)
 	SHP_Point found_point = FindPoint(ipl_->data["EventID"]);
 	if (found_point == nullptr)
 	{
-		
-		exit(-1);
+		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSDTMF: DL: point not found id=" << ipl_->data["EventID"];
+		return;
 	}
 	
 	DeletePoint(found_point);
@@ -78,7 +78,6 @@ void Control::Receive(boost::system::error_code ec_, size_t size_, SHP_Point poi
 		}
 		else
 		{
-			
 			DeletePoint(point_);
 		}
 	}
@@ -94,6 +93,7 @@ void Control::DeletePoint(SHP_Point point_)
 {
 	
 	point_->socket->s.cancel();
+	point_->socket->io->reset();
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
 	
 }

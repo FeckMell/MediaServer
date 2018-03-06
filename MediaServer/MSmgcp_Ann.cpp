@@ -36,7 +36,7 @@ void Ann::RequestMusic(SHP_MGCP mgcp_)
 //*///------------------------------------------------------------------------------------------
 bool Ann::CheckFileExistance()
 {
-	ifstream file(CFG::data[CFG::mediaPath] + "\\" + fileName);
+	ifstream file(CFG::data["mediaPath"] + CFG::slash + fileName);
 	if (file.is_open()) { file.close(); return true; }
 	else{ return false; }
 }

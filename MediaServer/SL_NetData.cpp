@@ -19,14 +19,14 @@ void NET::Init()
 	socketsOUT.resize(maxOUT);
 	 
 	socketsOUT[OUTER::mgcp_].reset(new SOCK(
-		CFG::data[CFG::outerIP],
-		stoi(CFG::data[CFG::mgcpPort]),
+		CFG::data["outerIP"],
+		stoi(CFG::data["mgcpPort"]),
 		outerIO
 		));
 	 
 	socketsOUT[OUTER::sip_].reset(new SOCK(
-		CFG::data[CFG::outerIP],
-		stoi(CFG::data[CFG::sipPort])+1,//debug
+		CFG::data["outerIP"],
+		stoi(CFG::data["sipPort"]),
 		outerIO
 		));
 	 

@@ -2,18 +2,11 @@
 #include "SL_Logs.h"
 
 vector<string> LOG::logNames = { "MAIN", "MGCP", "SIP", "ANN", "CNF", "PRX", "DTMF", "SQL" };
-//vector<BOOSTLOGGER> LOG::vecLogs = {};
 BOOSTLOGGER LOG::vecLogs;
 
 void LOG::Init()
 {
-	//vecLogs.resize(maxL);
-	//vecLogs.resize(1);
-
-	//for (int i = 0; i < maxL; ++i)
-	//{
-		string log_path = CFG::data[CFG::homePath] + "\\logs\\%Y-%m-%d_" + logNames[0] + ".log";
-	//string log_path ="\\logs\\%Y-%m-%d_.log";
+	string log_path = CFG::data["logPath"] + CFG::slash + "%Y-%m-%d_" + logNames[0] + ".log";
 		boost::log::add_file_log
 			(
 			boost::log::keywords::auto_flush = true,
@@ -22,13 +15,11 @@ void LOG::Init()
 			boost::log::keywords::format = "[%TimeStamp%]:[%ThreadID%] %Message%",                                 /*< log record format >*/
 			boost::log::keywords::open_mode = std::ios_base::app
 			);
-		boost::log::core::get()->set_filter(boost::log::trivial::severity >= stoi(CFG::data[CFG::logLevel]));
+		boost::log::core::get()->set_filter(boost::log::trivial::severity >= stoi(CFG::data["logLevel"]));
 		boost::log::add_common_attributes();
-	//}
 }
-BOOSTLOGGER LOG::GL(/*L*/int l_)
+BOOSTLOGGER LOG::GL(int l_)
 {
-	//try{ return vecLogs[l_]; }
 	try{ return vecLogs; }
 	catch (exception& e)
 	{

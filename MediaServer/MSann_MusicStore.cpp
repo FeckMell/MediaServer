@@ -19,7 +19,7 @@ int MediaFile::OpenFile()
 	
 	int action_result = 0;
 
-	string file = CFG::data[CFG::mediaPath] + "\\" + fileName;
+	string file = CFG::data["mediaPath"] + CFG::slash + fileName;
 	
 	AVFormatContext* ifcx = nullptr;
 	action_result = avformat_open_input(&ifcx, file.c_str(), 0, 0);

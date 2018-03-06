@@ -15,7 +15,7 @@ SHP_SOCK SSTORAGE::GetSocket(string port_)
 	else
 	{
 		SHP_IO new_io; new_io.reset(new IO());
-		SHP_SOCK new_sock; new_sock.reset(new SOCK(CFG::data[CFG::outerIP], stoi(port_), new_io));
+		SHP_SOCK new_sock; new_sock.reset(new SOCK(CFG::data["outerIP"], stoi(port_), new_io));
 
 		mapSocks[port_] = new_sock;
 		return new_sock;
@@ -25,7 +25,7 @@ SHP_SOCK SSTORAGE::GetSocket(string port_)
 //*///------------------------------------------------------------------------------------------
 string SSTORAGE::ReservePort()
 {
-	int free_port = stoi(CFG::data[CFG::rtpPort]);
+	int free_port = stoi(CFG::data["rtpPort"]);
 	if (usedPorts.size() == 0)
 	{
 		usedPorts.push_back(free_port);
@@ -50,6 +50,7 @@ string SSTORAGE::ReservePort()
 void SSTORAGE::FreePort(string port_)
 {
 	usedPorts.erase(remove(usedPorts.begin(), usedPorts.end(), stoi(port_)), usedPorts.end());
+	//SHP_IO io = mapSocks[port_]->io;
 	mapSocks.erase(port_);
 }
 //*///------------------------------------------------------------------------------------------

@@ -1,25 +1,29 @@
 #include "stdafx.h"
 #include "SL_Config.h"
 
-vector<string> CFG::data = {};
+map<string, string> CFG::data = {};
 string CFG::error = "";
+#ifdef WIN32
+string CFG::slash = "\\";
+#else
+string CFG::slash = "/";
+#endif
 
 void CFG::Init(char* path_)
 {
-	data.resize(maxParamNames);
-	data[rtpPort] = "20000";
-	data[mgcpPort] = "2427";
-	data[innerPort] = "2427";
-	data[innerIP] = "127.0.0.1";
-	data[maxTimeAnn] = "90";
-	data[maxTimeCnf] = "1";
-	data[maxTimePrx] = "1";
-	data[logLevel] = "3";
-	data[mediaPath] = "MediaFiles";
-	data[sipPort] = "5060";
-	GetPathEXE(string(path_));//Put path to exe in InitP
+	GetPathEXE(string(path_));
+	data["rtpPort"] = "20000";
+	data["mgcpPort"] = "2427";
+	data["maxTimeAnn"] = "90";
+	data["maxTimeCnf"] = "1";
+	data["maxTimePrx"] = "1";
+	data["logLevel"] = "3";
+	data["mediaPath"] = "MediaFiles";
+	data["sipPort"] = "5070";
+	data["logPath"] = data["homePath"] + slash + "MS_logs";
+	
 	ParseConfigFile();
-	data[mediaPath] = data[homePath] + "\\" + data[mediaPath];
+	data["mediaPath"] = data["homePath"] + slash + data["mediaPath"];
 
 	/* Init FFMPEG */
 	av_log_set_level(0);
@@ -32,39 +36,29 @@ void CFG::Init(char* path_)
 //*///------------------------------------------------------------------------------------------
 void CFG::GetPathEXE(string path_)
 {
-	size_t fd_pos = path_.find_last_of("\\");
+	size_t fd_pos = path_.find_last_of(slash);
 	path_.resize(fd_pos);
-	data[homePath] = path_;
+	data["homePath"] = path_;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void CFG::ParseConfigFile()
 {
 	ifstream file;
-	file.open(data[homePath] + "\\MGCPInit.cfg");
+	file.open(data["homePath"] + slash + "MGCPInit.cfg");
 	if (file.is_open())
 	{
 		string file_line;
-		size_t found;
-		vector<string> alphabet = { "outerIP=", "innerIP=", "innerPort=", "logLevel=", "outerPort=", "rtpPort=",
-			"maxTimeAnn=", "maxTimeCnf=", "maxTimePrx=", "mediaPath=", "portSIP=" };
+		cmatch results;
+		regex reg3(R"((\w+)=(.+))");
 
 		while (getline(file, file_line) && (file_line.substr(0, 3) != "***"))
 		{
-			for (int i = 0; i < maxParamNames; ++i)
-			{
-				if ((found = file_line.find(alphabet[i])) != string::npos)
-				{
-					data[i] = file_line.substr(found + alphabet[i].length(), file_line.back());
-					break;
-				}
-			}
+			regex_match(file_line.c_str(), results, reg3);
+			data[results.str(1)] = results.str(2);
 		}
-		if (data[outerIP] == ""){ error = "IP for receiving messages not set in *.cfg file.\n"; }
-#ifdef __linux__
-		data[PathEXE].pop_back();
-		data[PathEXE].pop_back();
-#endif
+		if (data["outerIP"] == "") error = "IP for receiving messages not set in *.cfg file.\n"; 
+		else if (data["sipName"] == "") error = "sipName for receiving messages not set in *.cfg file.\n";
 	}
 	else { error = "Could not open *.cfg file. Check its existance or name. Name Must \"be MGCPInit.cfg\".\n"; }
 	if (error != "")
@@ -73,26 +67,25 @@ void CFG::ParseConfigFile()
 		system("pause");
 		exit(-1);
 	}
-	if (data[outerIP] == data[innerIP]) data[innerPort] = "2327";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 string CFG::GetParams()
 {
 	string result = "";
-
-	result += "\nNumber, from which RTP ports starts counting with step = 2: " + data[rtpPort];
-	result += "\nOuter port: " + data[mgcpPort];
-	result += "\nInner port: " + data[innerPort];
-	result += "\nInner IP: " + data[innerIP];
-	result += "\nMediaPath: " + data[mediaPath];
-	result += "\nOuter IP: " + data[outerIP];
-	result += "\nMax inactive time for Announcements in mins: " + data[maxTimeAnn];
-	result += "\nMax inactive time for Conference in mins: " + data[maxTimeCnf];
-	result += "\nMax inactive time for Proxy calls in mins: " + data[maxTimePrx];
-	result += "\nLogLevel: " + data[logLevel];
-	result += "\nportSIP: " + data[sipPort];
-	result += "\nParsed path to application(home folder for MGCP server):\n" + data[homePath];
+	result += "\nParsed path to application(home folder for MGCP server):\n" + data["homePath"];
+	result += "\nMediaPath: " + data["mediaPath"];
+	result += "\nLogPath: " + data["logPath"];
+	result += "\nOuter IP: " + data["outerIP"];
+	result += "\nMGCP port: " + data["mgcpPort"];
+	result += "\nSIP port: " + data["sipPort"];
+	result += "\nNumber, from which RTP ports starts counting with step = 2: " + data["rtpPort"];
+	
+	result += "\n\nMax inactive time for Announcements in mins: " + data["maxTimeAnn"];
+	result += "\nMax inactive time for Conference in mins: " + data["maxTimeCnf"];
+	result += "\nMax inactive time for Proxy calls in mins: " + data["maxTimePrx"];
+	result += "\nLogLevel: " + data["logLevel"];
+	
 	return result + "\n";
 }
 //*///------------------------------------------------------------------------------------------

@@ -26,7 +26,7 @@ SDP::SDP(string port_, string call_id_)
 		"a=sendrecv\n"
 		));
 	sdp = str(template_sdp
-		%CFG::data[CFG::outerIP]
+		%CFG::data["outerIP"]
 		% port_
 		%sdpID
 		%call_id_
@@ -150,7 +150,7 @@ SDP SDP::Generate(string port_, string call_id_)
 		"a=sendrecv\n"
 		));
 	string result = str(template_sdp
-		%CFG::data[CFG::outerIP]
+		%CFG::data["outerIP"]
 		%port_
 		%sdpID
 		%call_id_

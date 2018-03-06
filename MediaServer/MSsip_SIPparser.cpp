@@ -100,7 +100,7 @@ string SIP::ReplyRinging()
 			}
 			else
 			{
-				result += temp_line + "\n";
+				result += temp_line + "\r\n";
 			}
 		}
 		else if (temp_line.find("To: ") != string::npos)
@@ -123,8 +123,9 @@ string SIP::ReplyRinging()
 		temp_line = copy_single_n_line(sip, line);
 	}
 
-	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";//TODO
-	result += "Content-Length: 0\r\n";
+	//result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";//TODO
+	result += "Contact: <sip:" + CFG::data["sipName"] + "@" + CFG::data["outerIP"] + ":" + CFG::data["sipPort"] + ">\r\n";
+	result += "Content-Length: 0\r\n\r\n";
 	return result;
 	//SendClient(result);
 }
@@ -169,7 +170,7 @@ string SIP::ReplyOK()
 		line++;
 		temp_line = copy_single_n_line(sip, line);
 	}
-	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";//TODO
+	result += "Contact: <sip:" + CFG::data["sipName"] + "@" + CFG::data["outerIP"] + ":" + CFG::data["sipPort"] + ">\r\n";
 	if (serverSDP->sdp != "")
 	{
 		result += "Content-Type: application/sdp\r\n";
@@ -181,14 +182,7 @@ string SIP::ReplyOK()
 		result += "Content-Length: 0\r\n";
 	}
 	return result;
-	//SendClient(result);
 }
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-/*void SIP::ResponseBAD()
-{
-	SendClient("SIP/2.0 400 Bad Request\r\n" + innerError + " " + outerError + "\r\n");
-}*/
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIP::ReplyClient()

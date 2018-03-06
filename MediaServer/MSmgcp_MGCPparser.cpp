@@ -201,7 +201,7 @@ string MGCP::PrintAll()
 {
 	string result = "";
 	for (auto& e : data) result += "\n_" + e.first + "_=_" + e.second + "_";
-	if (clientSDP->sdp != "") result += "\n" + clientSDP->sdp;
+	if (clientSDP->sdp != "") result += "\nSDP:\n" + clientSDP->sdp;
 	return result;
 }
 //*///------------------------------------------------------------------------------------------

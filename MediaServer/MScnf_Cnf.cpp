@@ -35,7 +35,7 @@ void Cnf::CreatePoints(vector<vector<string>> data_)
 {
 	for (int i = 0; i < (int)data_[0].size(); ++i)
 	{
-		vecPoints.push_back(make_shared<Point>(data_[0][i], data_[1][i], data_[2][i], CFG::data[CFG::outerIP]));
+		vecPoints.push_back(make_shared<Point>(data_[0][i], data_[1][i], data_[2][i], CFG::data["outerIP"]));
 	}
 	for (int i = 1; i < (int)vecPoints.size(); ++i)
 	{

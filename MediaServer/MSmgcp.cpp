@@ -19,6 +19,7 @@ void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message_.data, message_.sender));
 	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: message is:\n" << message_.data;
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: message Paresed as:\n" << mgcp->PrintAll();
 	if (mgcp->outerError == "")
 	{
 		string cmd = mgcp->data["CMD"];
@@ -174,7 +175,6 @@ void Control::DLCX_ANN(SHP_MGCP mgcp_)
 		mgcp_->innerError = "Control::DLCX_ANN ann not found ERROR";
 		return;
 	}
-
 	found_ann->Delete();
 	RemoveAnn(found_ann);
 	RemovePoint(found_point);

@@ -65,6 +65,12 @@ void Control::PreprocessingOUT(REQUEST message_)
 //*///------------------------------------------------------------------------------------------
 void Control::Invite(SHP_SIP sip_)
 {
+	SHP_Point found_point = FindPoint(sip_->data["CallID"]);
+	if (found_point != nullptr)
+	{
+		sip_->innerError = "Invite: point already exists";
+		return;
+	}
 	string new_port = SSTORAGE::ReservePort();
 	string event_id = SSTORAGE::ReserveEventID();
 	sip_->serverSDP.reset(new SDP(new_port, sip_->data["CallID"]));
