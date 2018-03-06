@@ -16,6 +16,7 @@ public:
 		boost::circular_buffer<SHP_CScopedPFrame>	frames;
 	};
 	SHP_CSrcCashEntry newEntry();
+	SHP_CSrcCashEntry removeEntry();
 	SHP_CScopedPFrame pendingData(const CSrcCashEntry*, bool& bEOF);
 	//std::mutex& Mutex() const { return mutex_; }
 	const AVCodecContext *CodecCTX()const { return src_->CodecCTX(); };

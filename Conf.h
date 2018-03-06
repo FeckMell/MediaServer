@@ -20,7 +20,6 @@ public:
 	enum enmSTATE{ stInactive, stSendOnly, stSendRec };
 	enmSTATE State() const { return state_; }
 	void setState(CConfPoint::enmSTATE val);
-
 	void runDestThread();
 
 private:
@@ -31,6 +30,7 @@ private:
 	void _removeSrc(SHP_CSrcCashEntry shpSrcCashed);
 	void _terminateFusion();
 
+	std::mutex  mutex_;
 	enmSTATE	state_ = stInactive;
 	CConfRoom&	refRoom_;
 //	SHP_ISrcFusion shpSrc_;
@@ -53,10 +53,11 @@ public:
 
 	enmSTATE State() const {  return state_; }
 	void setState(CConfRoom::enmSTATE val);
-
+	void delPoint(SHP_CConfPoint shpPnt,  unsigned short port, const TRTP_Dest& rtpdest);
 	void newPoint(const string& sdp_file, unsigned short port, const TRTP_Dest& rtpdest);
-	void newPoint(const string& strFile, const TRTP_Dest& rtpdest);
+	void newPoint(const string& strFile,  const TRTP_Dest& rtpdest);
 private:
+	void _remove(SHP_CConfPoint);
 	void _add(SHP_CConfPoint);
 
 	std::mutex  mutex_;

@@ -16,6 +16,7 @@ void log(const _T& val)
 ************************************************************************/
 SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 {
+	
 #if 1
 /*
 	bEOF = false;
@@ -26,15 +27,15 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 */
 
 
-	{
-/*
+/*	{
+// { } - whatfor?
 		lock lk(pCash_.Mutex());
 		frame = buffer_.empty() ? 
 			pCash_.pendingData(this, bEOF)
 			: buffer_.pop();
-*/
-	}
 
+	}
+*/
 	//SHP_CScopedPFrame frame = pCash_.pendingData(this, bEOF); //buffer_.pop(false);
 
 	/*if (buffFrames_.empty())
@@ -49,7 +50,10 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 */
 
 	//lock lk(pCash_.Mutex());
-	SHP_CScopedPFrame frame;  ;
+	// ; - whatfor?
+	printf("\nGetNextDecoded(SrcCash)\n");
+	SHP_CScopedPFrame frame;//  ;
+	
 	if (!buffFrames_.try_pop(frame))
 	{
 		//log(boost::format("%1% before pop %2%\n") % Name() % buffFrames_.size());
@@ -66,7 +70,7 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 		cout << i << '\n';*/
 
 
-	//	log(boost::format("%1% after pop %2%\n") % Name() % buffFrames_.size());
+		//log(boost::format("%1% after pop %2%\n") % Name() % buffFrames_.size());
 
 /*
 		if (!buffFrames_.empty())
@@ -91,7 +95,7 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 
 
 	return frame;
-#else
+#else 
 	lock lk(pCash_.Mutex());
 	SHP_CScopedPFrame shResut;
 	bEOF = false;
@@ -111,7 +115,7 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 	}
 
 	return shResut;
-#endif
+#endif 
 }
 
 /************************************************************************
@@ -138,10 +142,11 @@ SHP_CScopedPFrame CSrcCash::pendingData(const CSrcCashEntry* pEntry, bool& bEOF)
 					% entry->Name()
 					;
 				entry->buffFrames_.push(frameCloned);
+				
 			}
 		});
 	}
-
+	printf("\n pendingdata finished\n");
 
 	return frameNext;
 }
@@ -181,6 +186,14 @@ SHP_CSrcCashEntry CSrcCash::newEntry()
 {
 	SHP_CSrcCashEntry shpResult = std::make_shared<CSrcCashEntry>(*this);
 	cllEntries_.reg(shpResult);
+	//mapEntries_
+	return shpResult;
+}
+//должно удалять из списка рассылки
+SHP_CSrcCashEntry CSrcCash::removeEntry()
+{
+	SHP_CSrcCashEntry shpResult = std::make_shared<CSrcCashEntry>(*this);
+	cllEntries_.unreg(shpResult);
 	//mapEntries_
 	return shpResult;
 }

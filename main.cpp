@@ -21,9 +21,7 @@ int main(int argc, char* argv[])
 {
 	try
 	{
-
 		setlocale(LC_ALL, "Russian"/*"ru_RU.UTF-8"*/);
-
 		/************************************************************************
 			Парсинг входящих параметров			                                                                     
 		************************************************************************/
@@ -104,8 +102,8 @@ int main(int argc, char* argv[])
 		************************************************************************/
 		CMGCPServer s({ io_service, endpServer, strMediaPath });
 		s.Run();
-
-		//io_service.run();
+		//
+		io_service.run();
 	}
 	catch (std::exception& e)
 	{

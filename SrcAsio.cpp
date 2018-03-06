@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SrcAsio.h"
+//#define _DEBUG
 
 /************************************************************************
 	CSrcAsio
@@ -79,7 +80,7 @@ SHP_CAVPacket CSrcAsio::popEncoded()
 void CSrcAsio::_do_receive()
 {
 	enum { RTP_HEADER_SIZE = 12 };
-
+	printf("RTP _do_recieve\n");
 	pSocket_->async_receive_from(
 		boost::asio::buffer(data_, max_length), endpSender_,
 		[this](boost::system::error_code ec, std::size_t bytes_recvd)
@@ -93,8 +94,8 @@ void CSrcAsio::_do_receive()
 			shpPacket->pts = shpPacket->dts = pts_;
 			pts_ += szPack;*/
 			circular_.push(shpPacket);
-
-/*
+//putbacktocomments
+///*
 #ifdef _DEBUG
 			cout << boost::format("%1% recieved %2% bytes in thread %3%\n") 
 				% Name()
@@ -102,7 +103,7 @@ void CSrcAsio::_do_receive()
 				% std::this_thread::get_id()
 				;
 #endif // _DEBUG
-*/
+//*/
 
 			//cout << boost::format("Recieved\t%1%\t%2%\n") % endpSender_ % bytes_recvd;
 		}

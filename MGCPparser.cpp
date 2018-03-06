@@ -355,7 +355,9 @@ private:
 	qi::rule<Iterator, std::string()> _EndP_Addr;
 	qi::rule<Iterator, std::string()> _EndP_Pnt;
 	qi::rule<Iterator, std::string()> _strLine;
-	qi::rule<Iterator/*, std::string()*/> _return;
+	qi::rule<Iterator/*, std::string()*/> _return; 
+	//test222
+	//qi::rule<Iterator, std::string()> _return;
 	qi::rule<Iterator, std::string()> _trimLStrLine;
 	qi::rule<Iterator, std::string()> _word;
 	qi::rule<Iterator, std::string()> _sdp_Name;
@@ -366,11 +368,12 @@ private:
 bool parseMGCP(const char* pCh, TMGCP& mgcp)
 {
 	TmplMGCPparser<const char*> parserMGCP(mgcp);
+	
 	auto pBegin = pCh;
 	auto pEnd	= pCh + strlen(pCh);
-
+	//printf("\n parsertest\n");
 	//bool b = parse(pBegin, pEnd, parserMGCP, ascii::space);
-	bool b = phrase_parse(pBegin, pEnd, parserMGCP, ascii::space)
+	bool b = qi::phrase_parse(pBegin, pEnd, parserMGCP, ascii::space)
 		&& pBegin == pEnd;
 	printf("Parser %s\n", b ? "OK" : "false");
 

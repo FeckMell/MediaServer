@@ -106,7 +106,8 @@ SHP_CScopedPFrame CSrcCommon::getNextDecoded(bool& bEOF)
 int CSrcCommon::open(const string& strFile)
 {
 	_closeFormat();
-	strName_ = str(boost::format("%1%_%2%") % this % strFile);
+	//whatfor?
+	//strName_ = str(boost::format("%1%_%2%") % this % strFile);
 
 
 	m_lastError = 0;
@@ -149,6 +150,7 @@ int CSrcCommon::open(const string& strFile)
 	if (!_CodecCTX()->channel_layout)
 		_CodecCTX()->channel_layout = av_get_default_channel_layout(_CodecCTX()->channels);
 
+	//информация о медиа
 	av_dump_format(ctxFormat_, 0, filename, 0);
 
 	return m_lastError;

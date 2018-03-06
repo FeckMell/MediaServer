@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include <libavcodec/avcodec.h>
+//#include <libavcodec/avcodec.h>
 #include <libavformat/avformat.h>
 //#include <libavformat/avio.h>
 //#include <libavutil/file.h>
@@ -99,6 +99,7 @@ private:
 	AVFilterGraph* pGraph_ = nullptr;
 };
 
+//TOD0: make throw ffmpeg exceptions
 
 #define RETURN_ON_AVERROR(func, msg) do{m_lastError = func; \
 if (m_lastError < 0){\

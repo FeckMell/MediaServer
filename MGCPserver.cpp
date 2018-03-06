@@ -2,6 +2,7 @@
 #include "MGCPserver.h"
 #include "Connection.h"
 #include "MGCPparser.h"
+//#include "conf.cpp"
 #include "Utils.h"
 
 
@@ -160,16 +161,13 @@ void CMGCPServer::proceedCRCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 		TEndPoint mgcpEndPnt = {
 			str(boost::format("ann/%1%") % thsetAnnIdInUse.regnew(1, 1)),
 			mgcp.EndPoint.m_addr };
-		
 		auto shpConnect = std::make_shared<CMGCPConnection>(*this, mgcp);
 		m_cllConnections[mgcpEndPnt] = shpConnect;
 
 		mgcp.addResponseParam({ TMGCP_Param::SpecificEndPointId, mgcpEndPnt.toString() });
 		mgcp.addResponseParam({ TMGCP_Param::ConnectionId,
 			str(boost::format("%1%") % shpConnect->Id()) });
-
 		//			auto &media = shpConnect->sdpOUT().cllMedia[0];
-
 		/*
 					auto strResponse = mgcp.ResponseOK() + shpConnect->sdpOUT().toString();
 					for (auto& entry : shpConnect->sdpOUT().cllParams)
@@ -234,7 +232,8 @@ void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 }
 
 void threadSendMedia(SHP_CMGCPConnection conn, string strFile)
-{
+{	
+	//printf("\n test333\n");
 	conn->sendMedia(strFile);
 }
 
@@ -253,16 +252,14 @@ void CMGCPServer::proceedRQNT(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 			{
 				//TODO: multithreading & concurrent issue
 				std::thread th(threadSendMedia, conn, m_args.strMmediaPath + strFile);
-/*
-				non-stable in UNIX 
-				std::thread th([&](SHP_CMGCPConnection c)
-					{
-						c->sendMedia(m_args.strMmediaPath + strFile);
-					}, 
-					conn);*/
-
 				th.detach();
-
+/*
+				non-stable in UNIX
+				std::thread th([&](SHP_CMGCPConnection c)
+				{
+				c->sendMedia(m_args.strMmediaPath + strFile);
+				},
+				conn);*/
 /*
 				conn->setMediaFile(m_args.strMmediaPath + strFile);
 				std::thread th([](SHP_CMGCPConnection c){c->sendMedia(); }, conn);
@@ -370,10 +367,10 @@ void CMGCPServer::Run()
 		*/
 
 
-/*
-		printf("--------- %s sent:\n%s\n--------- len %lu ---------\n\n",
-			sender_endpoint.address().to_string().c_str(), pLogData, bytes_recvd);
-*/
+
+//		printf("--------- %s sent:\n%s\n--------- len %lu ---------\n\n",
+//			sender_endpoint.address().to_string().c_str(), pLogData, bytes_recvd);
+
 
 		proceedReceiveBuffer(data_, sender_endpoint);
 	}

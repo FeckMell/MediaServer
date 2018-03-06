@@ -124,7 +124,7 @@ namespace MGCP
 		for (auto& entry : cllMedia)
 		{
 			/*
-			-------------SDP-------------
+			//-------------SDP-------------
 			v=0
 			o=- 0 0 IN IP4 127.0.0.1
 			s=No Name
@@ -157,6 +157,7 @@ namespace MGCP
 
 	string TEndPoint::toString() const
 	{
+		printf("\n test333\n");
 		return str(boost::format("%1%@%2%") % m_point % m_addr);
 	}
 

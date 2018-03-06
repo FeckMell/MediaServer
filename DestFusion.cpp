@@ -222,7 +222,6 @@ int CDestFusion::runEnd()
 	return LastError();
 }
 
-
 //-----------------------------------------------------------------------
 int CDestFusion::run()
 {
@@ -252,7 +251,9 @@ int CDestFusion::run()
 	runBegin();
 	if (isValid())
 	{
+		printf("\nRUN_proceedIO?\n");
 		_proceedIO();
+		printf("\n RAN\n");
 		runEnd();
 	}
 
@@ -278,7 +279,8 @@ void CDestFusion::_dumpGraph()
 	char* dump = avfilter_graph_dump(filtGraf_, NULL);
 	if (dump)
 	{
-		av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
+		//test222
+		//av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
 		av_free(dump);
 	}
 }
@@ -447,8 +449,9 @@ int CDestFusion::proceedIO_step()
 	************************************************************************/
 	for (auto& srcRef : cllSrcRefs_)
 	{
-		if (srcRef.finished || !srcRef.to_read)
-			continue;
+		if (srcRef.finished || !srcRef.to_read){
+			//printf("\n test333\n");
+			continue;}
 
 		srcRef.to_read = false;
 		bool bEOF = false;
@@ -474,6 +477,7 @@ int CDestFusion::proceedIO_step()
 		else if (frame)
 		{ /** If there is decoded data, convert and store it
 			push the audio data from decoded frame into the filtergraph */
+			//printf("\n test333 \n");
 			RETURN_AVERROR(
 				av_buffersrc_write_frame(srcRef.pctxFilter, frame),
 				"Feeding the audio filtergraph\n"
@@ -510,6 +514,7 @@ int CDestFusion::proceedIO_step()
 		for (auto& srcRef : cllSrcRefs_)
 			srcRef.to_read = true;
 	}
+	//printf("\n test222\n");
 
 
 	return LastError();
@@ -522,10 +527,7 @@ int CDestFusion::_proceedIO()
 	{
 		proceedIO_step();
 	} 
-	while (isValid() 
-		&& isActive() 
-		&& ExistsNotFinishedSrc()
-	);
+	while (isValid() && isActive() && ExistsNotFinishedSrc() );
 
 	return LastError();
 }
@@ -586,6 +588,7 @@ void CDestFusion::_reinitFilters()
 {
 	_initMixFilter();
 	_initSink();
+	//test222
 	_initGraph();
 }
 
@@ -598,7 +601,8 @@ void CDestFusion::_threadRTPfunction()
 	const int maxchunk = m.maxptime > 0 ? (m.maxptime * 8000) / 1000 : 160;
 	const int stdchunk = m.ptime > 0
 		? (m.ptime * 8000) / 1000
-		: std::min(maxchunk, 160);*/
+		: std::min(maxchunk, 160);
+*/
 
 	const int szChunk = ptimeRTP_ > 0
 		? (ptimeRTP_ * RTP_OUT_RATE) / 1000
@@ -678,6 +682,6 @@ bool CDestFusion::ExistsNotFinishedSrc() const
 {
 	return cllSrcRefs_.cend() !=
 		std::find_if(cllSrcRefs_.cbegin(), cllSrcRefs_.cend(),
-		[](const TSrcRef& src){return !src.finished; }
-	);
+			[](const TSrcRef& src){return !src.finished; }
+		);
 }
