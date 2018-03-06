@@ -1,4 +1,4 @@
-#include "../SharedSource/stdafx.h"
+#include "stdafx.h"
 #include "Control.h"
 
 //*///------------------------------------------------------------------------------------------

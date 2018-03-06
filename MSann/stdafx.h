@@ -64,10 +64,14 @@
 #include <boost/log/sources/severity_logger.hpp>
 #include <boost/log/sources/record_ostream.hpp>
 
-
+namespace logging = boost::log;
+namespace src = boost::log::sources;
+namespace sinks = boost::log::sinks;
+namespace keywords = boost::log::keywords;
+using namespace logging::trivial;
 /*LOGS END*/
 
-
+typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 
 
 
@@ -89,6 +93,13 @@ extern "C"
 #include "libavutil/time.h"
 }
 
+
+//namespace asio = boost::asio;
+//using boost::asio::ip::udp;
+//using std::string;
+//using std::cerr;
+//using std::cout;
+//using std::shared_ptr;
 #ifdef WIN32
 #pragma comment (lib,"avformat.lib")
 #pragma comment (lib,"avcodec.lib")
@@ -102,14 +113,9 @@ extern "C"
 #endif
 //Winmm.dll
 typedef std::lock_guard<std::mutex> lock;
-namespace logging = boost::log;
-namespace src = boost::log::sources;
-namespace sinks = boost::log::sinks;
-namespace keywords = boost::log::keywords;
-using namespace logging::trivial;
-using namespace std;
-typedef boost::error_info<struct tag_errmsg, std::string> errmsg_info;
 typedef boost::asio::io_service IO;
 typedef boost::asio::ip::udp::endpoint EP;
 typedef std::shared_ptr<IO> SHP_IO;
-typedef std::shared_ptr<std::thread> SHP_thread;
+
+
+// TODO: reference additional headers your program requires here

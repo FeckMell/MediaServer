@@ -1,5 +1,8 @@
+#include "stdafx.h"
 #include "Cnf.h"
 
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 Cnf::Cnf(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...) eventNum=" << mgcp_->data[MGCP::EventNum];
@@ -167,16 +170,4 @@ void Cnf::SendToCnfModulMD_DL(SHP_CallerBase point_)
 		}
 	}
 	return;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void Cnf::ReplyClient(SHP_MGCP mgcp_, string str_)
-{
-	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
-	net_Data->GS(NETDATA::out)->s.send_to(boost::asio::buffer(str_), mgcp_->sender);
-}
-void Cnf::SendModul(int where_, string what_)
-{
-	BOOST_LOG_SEV(lg, warning) << "SendModul=" << where_ << ":\n" << what_;
-	net_Data->GS(NETDATA::in)->s.send_to(boost::asio::buffer(what_), net_Data->GE(where_));
 }

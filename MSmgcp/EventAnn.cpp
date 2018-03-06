@@ -1,5 +1,8 @@
+#include "stdafx.h"
 #include "EventAnn.h"
 
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 void EventAnn::CRCX(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "EventAnn::CRCX(...) for eventNum=" << mgcp_->data[MGCP::EventNum];
@@ -111,11 +114,4 @@ SHP_Ann EventAnn::FindAnn(SHP_MGCP mgcp_)
 void EventAnn::RemoveAnn(SHP_Ann ann_)
 {
 	vecAnn.erase(remove(vecAnn.begin(), vecAnn.end(), ann_), vecAnn.end());
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-void EventAnn::ReplyClient(SHP_MGCP mgcp_, string str_)
-{
-	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
-	net_Data->GS(NETDATA::out)->s.send_to(boost::asio::buffer(str_), mgcp_->sender);
 }

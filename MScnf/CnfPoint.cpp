@@ -1,4 +1,4 @@
-#include "../SharedSource/stdafx.h"
+#include "stdafx.h"
 #include "CnfPoint.h"
 
 //*///------------------------------------------------------------------------------------------
@@ -11,7 +11,7 @@ CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_, b
 		serverIP, //my IP
 		stoi(serverPort), // my port
 		ioCnf));
-	endPoint = EP(
+	endPoint = udp::endpoint(
 		boost::asio::ip::address::from_string(clientIP),
 		stoi(clientPort)
 		);

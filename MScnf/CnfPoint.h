@@ -1,7 +1,7 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Structs.h"
+#include "Functions.h"
 using namespace std;
 
 extern SHP_IPar init_Params;
@@ -25,7 +25,7 @@ public:
 	AVCodecContext* occx;
 	SHP_Socket socket;
 	RTP_struct rtp;
-	EP endPoint;
+	udp::endpoint endPoint;
 	IO& ioCnf;
 
 private:

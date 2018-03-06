@@ -1,11 +1,14 @@
+#include "stdafx.h"
 #include "InnerParser.h"
 
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 vector<string> IPL::paramNamesStr =
 { "modulName", "eventType", "clientIP", "clientPort", "serverPort", "eventID", "maxParamNames" };
 vector<string> IPL::eventTypeStr = { "cr", "md", "dl", "maxEventType" };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-IPL::IPL(char* rawMes_, EP sender_) : stringIPL(rawMes_), sender(sender_)
+IPL::IPL(char* rawMes_, boost::asio::ip::udp::endpoint sender_) : stringIPL(rawMes_), sender(sender_)
 {
 	data.resize(maxParamNames, "");
 	Parse();

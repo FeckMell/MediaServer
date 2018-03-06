@@ -1,5 +1,8 @@
+#include "stdafx.h"
 #include "EventCnf.h"
 
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 void EventCnf::CRCX(SHP_MGCP mgcp_)
 {
 	BOOST_LOG_SEV(lg, trace) << "EventCnf::CRCX(...) for " << mgcp_->data[MGCP::EventNum];
@@ -136,8 +139,3 @@ void EventCnf::RemoveCnf(SHP_Cnf cnf_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void EventCnf::ReplyClient(SHP_MGCP mgcp_, string str_)
-{
-	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
-	net_Data->GS(NETDATA::out)->s.send_to(boost::asio::buffer(str_), mgcp_->sender);
-}

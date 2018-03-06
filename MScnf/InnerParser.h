@@ -1,8 +1,11 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Structs.h"
+#include "Functions.h"
+using namespace std;
 
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 class IPL
 {
 public:
@@ -12,10 +15,10 @@ public:
 		modulName, eventType, clientIP, clientPort, serverPort, eventID,
 		maxParamNames
 	};
-	enum EventType { cr, md, dl, maxEventType };
+	enum EventType { cr, md, dl,  maxEventType };
 
 	/*Main public activity*/
-	IPL(char*, EP);
+	IPL(char*, boost::asio::ip::udp::endpoint);
 	string ResponseOK(int, string);
 	string ResponseBAD(int, string);
 
@@ -30,7 +33,7 @@ public:
 	int type = -1;
 	vector<string> data;
 	string stringIPL;
-	EP sender;
+	boost::asio::ip::udp::endpoint sender;
 	string error = "";
 
 private:

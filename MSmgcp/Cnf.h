@@ -1,12 +1,18 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Structs.h"
+#include "Functions.h"
 #include "MGCPparser.h"
 #include "CallerBase.h"
 
+using namespace std;
+
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
+
+
+
+
 
 class Cnf
 {
@@ -27,9 +33,6 @@ private:
 	int ActivePoints();
 	void SendToCnfModulCR();
 	void SendToCnfModulMD_DL(SHP_CallerBase);
-
-	void ReplyClient(SHP_MGCP, string);
-	void SendModul(int where_, string what_);
 	
 	bool state = false; 
 	bool deleted = false;

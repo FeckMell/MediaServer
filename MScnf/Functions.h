@@ -1,30 +1,17 @@
 #pragma once
 #include "stdafx.h"
 #include "Structs.h"
-#include "Functions.h"
-#include "Cnf.h"
 using namespace std;
 
 extern SHP_IPar init_Params;
+extern SHP_NETDATA net_Data;
 
 
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-class Control
-{
-public:
-	Control();
-	void Preprocessing(SHP_IPL);
-
-
-private:
-	void CR(SHP_IPL);
-	void MD(SHP_IPL);
-	void DL(SHP_IPL);
-
-	SHP_Cnf FindCnf(SHP_IPL);
-	void RemoveCnf(SHP_Cnf);
-
-	vector<SHP_Cnf> vecCnf;
-};
-typedef shared_ptr<Control> SHP_Control;
+string replace_in_str(string, string, string);
+string get_substr(string, string, string);
+string cut_substr(string, string, string);
+string remove_from_str(string, string);
+void init_ffmpeg();
+void LogsInit();

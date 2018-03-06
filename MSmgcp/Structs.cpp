@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "Structs.h"
 
-IPar::IPar(char** argv_, string modulnamestr_)
+IPar::IPar(char** argv_)
 {
-	modulName = modulnamestr_;
 	data.resize(maxParamNames);
 	for (int i = 1; i <= maxParamNames; ++i)
 		data[i - 1] = argv_[i];
@@ -49,127 +48,7 @@ Socket::~Socket()
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-RTP_struct::RTP_struct()
-{
-	Config();
-}
-//*///------------------------------------------------------------------------------------------
-void RTP_struct::Config()
-{
-	this->header.version = 2;
-	this->header.marker = 0;
-	this->header.csrc_len = 0;
-	this->header.extension = 0;
-	this->header.padding = 0;
-	this->header.ssrc = htons(10);
-	this->header.payload_type = 8;
-	this->header.timestamp = htonl(0);
-	this->header.seq_no = htons(0);
-}
-//*///------------------------------------------------------------------------------------------
-RTP RTP_struct::Get()
-{
-	++this->amount;
-	this->header.seq_no = htons(this->amount);
-	this->header.timestamp = htonl(160 * this->amount);
-
-	return header;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-CAVPacket::CAVPacket()
-{
-	av_init_packet(&packet);
-	packet.data = nullptr;
-	packet.size = 0;
-}
-//*///------------------------------------------------------------------------------------------
-CAVPacket::CAVPacket(size_t sz)
-{
-	if (sz > 0)
-		av_new_packet(&packet, sz);
-	else
-	{
-		av_init_packet(&packet);
-		packet.data = nullptr;
-		packet.size = 0;
-	}
-}
-//*///------------------------------------------------------------------------------------------
-CAVPacket::~CAVPacket()
-{
-	Free();
-}
-//*///------------------------------------------------------------------------------------------
-AVPacket* CAVPacket::Get()
-{
-	return &packet;
-}
-//*///------------------------------------------------------------------------------------------
-int CAVPacket::Size()
-{
-	return packet.size;
-}
-//*///------------------------------------------------------------------------------------------
-uint8_t* CAVPacket::Data()
-{
-	return packet.data;
-}
-//*///------------------------------------------------------------------------------------------
-void CAVPacket::Free()
-{
-	av_free_packet(&packet);
-}
-//*///------------------------------------------------------------------------------------------
-void CAVPacket::MakeSize(int n)
-{
-	packet.size = n;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-CAVFrame::CAVFrame()
-{
-	frame = av_frame_alloc();
-	empty = false;
-}
-//*///------------------------------------------------------------------------------------------
-CAVFrame::CAVFrame(bool a)
-{
-	frame = av_frame_alloc();
-	empty = true;
-}
-//*///------------------------------------------------------------------------------------------
-CAVFrame::~CAVFrame()
-{
-	av_frame_free(&frame);
-}
-//*///------------------------------------------------------------------------------------------
-AVFrame* CAVFrame::Get()
-{
-	return frame;
-}
-//*///------------------------------------------------------------------------------------------
-void CAVFrame::Free()
-{
-	av_frame_free(&frame);
-}
-//*///------------------------------------------------------------------------------------------
-bool CAVFrame::Empty()
-{
-	return empty;
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-NETDATA::NETDATA(int mymodulnameint_)
+NETDATA::NETDATA()
 {
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): sockets.resize=" << maxS;
 	sockets.resize(maxS);
@@ -178,7 +57,10 @@ NETDATA::NETDATA(int mymodulnameint_)
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): ios.resize=" << maxS;
 	ios.resize(maxS);
 	BOOST_LOG_SEV(lg, trace) << "NETDATA::NETDATA(): resize DONE";
-	for (int i = 0; i < maxS; ++i) ios[i].reset(new IO());
+	for (int i = 0; i < maxS; ++i)
+	{
+		ios[i].reset(new IO());
+	}
 	sockets[out].reset(new Socket(
 		init_Params->data[IPar::outerIP],
 		stoi(init_Params->data[IPar::outerPort]),
@@ -187,17 +69,17 @@ NETDATA::NETDATA(int mymodulnameint_)
 	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::outerIP] << " Port=" << stoi(init_Params->data[IPar::outerPort]);
 	sockets[in].reset(new Socket(
 		init_Params->data[IPar::innerIP],
-		stoi(init_Params->data[IPar::innerPort]) + mymodulnameint_ - 1,
+		stoi(init_Params->data[IPar::innerPort]),
 		GI(in)
 		));
-	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]) + mymodulnameint_ - 1;
+	BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA(): opened socket with IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]);
 	for (int i = 0; i < maxE; ++i)
 	{
 		endPoints[i] = EP(
 			boost::asio::ip::address::from_string(init_Params->data[IPar::innerIP]),
 			stoi(init_Params->data[IPar::innerPort]) + i - 1
 			);
-		BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA():Created EndPoint for IP=" << init_Params->data[IPar::innerIP] << " Port=" << stoi(init_Params->data[IPar::innerPort]) + i - 1;
+		BOOST_LOG_SEV(lg, debug) << "NETDATA::NETDATA():Created EndPoint for IP=" << init_Params->data[IPar::innerIP] << " port=" << stoi(init_Params->data[IPar::innerPort]) + i - 1;
 	}
 }
 SHP_Socket NETDATA::GS(int s_)

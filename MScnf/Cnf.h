@@ -1,7 +1,7 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Structs.h"
+#include "Functions.h"
 #include "CnfPoint.h"
 #include "Audio.h"
 #include "InnerParser.h"

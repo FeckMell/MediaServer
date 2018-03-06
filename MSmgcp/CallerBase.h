@@ -1,11 +1,15 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Structs.h"
+#include "Functions.h"
 #include "MGCPparser.h"
 
 extern SHP_IPar init_Params;
 extern SHP_NETDATA net_Data;
+
+
+
+
 
 class CallerBase
 {

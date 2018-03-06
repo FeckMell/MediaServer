@@ -1,4 +1,4 @@
-#include "../SharedSource/stdafx.h"
+#include "stdafx.h"
 #include "Cnf.h"
 
 //*///------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ void Cnf::ParsePoints(SHP_IPL ipl_)
 	{
 		fd = client_ports.find(" ");
 		points_params[0].push_back(client_ports.substr(0, fd));
-		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) client_port=" << client_ports.substr(0, fd);
+		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) port=" << client_ports.substr(0, fd);
 		if (fd == string::npos) break;
 		client_ports = client_ports.substr(fd+1);
 	}fd = 0;
@@ -70,7 +70,7 @@ void Cnf::ParsePoints(SHP_IPL ipl_)
 	{
 		fd = server_ports.find(" ");
 		points_params[1].push_back(server_ports.substr(0, fd));
-		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) server_port=" << server_ports.substr(0, fd);
+		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) port=" << server_ports.substr(0, fd);
 		if (fd == string::npos) break;
 		server_ports = server_ports.substr(fd+1);
 	}fd = 0;
@@ -78,7 +78,7 @@ void Cnf::ParsePoints(SHP_IPL ipl_)
 	{
 		fd = client_IPs.find(" ");
 		points_params[2].push_back(client_IPs.substr(0, fd));
-		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) client_IP=" << client_IPs.substr(0, fd);
+		BOOST_LOG_SEV(lg, debug) << "Cnf::ParsePoints(...) port=" << client_IPs.substr(0, fd);
 		if (fd == string::npos) break;
 		client_IPs = client_IPs.substr(fd+1);
 	}fd = 0;
