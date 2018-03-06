@@ -1,7 +1,9 @@
 #pragma once
 #include "stdafx.h"
+//#include "Logger.h"
 #include <boost/circular_buffer.hpp>
-
+//class Logger;
+//extern Logger CLogger;
 typedef std::shared_ptr<udp::socket> SHP_Socket;
 
 struct SSource
@@ -88,8 +90,7 @@ struct CAVPacket : AVPacket
 	}
 	CAVPacket(size_t sz) : CAVPacket()
 	{
-		if (sz > 0)
-			av_new_packet(this, sz);
+		if (sz > 0) av_new_packet(this, sz);
 	}
 	int grow_by(int by)
 	{
@@ -157,6 +158,7 @@ struct Config
 
 	string MediaPath;
 	string IP;
+	short int SIPport = 2429;
 	short int port=2427;
 	short int RTPport = 29500;
 	int error=0;
@@ -166,27 +168,34 @@ struct Config
 class CThreadedCircular
 {
 public:
-	CThreadedCircular() : buffer_(3){  }
-	CThreadedCircular(size_t sz) : buffer_(sz){  }
+	CThreadedCircular() : buffer_(2), VecDone(2){  }
+	CThreadedCircular(size_t sz) : buffer_(sz), VecDone(sz){  }
 	CThreadedCircular(const CThreadedCircular &obj)
 	{
 		buffer_ = obj.buffer_;
 	}
 	~CThreadedCircular(){ free(); }
 	//-*/----------------------------------------------------------------------
+	void setAmount(int n)
+	{
+		size_ = n;
+	}
+	//-*/----------------------------------------------------------------------
 	void push(SHP_CAVPacket val)
 	{
 		mutex_.lock();
 		buffer_.push_back(val);
+		std::vector<int> a;
+		a.resize(size_, 0);
+		VecDone.push_back(a);
 		mutex_.unlock();
 	}
 	//-*/----------------------------------------------------------------------
-	SHP_CAVPacket pop()
+	SHP_CAVPacket pop(int n)
 	{
 		SHP_CAVPacket result;
 		mutex_.lock();
-		result = buffer_.front();
-		buffer_.pop_front();
+		result = GetLastFrame(n);
 		mutex_.unlock();
 		return result;
 	}
@@ -204,8 +213,10 @@ public:
 	{
 		mutex_.lock();
 		buffer_.clear();
+		VecDone.clear();
 		mutex_.unlock();
 	}
+	//-*/----------------------------------------------------------------------
 	bool empty()
 	{
 		bool result;
@@ -215,8 +226,31 @@ public:
 		return result;
 	}
 private:
+	SHP_CAVPacket GetLastFrame(int i)
+	{
+		for (int j = 0; j < (int)VecDone.size(); ++i)
+		{
+			if (VecDone[j][i] == 0)
+			{
+				VecDone[j][i] = 1;
+				return buffer_[j];
+			}
+		}
+		//если этот источник уже брал все фреймы из этого буфера, создаем "молчаливый" фрейм
+		SHP_CAVPacket shpPacket;
+		std::string str = "";
+		for (int j = 0; j < 20; ++j) str += "aaaaaaaa";
+		shpPacket.reset(new CAVPacket(160));
+		memcpy(shpPacket->data, str.c_str(), 160);
+		shpPacket->size = 1; // метка, что он "молчаливый"
+		return shpPacket;
+	}
+	//-*/----------------------------------------------------------------------
+	//-*/----------------------------------------------------------------------
 	std::mutex  mutex_;
 	boost::circular_buffer<SHP_CAVPacket>	buffer_;
+	boost::circular_buffer<std::vector<int>>	VecDone;
+	int size_ = 0;
 };
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------

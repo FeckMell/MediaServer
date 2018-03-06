@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "Logger.h"
 #include "Functions.h"
-#include "CFilterInit.h"
+#include "FilterInit.h"
 #include "Structs.h"
 #include "ConfPoint.h"
 
@@ -35,7 +35,7 @@ private:
 	
 	/*main activity*/
 	int process_all();
-	void new_process();
+	void new_process(int i);
 	void receive();
 	void ConfAudio::receive2(int i);//debug
 
@@ -47,7 +47,7 @@ private:
 	
 	void add_missing_frame(int i, int j);
 	void get_last_buffer_frame(AVFrame* frame, int i);
-	void add_to_filter(int i, AVFrame* frame);
+	void add_to_filter(int i, int j, AVFrame* frame);
 
 	/*event handling*/
 	void clear_memmory();
@@ -59,26 +59,11 @@ private:
 	SHP_CFilterInit Initer;
 
 	bool process_all_finishing;
-	mutex  Mut_io;
-	mutex  Mut_pr;
+	//mutex  Mut_io;
+	//mutex  Mut_pr;
 
 
 	int ID_;
-	//DEBUG
-	/*std::ofstream outfile0;
-	std::ofstream outfile1;
-	std::ofstream outfile2;
-	std::ofstream outfile3;
-
-	std::ofstream outfile00;
-	std::ofstream outfile11;
-	std::ofstream outfile22;
-	std::ofstream outfile33;
-
-	std::ofstream outfile000;
-	std::ofstream outfile111;
-	std::ofstream outfile222;
-	std::ofstream outfile333;*/
 };
 typedef std::shared_ptr<ConfAudio> SHP_ConfAudio;
 

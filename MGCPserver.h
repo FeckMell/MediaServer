@@ -1,49 +1,65 @@
 #pragma once
 #include "stdafx.h"
 #include "Logger.h"
-#include "RequestControl.h"
+#include "MGCPControl.h"
+#include "SIPControl.h"
 #include "Functions.h"
 #include "Parser.h"
 #include "ConfRoom.h"
+typedef std::shared_ptr<char*> SHP_char;
 /************************************************************************
 	CMGCPServer
 ************************************************************************/
-class RequestControl;
+class MGCPControl;
 extern string DateStr;
 extern Logger CLogger;
 class CMGCPServer
 {
 public:
-	RequestControl* Conference;
-	typedef std::lock_guard<std::mutex> lock;
+	//typedef std::lock_guard<std::mutex> lock;
+	enum Event_type { mgcp, sip };
+	enum { max_length = 2048 };
+
 	struct TArgs
 	{
 		asio::io_service&		io_service; 
 		const udp::endpoint&	endpnt;
+		const udp::endpoint&	SIPendpnt;
 		string					strMmediaPath;
+	};
+	struct SIPdata
+	{
+		SHP_Socket socket_;
+		SIP data;
+		std::mutex  mutex_;
+		std::queue<SIP> Que;
+	};
+	struct MGCPdata
+	{
+		SHP_Socket socket_;
+		MGCP data;
+		std::mutex  mutex_;
+		std::queue<MGCP> Que;
 	};
 	
 	CMGCPServer(const TArgs&);
-	const udp::endpoint& EndP_Local() const { return m_args.endpnt; }
 	void RunBuffer();
 	void Run();
-	void reply(const string&, const udp::endpoint&);
+	void reply(const string&, const udp::endpoint&, Event_type);
 	
 	TArgs	m_args;
 private:
 /*Отладка*/
 	void loggit(string a);
-
+	
 /*Первичная обработка команд*/
 	void proceedReceiveBuffer();
-	SHP_Socket socket_;
-	//udp::socket socket_;
-	udp::endpoint sender_endpoint_;
-	enum { max_length = 2048 };
-
-	std::mutex  mutex_;
-	asio::io_service& io_service__;
+	void receive_h(boost::system::error_code, size_t, Event_type);
 	
-	std::queue<MGCP> Que;
+	SIPdata SIPst;
+	MGCPdata MGCPst;
+
+	MGCPControl* Conference;
+	asio::io_service& io_service__;
 };
 

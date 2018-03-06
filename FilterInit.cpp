@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "CFilterInit.h"
+#include "FilterInit.h"
 #include "Functions.h"
 
 //-*/-----------------------------------------------------------------------------------------

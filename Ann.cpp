@@ -25,7 +25,8 @@ Ann::Ann(string SDP, int my_port, string CallID)
 	my_port_ = my_port;
 	rtp_hdr.rtp_config();
 	loggit("using remote_ip=" + remote_ip_ + "_ remote_port=" + boost::to_string(remote_port_) + "_ my_port=" + boost::to_string(my_port_)+"_");
-	
+	std::this_thread::sleep_for(std::chrono::milliseconds(20));
+
 	sock.reset(new boost::asio::ip::udp::socket(io_service_));
 	sock->open(udp::v4());
 	sock->set_option(boost::asio::ip::udp::socket::reuse_address(true));

@@ -58,24 +58,33 @@ Config ParseConfig(string path, Config parsed)
 			if (found != std::string::npos)
 			{
 				parsed.RTPport = stoi(temp.substr(found + 8, temp.back()));
-				persistance = 1;
 				break;
 			}
 		}
-		persistance = 0;
 		file.close();
 		file.open(path);
 		while (std::getline(file, temp))
 		{
-			found = temp.find("port=");
+			found = temp.find("MGCPport=");
 			if (found != std::string::npos)
 			{
-				parsed.port = stoi(temp.substr(found + 5, temp.back()));
-				persistance = 1;
+				parsed.port = stoi(temp.substr(found + 9, temp.back()));
+				//cout << "\nMGCPPORT=" << parsed.port;
 				break;
 			}
 		}
-		persistance = 0;
+		file.close();
+		file.open(path);
+		while (std::getline(file, temp))
+		{
+			found = temp.find("SIPport=");
+			if (found != std::string::npos)
+			{
+				parsed.SIPport = stoi(temp.substr(found + 8, temp.back()));
+				//cout << "\nSIPPORT=" << parsed.SIPport;
+				break;
+			}
+		}
 		file.close();
 		file.open(path);
 		while (std::getline(file, temp))
@@ -179,10 +188,11 @@ string MakeRemoteIP(string SDP)
 //----------------------------------------------------------------------------
 string MakeRemotePort(string SDP)
 {
-	std::size_t found = SDP.find("m=audio");
-	if (found != std::string::npos)
-		return SDP.substr(found + 8, SDP.find(" ", found + 10) - found - 8);
-	return "";
+	return get_substr(SDP, "m=audio ", " ");
+	//std::size_t found = SDP.find("m=audio");
+	//if (found != std::string::npos)
+	//	return SDP.substr(found + 8, SDP.find(" ", found + 10) - found - 8);
+	//return "";
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -212,6 +222,14 @@ int sdp_read(void *opaque, uint8_t *buf, int size) /*noexcept*/
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+std::string get_substr(std::string target, std::string aim, std::string fin)
+{
+	auto fd = target.find(aim);
+	std::string result="";
+	if (fd != std::string::npos)
+		result = target.substr(fd + aim.size(), target.find(fin, fd + aim.size() - 1) - (fd + aim.size()));
+	return result;
+}
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
