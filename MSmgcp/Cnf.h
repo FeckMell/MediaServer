@@ -1,33 +1,19 @@
-#pragma once
 #include "stdafx.h"
-#include "MGCPparser.h"
-#include "CallerBase.h"
-
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
+#include "Point.h"
 
 class Cnf
 {
 public:
-	Cnf(SHP_MGCP);
+	Cnf(SHP_Point, string);
+	void AddPoint(SHP_Point);
+	bool DeletePoint(SHP_Point);
+	void Process(SHP_Point);
 
-	void CRCX(SHP_MGCP, string, string);
-	void MDCX(SHP_MGCP);
-	string DLCX(SHP_MGCP);
-
-	string CheckExistance(SHP_MGCP);
-	bool DeleteCnf() { if (vecCallerBase.size() == 0) return true; else return false; }
-
-	string eventID = "";
+	string eventID;
 private:
-	SHP_CallerBase FindCallerBase(SHP_MGCP);
-	void RemoveCallerBase(SHP_CallerBase);
-	int ActivePoints();
-	void SendToCnfModulCR();
-	void SendToCnfModulMD_DL(SHP_CallerBase);
-	
-	bool state = false; 
-	bool deleted = false;
-	vector<SHP_CallerBase> vecCallerBase;
+	int GetNumOfActivePoints();
+	bool state = false;
+	void SendCnfModul(string);
+	vector<SHP_Point> vecPoints;
 };
 typedef shared_ptr<Cnf> SHP_Cnf;

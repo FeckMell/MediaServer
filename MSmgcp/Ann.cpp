@@ -1,60 +1,61 @@
 #include "stdafx.h"
 #include "Ann.h"
 
-Ann::Ann(SHP_MGCP mgcp_, string server_sdp_, string server_port_)
-:CallerBase(mgcp_, server_sdp_, server_port_)
+/*
+TODO:
+1) ReplyClient
+2) Logs
+*/
+Ann::Ann(SHP_Point point_, SHP_MGCP mgcp_) : point(point_), eventID(mgcp_->data["EventID"])
 {
-	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...)";
-	eventID = mgcp_->data[MGCP::EventID];
-	BOOST_LOG_SEV(lg, trace) << "Set this Ann eventID=" << eventID;
-	//ReplyClient(mgcp_, mgcp_->ResponseOK(200,"add event type") + "\n\n" + server_sdp_);
-	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, "add event type") + "\n\n" + server_sdp_);
+	BOOST_LOG_SEV(lg, trace) << "Ann::Ann with eventID=" << eventID;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Ann::RQNT(SHP_MGCP mgcp_)
+void Ann::Delete()
 {
-	BOOST_LOG_SEV(lg, trace) << "Ann::RQNT(...) for Ann " << eventID;
-	fileName = get_substr(mgcp_->data[MGCP::ParamS], ",file:///", ")");
-	BOOST_LOG_SEV(lg, info) << "Ann::RQNT(...): Ann " << eventID << " was asked for file  " << fileName;
-	if (CheckFileExistance(fileName) == false)
+	BOOST_LOG_SEV(lg, trace) << "Ann::Delete with eventID=" << eventID;
+	if (state == true){ SendToAnnModul("dl"); }
+	BOOST_LOG_SEV(lg, trace) << "Ann::Delete END";
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void Ann::RequestMusic(SHP_MGCP mgcp_)
+{
+	BOOST_LOG_SEV(lg, trace) << "Ann::RequestMusic with eventID=" << eventID;
+	fileName = get_substr(mgcp_->data["S"], ",file:///", ")");
+	BOOST_LOG_SEV(lg, trace) << "Ann::RequestMusic fileName=" << fileName;
+	if (CheckFileExistance() == false)
 	{
-		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "File does not exist"));
+		BOOST_LOG_SEV(lg, warning) << "Ann::RequestMusic fileName=" << fileName << " ERROR";
+		mgcp_->innerError = "File does not exist";
 		return;
 	}
 	state = true;
 	SendToAnnModul("cr");
-	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, ""));
+	BOOST_LOG_SEV(lg, trace) << "Ann::RequestMusic END";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Ann::DLCX(SHP_MGCP mgcp_)
+bool Ann::CheckFileExistance()
 {
-	BOOST_LOG_SEV(lg, trace) << "Ann::DLCX(...) for Ann " << eventID;
-	state = false;
-	SendToAnnModul("dl");
-	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(250, ""));
-}
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-bool Ann::CheckFileExistance(string filename_)
-{
-	ifstream file(init_Params->data[STARTUP::mediaPath] + "\\" + filename_);
+	ifstream file(init_Params->data[STARTUP::mediaPath] + "\\" + fileName);
 	if (file.is_open()) { file.close(); return true; }
 	else{ return false; }
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Ann::SendToAnnModul(string event_)
-{// "modulName", "eventType", "clientIP", "clientPort", "serverPort", "fileName", "eventID"
+{
 	string result = "M7S2I6P5M\n";
 	result += "From=mgcp\n";
 	result += "To=ann\n";
 	result += "EventID=mgcp" + eventID + "\n";
 	result += "EventType=" + event_ + "\n";
-	result += "ClientIP=" + clientIP + "\n";
-	result += "ClientPort=" + clientPort + "\n";
-	result += "ServerPort=" + serverPort + "\n";
+	result += "ClientIP=" + point->clientIP + "\n";
+	result += "ClientPort=" + point->clientPort + "\n";
+	result += "ServerPort=" + point->serverPort + "\n";
 	result += "FileName=" + fileName + "\n";
 	net_Data->SendModul(NETDATA::ann, result);
+	BOOST_LOG_SEV(lg, debug) << "Ann::SendToAnnModul with eventID=" << eventID << " sent:\n" << result;
 }

@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{67861937-4AD3-48E2-8969-CAFCBEB590BB}</ProjectGuid>
+    <ProjectGuid>{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MSmgcp</RootNamespace>
+    <RootNamespace>MSmgcp2</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -51,7 +51,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -60,17 +60,17 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>Create</PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BrowseInformation>true</BrowseInformation>
       <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -80,34 +80,28 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
-    <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Ann.h" />
-    <ClInclude Include="CallerBase.h" />
     <ClInclude Include="Cnf.h" />
-    <ClInclude Include="EventAnn.h" />
-    <ClInclude Include="EventBase.h" />
-    <ClInclude Include="EventCnf.h" />
     <ClInclude Include="MGCPcontrol.h" />
     <ClInclude Include="MGCPparser.h" />
-    <ClInclude Include="Server.h" />
+    <ClInclude Include="MGCPServer.h" />
+    <ClInclude Include="Point.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ann.cpp" />
-    <ClCompile Include="CallerBase.cpp" />
     <ClCompile Include="Cnf.cpp" />
-    <ClCompile Include="EventAnn.cpp" />
-    <ClCompile Include="EventBase.cpp" />
-    <ClCompile Include="EventCnf.cpp" />
     <ClCompile Include="MGCPcontrol.cpp" />
     <ClCompile Include="MGCPparser.cpp" />
+    <ClCompile Include="MGCPServer.cpp" />
     <ClCompile Include="MSmgcp.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

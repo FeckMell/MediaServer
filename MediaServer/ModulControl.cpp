@@ -4,7 +4,7 @@ MC::MC()
 {
 	si.resize(maxModules);
 	pi.resize(maxModules);
-	RunProcess("MSmgcp2.exe" + MakeCmd(), 50, mgcp);
+	RunProcess("MSmgcp.exe" + MakeCmd(), 50, mgcp);
 	RunProcess("MSann.exe" + MakeCmd(), 50, ann);
 	RunProcess("MScnf.exe" + MakeCmd(), 50, cnf);
 	RunProcess("MSsip.exe" + MakeCmd(), 50, sip);

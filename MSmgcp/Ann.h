@@ -1,24 +1,25 @@
-#pragma once
 #include "stdafx.h"
 #include "MGCPparser.h"
-#include "CallerBase.h"
+#include "Point.h"
 
-extern SHP_STARTUP init_Params;
-extern SHP_NETDATA net_Data;
-
-class Ann : public CallerBase
+class Ann
 {
 public:
-	Ann(SHP_MGCP, string, string);
 
-	void RQNT(SHP_MGCP);
-	void DLCX(SHP_MGCP);
-	string eventID = "";
+	Ann(SHP_Point, SHP_MGCP);
+
+	void RequestMusic(SHP_MGCP);
+	void Delete();
+
+	string eventID;
+
 private:
-	bool CheckFileExistance(string);
+
+	bool CheckFileExistance();
 	void SendToAnnModul(string);
 
-	string fileName = "";
-	
+	bool state = false;
+	string fileName;
+	SHP_Point point;
 };
 typedef shared_ptr<Ann> SHP_Ann;

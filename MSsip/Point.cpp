@@ -110,6 +110,7 @@ string Point::GetPortFromSDP(string sdp_)
 //*///------------------------------------------------------------------------------------------
 void Point::PlayAnn(string file_name_)
 {
+	this_thread::sleep_for(chrono::milliseconds(100));
 	BOOST_LOG_SEV(lg, trace) << "Point::PlayAnn() for CallID=" << callID << " filename=" << file_name_;
 	string result = "M7S2I6P5M\n";
 	result += "From=sip\n";
