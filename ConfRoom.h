@@ -9,7 +9,7 @@
 
 //#include <boost/thread/thread.hpp>
 
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
 /************************************************************************
 	CConfRoom

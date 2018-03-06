@@ -2,7 +2,7 @@
 #include "stdafx.h"
 #include "ConfRoom.h"
 
-//-*/-------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 void CConfRoom::loggit(string a)
 {
 	time_t rawtime;
@@ -12,7 +12,7 @@ void CConfRoom::loggit(string a)
 	steady_clock::time_point t1 = steady_clock::now();
 	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	result += " ID=" + to_string(RoomID_) + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
-	CLogger.AddToLog(1, "\n" + result + a);
+	CLogger->AddToLog(1, "\n" + result + a);
 }
 //-*/--------------------------Events-----------------------------------------
 void CConfRoom::NewPoint(string SDPff, string SDPfc, string CallID, int port)
@@ -23,7 +23,7 @@ void CConfRoom::NewPoint(string SDPff, string SDPfc, string CallID, int port)
 	cllPoints_.push_back(point);
 	loggit("void CConfRoom::NewInitPoint ENDED");
 }
-//-*/-------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 void CConfRoom::DeletePoint(string CallID)
 {
 	loggit("delete point for ID=" + CallID);
@@ -44,7 +44,7 @@ void CConfRoom::DeletePoint(string CallID)
 	Point->free();
 	loggit("Point " + CallID + " erased");
 }
-//-*/-------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 string CConfRoom::ModifyPoint(SHP_CConfPoint Point, string SDPff)
 {
 	loggit("ModifyPoint");
@@ -100,4 +100,4 @@ SHP_CConfPoint CConfRoom::FindPoint(string CallID)
 	}
 	return nullptr;
 }
-//-*/-------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------

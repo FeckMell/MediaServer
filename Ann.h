@@ -4,7 +4,7 @@
 #include "Structs.h"
 #include "Logger.h"
 #include "ConfPoint.h"
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
 extern string MusicPath;
 using namespace std;

@@ -32,7 +32,8 @@ void ConfAudio::loggit(string a)
 	steady_clock::time_point t1 = steady_clock::now();
 	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	result += " ID=" + to_string(ID_) + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
-	CLogger.AddToLog(2, "\n" + result + a);
+	CLogger->AddToLog(2, "\n" + result + a);
+	//std::async(&Logger::output, CLogger, result + a, 2);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -124,7 +125,7 @@ void ConfAudio::encode_and_send(SHP_CAVFrame frame, int i)
 	callers_[i]->rtp.rtp_modify();
 	memcpy(send->data(), (uint8_t*)&callers_[i]->rtp.header, 12);
 	memcpy(send->data() + 12, output_packet->data(), output_packet->size());
-	//loggit("sending  " + to_string(send->size()) + "bytes to ip " + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
+	loggit("sending  " + to_string(send->size()) + "bytes to ip " + callers_[i]->Endpoint.address().to_string() + " and port=" + to_string(callers_[i]->Endpoint.port()));
 	try
 	{
 		if (callers_[i]->Endpoint.address().to_string() == "0.0.0.0"){ loggit("inactive"); }

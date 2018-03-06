@@ -3,7 +3,7 @@
 #include "Logger.h"
 #include "Functions.h"
 #include "Structs.h"
-extern Logger CLogger;
+extern Logger* CLogger;
 extern string DateStr;
 
 class CConfPoint

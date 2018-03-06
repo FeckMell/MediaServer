@@ -15,7 +15,8 @@
 #define OUTPUT_SAMPLE_FORMAT AV_SAMPLE_FMT_S16
 #define VOLUME_VAL 0.90
 
-#define snprintf _snprintf
+#undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
+//#define snprintf _snprintf
 //#ifdef WIN32
 //#include "targetver.h"
 //#endif // _WIN32_
@@ -42,6 +43,7 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <future>         // std::async, std::future
 //#include <atomic>
 //#include <iomanip>                       
 //#include <ctime> 
@@ -105,6 +107,7 @@ using std::shared_ptr;
 #pragma comment (lib,"avfilter.lib")
 #pragma comment (lib,"Winmm.lib")
 //Winmm.dll
+typedef std::lock_guard<std::mutex> lock;
 
 
 

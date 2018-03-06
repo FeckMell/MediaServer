@@ -6,35 +6,39 @@ class SIP
 {
 public:
 	//func
-	SIP(string);
-	SIP() {}
-	std::string ResponseOK(int code, string end);
-	std::string ResponseBAD(int code, string message);
-	std::string ResponseRing(int code, string mess);
+	enum Eventor { INVITE, ACK, BYE, Ringing, OK };
+	enum line{ FirstLine, Via, To, From, CallID, CSeq, Contact, ContentLen, CintentType, MaxForwards, Allow, Supported, lineMax };
 
-	void Parse(bool);
+	SIP(std::string);
+	SIP() { SIPLines.resize((int)line::lineMax); }
 
-	int error;
-	char mes[2049];
-	udp::endpoint sender;
+	std::string ResponseINVITE(int code, std::string end);
+	std::string ResponseOK();
+	std::string ResponseRING();
+	std::string ResponseTRY(int code, std::string mess);
+	std::string ResponseBAD(int code, std::string message);
 
-	//data
+	void print();
+	void Parse();
+	void Remove();
+	void AddTagTo();
+	void ParseToLines();
+	void ParseCMD();
+
 	std::string sip;
-	std::string CMD;//
+	Eventor CMD;//
 	std::string SDP;
-
-	std::string branch;//ответ с ним же
-	std::string IP;
-	std::string port;
-	std::string maxForwards; //- номер транзакции, в ответе она -1
-	std::string CseqNum; // номер, +1
-	std::string CseqCMD; //
+	std::string MyContact = "<sip:1001@172.27.0.6:5060;maddr=172.27.0.6>";
+	std::string ViaReceived = ";received=10.77.7.19";
+	std::string ViaBranch = ";branch=111111111;";
+	std::vector<std::string> SIPLines;
+	boost::asio::ip::udp::endpoint sender;
+	int error = 0;
+	char mes[2049];
 private:
 
-	void parseCMD();
-	void Remove();
-	bool Valid();
 };
+
 
 class MGCP
 {
@@ -71,11 +75,7 @@ private:
 	void parseCMD();
 	void EventP();
 	void ParamM();
-	void ParamL();
-	void ParamI();
-	void ParamZ();
 	void ParamC();
-	void ParamS();
 	void Remove();
 	bool Valid();	
 };

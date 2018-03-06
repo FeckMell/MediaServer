@@ -14,7 +14,7 @@ using namespace std;
 using namespace std::chrono;
 
 extern string DateStr;
-extern Logger CLogger;
+extern Logger* CLogger;
 
 
 

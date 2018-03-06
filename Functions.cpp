@@ -67,15 +67,27 @@ Config ParseConfig(string path, Config parsed)
 		file.open(path);
 		while (std::getline(file, temp))
 		{
-			found = temp.find("port=");
+			found = temp.find("MGCPport=");
 			if (found != std::string::npos)
 			{
-				parsed.port = stoi(temp.substr(found + 5, temp.back()));
+				parsed.MGCPport = stoi(temp.substr(found + 9, temp.back()));
 				persistance = 1;
 				break;
 			}
 		}
 		persistance = 0;
+		file.close();
+		file.open(path);
+		while (std::getline(file, temp))
+		{
+			found = temp.find("SIPport=");
+			if (found != std::string::npos)
+			{
+				parsed.SIPport = stoi(temp.substr(found + 8, temp.back()));
+				//cout << "\nSIPPORT=" << parsed.SIPport;
+				break;
+			}
+		}
 		file.close();
 		file.open(path);
 		while (std::getline(file, temp))
@@ -130,7 +142,7 @@ void LogMain(string a)
 	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
 	string result = DateStr + "/" + boost::to_string(t->tm_hour) + ":" + boost::to_string(t->tm_min) + ":" + boost::to_string(t->tm_sec) + "/" + boost::to_string(t1.time_since_epoch().count() % 1000);
 	result += " thread=" + boost::to_string(std::this_thread::get_id()) + "      ";
-	CLogger.AddToLog(0, result + a);
+	CLogger->AddToLog(0, result + a);
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -179,10 +191,7 @@ string MakeRemoteIP(string SDP)
 //----------------------------------------------------------------------------
 string MakeRemotePort(string SDP)
 {
-	std::size_t found = SDP.find("m=audio");
-	if (found != std::string::npos)
-		return SDP.substr(found + 8, SDP.find(" ", found + 10) - found - 8);
-	return "";
+	return get_substr(SDP, "m=audio ", " ");
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
@@ -212,6 +221,14 @@ int sdp_read(void *opaque, uint8_t *buf, int size) /*noexcept*/
 }
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
+std::string get_substr(std::string target, std::string aim, std::string fin)
+{
+	auto fd = target.find(aim);
+	std::string result = "";
+	if (fd != std::string::npos)
+		result = target.substr(fd + aim.size(), target.find(fin, fd + aim.size() - 1) - (fd + aim.size()));
+	return result;
+}
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------
 //----------------------------------------------------------------------------

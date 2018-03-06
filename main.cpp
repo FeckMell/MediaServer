@@ -17,10 +17,10 @@ string PathEXE;
 string MusicPath;
 short int RTPport;
 
-Logger CLogger = Logger();
+Logger* CLogger = new Logger();
 void Runner()
 {
-	CLogger.Run();
+	CLogger->Run();
 }
 int main(int argc, char* argv[])
 {
@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
 		setlocale(LC_ALL, "Russian");
 		cout << "\nТЕСТ ВЕРСИЯ 1.4.2 (14.07.2016 / 12:17)";
 		GetPathExe(argv[0]);
-		CLogger.Create();
+		CLogger->Create();
 		boost::thread my_thread(&Runner);
 		my_thread.detach();
 		std::this_thread::sleep_for(std::chrono::microseconds(50));
@@ -48,12 +48,13 @@ int main(int argc, char* argv[])
 		if (cfg.error == -1){ cout << "\nNO MEDIA " << cfg.error; system("pause"); return 0; }
 		if (cfg.error == 0)
 		{
-			cout << "\nparse end:\nUsing IP: " << cfg.IP << " Media Path: " << cfg.MediaPath << " port: " << cfg.port << " RTPPort: " + boost::to_string(cfg.RTPport);
-			LogMain("\nparse end:\nUsing IP: " + cfg.IP + " Media Path: " + cfg.MediaPath + " port: " + boost::to_string(cfg.port)+ " RTPPort: " + boost::to_string(cfg.RTPport));
+			cout << "\nparse end:\nUsing IP: " << cfg.IP << "\nMedia Path: " << cfg.MediaPath << "\nMGCPport: " << cfg.MGCPport << "\nSIPport: " << cfg.SIPport << "\nRTPPort: " << cfg.RTPport;
+			LogMain("\nparse end:\nUsing IP: " + cfg.IP + "\nMedia Path: " + cfg.MediaPath + "\nMGCPport: " + boost::to_string(cfg.MGCPport) + "\nSIPport: " + boost::to_string(cfg.SIPport) + "\nRTPPort: " + boost::to_string(cfg.RTPport));
 		}
 		//Инициализация адреса и порта сервера		
 		boost::asio::io_service io_service;
-		const udp::endpoint ep(boost::asio::ip::address::from_string(cfg.IP),cfg.port);
+		const udp::endpoint MGCPep(boost::asio::ip::address::from_string(cfg.IP),cfg.MGCPport);
+		const udp::endpoint SIPep(boost::asio::ip::address::from_string(cfg.IP), cfg.SIPport);
 		///////////////////////////////////////////////////////////////////////////
 		av_log_set_level(0);
 		av_register_all();
@@ -63,7 +64,7 @@ int main(int argc, char* argv[])
 		/************************************************************************
 			Запуск экземляра MGCP-сервера	                                                                     
 		************************************************************************/
-		CMGCPServer s({ io_service, ep, cfg.MediaPath });
+		/*CMGCPServer s({ io_service, MGCPep,SIPep, cfg.MediaPath });
 		LogMain("Запуск экземляра MGCP-сервера");
 		cout << "\n-------------------------------------------------------------------------------\n\n";
 
@@ -82,7 +83,13 @@ int main(int argc, char* argv[])
 				if (es.find("receive_from") == std::string::npos) 
 				{ throw e; }
 			}
-		}
+		}*/
+		CMGCPServer s({ io_service, MGCPep, SIPep, cfg.MediaPath });
+		LogMain("Запуск экземляра MGCP-сервера");
+		cout << "\n-------------------------------------------------------------------------------\n\n";
+		s.Run();
+		s.RunBuffer();
+		io_service.run();
 	}
 	catch (std::exception& e)
 	{

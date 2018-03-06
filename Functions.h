@@ -8,7 +8,7 @@ class Logger;
 extern boost::gregorian::date Date;
 extern string DateStr;
 extern string PathEXE;
-extern Logger CLogger;
+extern Logger* CLogger;
 
 
 //----------------------------------------------------------------------------
@@ -34,6 +34,9 @@ void GetPathExe(char* argv);
 //----------------------------------------------------------------------------
 int sdp_read(void *opaque, uint8_t *buf, int size);
 //----------------------------------------------------------------------------
+std::string get_substr(std::string target, std::string aim, std::string fin);
+//----------------------------------------------------------------------------
+
 
 
 

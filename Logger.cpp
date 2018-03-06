@@ -5,7 +5,7 @@ void Logger::OpenLogFiles()
 {
 	using namespace boost;
 	reinit();
-	buffer.resize(file2.size());
+	buffer.resize(file.size());
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
@@ -36,8 +36,8 @@ void Logger::Run()
 //-*/----------------------------------------------------------
 void Logger::output(std::string text, int i)
 {
-	file2[i].write(text.c_str(),text.size());
-	file2[i].flush();
+	file[i].write(text.c_str(),text.size());
+	file[i].flush();
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
@@ -63,11 +63,11 @@ void Logger::AddToLog(unsigned type, std::string text)
 //-*/----------------------------------------------------------
 void Logger::Clean()
 {
-	for (auto&e : file2)
+	for (auto&e : file)
 	{
 		e.close();
 	}
-	file2.clear();
+	file.clear();
 }
 //-*/----------------------------------------------------------
 //-*/----------------------------------------------------------
@@ -84,13 +84,14 @@ void Logger::reinit()
 	/*3*/path.push_back(tempPath + "LOGS_Server.txt");
 	/*4*/path.push_back(tempPath + "LOGS_FilterInit.txt");
 	/*5*/path.push_back(tempPath + "LOGS_Ann.txt");
-	/*6*/path.push_back(tempPath + "LOGS_RequestControl.txt");
+	/*6*/path.push_back(tempPath + "LOGS_MGCPControl.txt");
 	/*7*/path.push_back(tempPath + "LOGS_Proxy.txt");
 	/*8*/path.push_back(tempPath + "LOGS_ConfPoint.txt");
-	file2.resize(path.size());
+	/*9*/path.push_back(tempPath + "LOGS_SIPControl.txt");
+	file.resize(path.size());
 	for (unsigned i = 0; i < path.size(); ++i)
 	{
-		file2[i].open(path[i], std::ofstream::app);
+		file[i].open(path[i], std::ofstream::app);
 		time_t rawtime;
 		struct tm * t;
 		time(&rawtime);

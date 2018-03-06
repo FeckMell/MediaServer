@@ -4,7 +4,7 @@
 #include "Structs.h"
 #include "Functions.h"
 
-extern Logger CLogger;
+extern Logger* CLogger;
 using namespace std;
 using namespace std::chrono;
 class Proxy

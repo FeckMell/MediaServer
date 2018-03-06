@@ -14,7 +14,7 @@ void CFilterInit::loggit(string a)
 	steady_clock::time_point t1 = steady_clock::now();
 	string result = DateStr + "/" + to_string(t->tm_hour) + ":" + to_string(t->tm_min) + ":" + to_string(t->tm_sec) + "/" + to_string(t1.time_since_epoch().count() % 1000);
 	result += " ID=" + to_string(ID_) + " thread=" + boost::to_string(this_thread::get_id()) + "      ";
-	CLogger.AddToLog(4, "\n" + result + a); 
+	CLogger->AddToLog(4, "\n" + result + a); 
 }
 //-*/-----------------------------------------------------------------------------------------
 //-*/-----------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ int CFilterInit::init_filter_graph(int ForClient)
 			Caller_[i]->iccx->channel_layout = av_get_default_channel_layout(Caller_[i]->iccx->channels);
 
 		}
-		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%"PRIx64,
+		snprintf(args, sizeof(args), "sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
 			Caller_[i]->iccx->sample_rate, av_get_sample_fmt_name(Caller_[i]->iccx->sample_fmt), Caller_[i]->iccx->channel_layout);
 		//snprintf(arg, sizeof(arg), "src%d-%d", ForClient, i);
 		snprintf(arg, sizeof(arg), "src");

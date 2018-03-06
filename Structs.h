@@ -163,7 +163,8 @@ struct Config
 
 	string MediaPath;
 	string IP;
-	short int port=2427;
+	short int SIPport = 2429;
+	short int MGCPport=2427;
 	short int RTPport = 29500;
 	int error=0;
 };
@@ -192,7 +193,7 @@ public:
 		mutex_.lock();
 		buffer_.push_back(val);
 		std::vector<int> a;
-		a.resize(size_, 0);
+		a.resize(size_+1, 0);
 		buffer2_.push_back(a);
 		mutex_.unlock();
 	}
@@ -240,7 +241,7 @@ private:
 		{
 			for (int j = 0; j < (int)buffer2_.size(); ++j)
 			{
-				if (buffer2_[j][i] == 0)
+				if (buffer2_[j][i] == 0)//
 				{
 					buffer2_[j][i] = 1;
 					//cout << "\nframe i" << i << " j" << j;
