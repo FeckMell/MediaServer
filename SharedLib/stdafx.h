@@ -84,8 +84,8 @@ extern "C"
 /* <\> GLOBAL TYPEDEFs */
 typedef boost::asio::io_service IO; // shortcut for io_service
 typedef boost::asio::ip::udp::endpoint EP; // shortcut for endpoint
-
 typedef boost::log::sources::severity_logger<boost::log::trivial::severity_level> BOOSTLOGGER; // shortcut for logger define
+
 typedef std::shared_ptr<boost::asio::io_service> SHP_IO;
 typedef std::shared_ptr<std::thread> SHP_thread;
 /* </> GLOBAL TYPEDEFs */

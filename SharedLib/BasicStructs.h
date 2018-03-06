@@ -5,8 +5,13 @@
 class SOCK
 {
 public:
-	SOCK(string, int, IO&);
+	//SOCK(string, int, IO&);
+	SOCK(string, int, SHP_IO);
+
+	void ChangeIO(SHP_IO);
 	~SOCK();
+
+	SHP_IO io;
 	boost::asio::ip::udp::socket s;
 };
 typedef shared_ptr<SOCK> SHP_SOCK;

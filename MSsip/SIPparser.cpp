@@ -70,7 +70,7 @@ string SIP::GetParam(int c_)
 //*///------------------------------------------------------------------------------------------
 string SIP::ReplyRinging()
 {
-	string result = "SIP/2.0 180 Ringing\n";
+	string result = "SIP/2.0 180 Ringing\r\n";
 	int line = 0;
 	int temp_value = 0;
 	string temp_line = copy_single_n_line(sip, line);
@@ -80,7 +80,7 @@ string SIP::ReplyRinging()
 		{
 			if (temp_value == 0)
 			{
-				result += temp_line + ";received=" + sender.address().to_string() + "\n";
+				result += temp_line + ";received=" + sender.address().to_string() + "\r\n";
 				temp_value++;
 			}
 			else
@@ -90,32 +90,33 @@ string SIP::ReplyRinging()
 		}
 		else if (temp_line.find("To: ") != string::npos)
 		{
-			result += temp_line + ";tag=tag_value\n";
+			result += temp_line + ";tag=qwerty\r\n";
 		}
 		else if (temp_line.find("From: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		else if (temp_line.find("Call-ID: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		else if (temp_line.find("CSeq: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		line++;
 		temp_line = copy_single_n_line(sip, line);
 	}
-	result += "Contact: My name+IP\n";
-	result += "Content-Length: 0\n";
+	//result += "Contact: My name+IP\r\n";
+	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";
+	result += "Content-Length: 0\r\n";
 	return result;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 string SIP::ReplyOK(string sdp_)
 {
-	string result = "SIP/2.0 200 OK\n";
+	string result = "SIP/2.0 200 OK\r\n";
 	int line = 0;
 	int temp_value = 0;
 	string temp_line = copy_single_n_line(sip, line);
@@ -125,43 +126,43 @@ string SIP::ReplyOK(string sdp_)
 		{
 			if (temp_value == 0)
 			{
-				result += temp_line + ";received=" + sender.address().to_string() + "\n";
+				result += temp_line + ";received=" + sender.address().to_string() + "\r\n";
 				temp_value++;
 			}
 			else
 			{
-				result += temp_line + "\n";
+				result += temp_line + "\r\n";
 			}
 		}
 		else if (temp_line.find("To: ") != string::npos)
 		{
-			result += temp_line + ";tag=tag_value\n";
+			result += temp_line + ";tag=qwerty\r\n";
 		}
 		else if (temp_line.find("From: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		else if (temp_line.find("Call-ID: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		else if (temp_line.find("CSeq: ") != string::npos)
 		{
-			result += temp_line + "\n";
+			result += temp_line + "\r\n";
 		}
 		line++;
 		temp_line = copy_single_n_line(sip, line);
 	}
-	result += "Contact: My name+IP\n";
+	result += "Contact: <sip:6801@10.77.7.5:5060>\r\n";
 	if (sdp_ != "")
 	{
-		result += "Content-Type: application/sdp\n";
-		result += "Content-Length: " + to_string(sdp_.length()) + "\n";
-		result += "\n" + sdp_;
+		result += "Content-Type: application/sdp\r\n";
+		result += "Content-Length: " + to_string(sdp_.length()) + "\r\n";
+		result += "\r\n" + sdp_;
 	}
 	else
 	{
-		result += "Content-Length: 0\n";
+		result += "Content-Length: 0\r\n";
 	}
 	return result;
 }
@@ -169,13 +170,12 @@ string SIP::ReplyOK(string sdp_)
 //*///------------------------------------------------------------------------------------------
 string SIP::ResponseBAD()
 {
-	return "SIP/2.0 400 Bad Request\n";
+	return "SIP/2.0 400 Bad Request\r\n";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void SIP::ReplyClient(SHP_SOCK s_, string str_)
 {
-	BOOST_LOG_SEV(LOG::GL(LOG::L::sip), warning) << "Reply is:\n" << str_;
 	s_->s.send_to(boost::asio::buffer(str_), sender);
 }
 //*///------------------------------------------------------------------------------------------

@@ -16,8 +16,8 @@ public:
 
 	static EP GE(INNER);//GetEndpPoint
 
-	static IO& GI(INNER);//GetIO
-	static IO& GI(OUTER);//GetIO
+	static SHP_IO GI(INNER);//GetIO
+	static SHP_IO GI(OUTER);//GetIO
 
 	static void SendModul(INNER, INNER, string);
 	static void RunIO(INNER);

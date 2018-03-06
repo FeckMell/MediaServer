@@ -5,9 +5,12 @@ namespace dtmf
 	class Point
 	{
 	public:
-		Point(SHP_IPL, IO&);
+		Point(SHP_IPL);
 
+		//void Receive(boost::system::error_code, size_t);
 		bool Analyze(uint8_t ch[2]);
+
+		Data rawBuf;
 
 		string eventID;
 		string callID;
@@ -21,7 +24,6 @@ namespace dtmf
 		string serverPort;
 		string clientPort;
 		string clientIP;
-
 
 		vector<int> buttons;
 	};

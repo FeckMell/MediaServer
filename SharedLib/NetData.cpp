@@ -78,9 +78,9 @@ EP NET::GE(INNER e_)
 		exit(-1);
 	}
 }
-IO& NET::GI(INNER io_)
+SHP_IO NET::GI(INNER io_)
 {
-	try { return *iosIN[io_].get(); }
+	try { return iosIN[io_]; }
 	catch (exception& e)
 	{
 		cout << "\n Exception:" << e.what();
@@ -88,9 +88,9 @@ IO& NET::GI(INNER io_)
 		exit(-1);
 	}
 }
-IO& NET::GI(OUTER io_)
+SHP_IO NET::GI(OUTER io_)
 {
-	try { return *iosOUT[io_].get(); }
+	try { return iosOUT[io_]; }
 	catch (exception& e)
 	{
 		cout << "\n Exception:" << e.what();

@@ -2,20 +2,28 @@
 #include "BasicStructs.h"
 
 
-
-SOCK::SOCK(string ip_, int port_, IO& io_) :s(io_)
+SOCK::SOCK(string ip_, int port_, SHP_IO io_) :s(*io_.get()), io(io_)
 {
-	using boost::asio::ip::udp;
 	EP ep(boost::asio::ip::address::from_string(ip_), port_);
-	s.open(udp::v4());
-	s.set_option(udp::socket::reuse_address(true));
-	s.bind(EP(boost::asio::ip::address::from_string(ip_), port_));
+	s.open(boost::asio::ip::udp::v4());
+	s.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+	s.bind(ep);
+}
+void SOCK::ChangeIO(SHP_IO io_)
+{
+	auto ep_old = s.local_endpoint();
+	s.cancel();
+	s.close();
 
-	BOOST_LOG_SEV(LOG::GL(LOG::L::main), trace) << "SOCK::SOCK(...) created with IP=" << ip_ << " port=" << port_;
+	s = boost::asio::ip::udp::socket(*io_.get());
+	s.open(boost::asio::ip::udp::v4());
+	s.set_option(boost::asio::ip::udp::socket::reuse_address(true));
+	s.bind(ep_old);
+	io = io_;
 }
 SOCK::~SOCK()
 {
-	BOOST_LOG_SEV(LOG::GL(LOG::L::main), trace) << "SOCK::SOCK(...) CLOSED with IP=" << s.local_endpoint().address().to_string() << " port=" << s.local_endpoint().port();
+	s.cancel();
 	s.close();
 }
 //*///------------------------------------------------------------------------------------------

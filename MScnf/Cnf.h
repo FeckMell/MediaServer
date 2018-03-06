@@ -21,7 +21,7 @@ namespace cnf
 
 		SHP_Audio mixerAudio;
 		vector<SHP_CnfPoint> vecPoints;
-		boost::asio::io_service ioCnf;
+		//boost::asio::io_service ioCnf;
 	};
 	typedef shared_ptr<Cnf> SHP_Cnf;
 }

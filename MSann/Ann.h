@@ -19,7 +19,7 @@ namespace ann
 		SHP_thread th;
 
 		IO ioAnn;
-		SHP_SOCK outerSOCK;
+		SHP_SOCK outerSOCK = nullptr;
 		RTP_struct rtpHDR;
 		SHP_MediaFile mediaFile;
 		EP endPoint;

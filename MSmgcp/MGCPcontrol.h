@@ -33,14 +33,14 @@ namespace mgcp
 
 		string GenSDP(string, SHP_MGCP);
 
-		string ReservePort();
-		void FreePort(string);
+		//string ReservePort();
+		//void FreePort(string);
 
-		string ReserveEventID();
-		void FreeEventID(string);
+		//string ReserveEventID();
+		//void FreeEventID(string);
 
-		vector<int> usedPorts;
-		vector<int> usedEventID;
+		//vector<int> usedPorts;
+		//vector<int> usedEventID;
 		int lastSDP_ID;
 
 		vector<SHP_Point> vecPoints;

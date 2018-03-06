@@ -16,15 +16,15 @@ namespace dtmf
 		void DeletePoint(SHP_Point);
 		SHP_Point FindPoint(string);
 
-		int GetFreeThread();
+		//int GetFreeThread();
 
 		void Receive(boost::system::error_code, size_t, SHP_Point);
-		void RunIO(int);
+		//void RunIO(int);
 
-		Data rawBuf;
+		//Data rawBuf;
 
-		vector<SHP_IO> vecIOs;
-		vector<int> vecIOstates;
+		//vector<SHP_IO> vecIOs;
+		//vector<int> vecIOstates;
 		vector<SHP_Point> vecPoints;
 	};
 	typedef shared_ptr<Control> SHP_Control;

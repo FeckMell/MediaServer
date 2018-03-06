@@ -16,7 +16,7 @@ Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
 	{
 		if (InitFilterGraph(i) < 0)
 		{
-			BOOST_LOG_SEV(LOG::GL(LOG::L::cnf), fatal) << "Filter::Filter(..) ERROR";
+			
 			system("pause");
 		}
 	}
