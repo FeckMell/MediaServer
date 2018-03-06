@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 
 extern SHP_STARTUP init_Params;
 extern SHP_NETDATA net_Data;
@@ -11,7 +9,7 @@ class MGCP
 public:
 	/*Enum struct data*/
 	enum ParamNames {
-		ParamC, ParamL, ParamI, ParamZ, ParamS, EventNum, EventFull, MessNum, SDP,
+		ParamC, ParamL, ParamI, ParamZ, ParamS, EventID, EventFull, MessNum, SDP,
 		MaxParamNames
 	};
 	enum EventNames { CMD, Type, State, MaxEventName };

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CnfPoint.h"
 
 CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_, boost::asio::io_service& ioCnf_)

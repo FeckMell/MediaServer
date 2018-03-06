@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Audio.h"
 
 Audio::Audio(vector<SHP_CnfPoint> points_) : vecPoints(points_)

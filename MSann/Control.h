@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 #include "MusicStore.h"
 #include "Ann.h"
 

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MusicStore.h"
 
 MediaFile::MediaFile(string filename_)

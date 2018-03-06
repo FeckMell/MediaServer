@@ -41,21 +41,21 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\SharedLibs\SharedLibs;C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Projects\SharedLibs\Release;C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Projects\SharedLibs\SharedLibs;C:\LIBS\ffmpeg-dev\include;C:\LIBS\Boost;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Projects\SharedLibs\Release;C:\LIBS\ffmpeg-dev\lib;C:\LIBS\Boost\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -66,12 +66,12 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Create</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-Zm200 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -82,11 +82,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\SharedSource\Functions.cpp" />
-    <ClCompile Include="..\SharedSource\InnerParser.cpp" />
-    <ClCompile Include="..\SharedSource\stdafx.cpp" />
-    <ClCompile Include="..\SharedSource\Structs.cpp" />
+    <ClCompile Include="Cnf.cpp" />
     <ClCompile Include="MSsip.cpp" />
+    <ClCompile Include="Point.cpp" />
+    <ClCompile Include="Server.cpp" />
+    <ClCompile Include="SIPcontrol.cpp" />
+    <ClCompile Include="SIPparser.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cnf.h" />
+    <ClInclude Include="Point.h" />
+    <ClInclude Include="Server.h" />
+    <ClInclude Include="SIPcontrol.h" />
+    <ClInclude Include="SIPparser.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

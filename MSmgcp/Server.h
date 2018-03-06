@@ -1,6 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
+#include "stdafx.h"
 #include "MGCPparser.h"
 #include "MGCPcontrol.h"
 

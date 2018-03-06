@@ -8,7 +8,7 @@ struct STARTUP
 	enum ParamNames
 	{
 		outerIP, innerIP, innerPort, logLevel, outerPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
-		mediaPath, homePath,
+		mediaPath, homePath, portSIP,
 		maxParamNames
 	};
 	//Methods for Data.

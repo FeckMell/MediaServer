@@ -17,6 +17,7 @@ STARTUP::STARTUP(char* argv_)
 	GetPathExe(argv_);//Put path to exe in InitP
 	ParseConfigFile();
 	data[mediaPath] = data[homePath] + "\\" + data[mediaPath];
+	data[portSIP] = "5060";
 }
 //*///------------------------------------------------------------------------------------------
 string STARTUP::GetParams()
@@ -33,6 +34,7 @@ string STARTUP::GetParams()
 	result += "\nMax inactive time for Conference in mins: " + data[maxTimeCnf];
 	result += "\nMax inactive time for Proxy calls in mins: " + data[maxTimePrx];
 	result += "\nLogLevel: " + data[logLevel];
+	result += "\nportSIP: " + data[portSIP];
 	result += "\nParsed path to application(home folder for MGCP server):\n" + data[homePath];
 	return result + "\n";
 }
@@ -59,7 +61,7 @@ void STARTUP::ParseConfigFile()
 		string file_line;
 		size_t found;
 		vector<string> alphabet = { "outerIP=", "innerIP=", "innerPort=", "logLevel=", "outerPort=", "rtpPort=",
-			"maxTimeAnn=", "maxTimeCnf=", "maxTimePrx=", "mediaPath=" };
+			"maxTimeAnn=", "maxTimeCnf=", "maxTimePrx=", "mediaPath=", "portSIP=" };
 
 		while (getline(file, file_line) && (file_line.substr(0, 3) != "***"))
 		{

@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 #include "EventBase.h"
 #include "MGCPparser.h"
 #include "Ann.h"

@@ -1,8 +1,9 @@
+#include "stdafx.h"
 #include "MGCPparser.h"
 
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-vector<string> MGCP::paramNamesStr = { "C", "L", "I", "Z", "S", "EventNum", "EventFull", "MessNum", "SDP", "MaxParamNames" };
+vector<string> MGCP::paramNamesStr = { "C", "L", "I", "Z", "S", "EventID", "EventFull", "MessNum", "SDP", "MaxParamNames" };
 vector<string> MGCP::eventNamesStr = { "CMD", "Type", "State", "MaxEventName" };
 vector<string> MGCP::eventCMDStr = { "CRCX", "RQNT", "MDCX", "DLCX", "MaxEventCMD" };
 vector<string> MGCP::eventTypeStr = { "ann", "cnf", "prx", "MaxEventType" };
@@ -63,18 +64,18 @@ void MGCP::ParseCMDandType()
 	if (events[Type] == -1) { error += "\nUnknown type. Supported: ann/, cnf/, prx/."; return; }
 
 	/*parse extra event data*/
-	if (temp.find("@") == string::npos) { error += "\nError in first line. It should be:\n\"CMD MesNum EventType/EventNum@[IP] mgcp 1.0 ncs 1.0\"."; return; }
+	if (temp.find("@") == string::npos) { error += "\nError in first line. It should be:\n\"CMD MesNum EventType/EventID@[IP] mgcp 1.0 ncs 1.0\"."; return; }
 	try
 	{
 		string temp2 = temp.substr(fd_pos + 4, temp.find("@") - fd_pos - 4);
-		if (temp2 == "$") { data[EventNum] = "$"; }
-		else { stoi(temp2); data[EventNum] = temp2; }
+		if (temp2 == "$") { data[EventID] = "$"; }
+		else { stoi(temp2); data[EventID] = temp2; }
 	}
-	catch (exception& e) { error += "\nInvalid event type num."; e; return; }
+	catch (exception& e) { error += "\nInvalid event type ID."; e; return; }
 	data[EventFull] = temp.substr(0, temp.find("] ", fd_pos) + 1);
 	data[MessNum] = get_substr(temp, EnumToStr(2, events[CMD])+" ", " "+EnumToStr(3, events[Type]));
 	try{ stoi(data[MessNum]); }
-	catch (exception& e) { error += "\nInvalid message num."; e; return; }
+	catch (exception& e) { error += "\nInvalid message ID."; e; return; }
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -92,7 +93,7 @@ string MGCP::ResponseOK(int code_, string include_Event_Type_)
 	auto result = to_string(code_) + " " + data[MessNum]+ " OK";
 	if (include_Event_Type_ != "")
 	{
-		result += "\nZ: " + EnumToStr(3, events[Type]) + "/" + data[EventNum] + cut_substr(data[EventFull], "@[", "]");
+		result += "\nZ: " + EnumToStr(3, events[Type]) + "/" + data[EventID] + cut_substr(data[EventFull], "@[", "]");
 		result += "\nI: " + to_string(rand() % 1000);
 	}
 	return result;

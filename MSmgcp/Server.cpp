@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Server.h"
 
 MGCPServer::MGCPServer()

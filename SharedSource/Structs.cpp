@@ -23,6 +23,7 @@ string STARTUP::GetParams()
 	result += "\nMax inactive time for Conference in mins: " + data[maxTimeCnf];
 	result += "\nMax inactive time for Proxy calls in mins: " + data[maxTimePrx];
 	result += "\nLogLevel: " + data[logLevel];
+	result += "\nportSIP: " + data[portSIP];
 	result += "\nParsed path to application(home folder for MGCP server):\n" + data[homePath];
 	return result + "\n";
 }

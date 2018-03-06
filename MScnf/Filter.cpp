@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Filter.h"
 //TODO: logs
 

@@ -52,6 +52,75 @@ string replace_in_str(string target_, string what_, string to_what_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+string copy_single_n_line(string target_, int n_)
+{
+	size_t fd_pos_prev = 0;
+	size_t fd_pos_next = 0;
+	for (int i = -1; i < n_; ++i)
+	{
+		size_t fd_pos_cur = target_.find("\n", fd_pos_next + 1);
+		if (fd_pos_cur != string::npos)
+		{
+			fd_pos_prev = fd_pos_next + 1;
+			fd_pos_next = fd_pos_cur;
+		}
+		else if (i + 2 != n_) return "";
+	}
+	if (fd_pos_prev != 1) return target_.substr(fd_pos_prev, fd_pos_next - fd_pos_prev);
+	else return target_.substr(0, fd_pos_next);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+string remove_single_line(string target_, string aim_)
+{
+	size_t fd_pos = target_.find(aim_);
+	if (fd_pos == string::npos){ return target_; }
+
+	return target_.erase(fd_pos, aim_.length());
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+string remove_single_line(string target_, int n_)
+{
+	size_t fd_pos_prev = 0;
+	size_t fd_pos_next = 0;
+	for (int i = -1; i < n_; ++i)
+	{
+		size_t fd_pos_cur = target_.find("\n", fd_pos_next + 1);
+		if (fd_pos_cur != string::npos)
+		{
+			fd_pos_prev = fd_pos_next + 1;
+			fd_pos_next = fd_pos_cur;
+		}
+		else if (i + 2 != n_) return target_;
+	}
+	if (fd_pos_prev != 1) return target_.erase(fd_pos_prev, fd_pos_next - fd_pos_prev + 1);
+	else return target_.erase(0, fd_pos_next + 1);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+string replace_line(string target_, string was_, string now_)
+{
+	size_t fd_pos = target_.find(was_);
+	return target_.replace(fd_pos, was_.length(), now_);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+int find_line(string target_, string what_)
+{
+	string temp = "a";
+	int line = 0;
+	while (temp != "")
+	{
+		temp = copy_single_n_line(target_, line);
+		if (temp.find(what_) != string::npos)
+			return line;
+		line++;
+	}
+	return -1;
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
 void LogsInit(string my_modul_name_)
 {
 	string log_path = init_Params->data[STARTUP::homePath] + "\\logs\\%Y-%m-%d_" + my_modul_name_ + ".log";

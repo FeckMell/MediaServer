@@ -1,9 +1,10 @@
+#include "stdafx.h"
 #include "EventBase.h"
 
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 vector<int> EventBase::usedPorts;
-vector<int> EventBase::usedEventNum;
+vector<int> EventBase::usedEventID;
 int EventBase::lastSDP_ID = 0;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -41,27 +42,27 @@ void EventBase::FreePort(string port_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-string EventBase::ReserveEventNum()
+string EventBase::ReserveEventID()
 {
-	int free_event_num = 0;
-	if (usedEventNum.size() == 0) { usedEventNum.push_back(free_event_num);  return to_string(free_event_num); }
-	for (unsigned i = 0; i < usedEventNum.size(); ++i)
+	int free_event_id = 0;
+	if (usedEventID.size() == 0) { usedEventID.push_back(free_event_id);  return to_string(free_event_id); }
+	for (unsigned i = 0; i < usedEventID.size(); ++i)
 	{
-		if (usedEventNum[i] != free_event_num)
+		if (usedEventID[i] != free_event_id)
 		{
-			usedEventNum.push_back(free_event_num);
-			sort(usedEventNum.begin(), usedEventNum.end());
-			return to_string(free_event_num);
+			usedEventID.push_back(free_event_id);
+			sort(usedEventID.begin(), usedEventID.end());
+			return to_string(free_event_id);
 		}
-		free_event_num++;
+		free_event_id++;
 	}
-	usedEventNum.push_back(free_event_num);
-	sort(usedEventNum.begin(), usedEventNum.end());
-	return to_string(free_event_num);
+	usedEventID.push_back(free_event_id);
+	sort(usedEventID.begin(), usedEventID.end());
+	return to_string(free_event_id);
 }
-void EventBase::FreeEventNum(string num_)
+void EventBase::FreeEventID(string event_id_)
 {
-	usedEventNum.erase(remove(usedEventNum.begin(), usedEventNum.end(), stoi(num_)), usedEventNum.end());
+	usedEventID.erase(remove(usedEventID.begin(), usedEventID.end(), stoi(event_id_)), usedEventID.end());
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -74,8 +75,9 @@ string EventBase::GenSDP(string port_s_, SHP_MGCP mgcp_)
 		"c=IN IP4 %1%\n"//1
 		"t=0 0\n"
 		"a=tool:libavformat 57.3.100\n"
-		"m=audio %2% RTP/AVP 8\n"//2
+		"m=audio %2% RTP/AVP 8 101\n"//2
 		"a=rtpmap:8 PCMA/8000\n"
+		"a=rtpmap:101 telephone-event/8000\n"
 		"a=ptime:20\n"
 		"a=sendrecv\n"
 		)); // формируем тип ответа

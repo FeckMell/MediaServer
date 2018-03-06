@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/InnerParser.h"
+#include "stdafx.h"
 #include "Control.h"
 
 extern SHP_STARTUP init_Params;

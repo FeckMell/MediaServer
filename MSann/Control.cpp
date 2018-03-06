@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Control.h"
 
 Control::Control()
@@ -13,14 +14,14 @@ void Control::CR(SHP_IPL ipl_)
 	BOOST_LOG_SEV(lg, trace) << "Control::CR(...)";
 	if (FindAnn(ipl_) != nullptr)
 	{
-		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): FindAnn(ipl_) != nullptr for id=" << ipl_->data[IPL::eventID];
+		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): FindAnn(ipl_) != nullptr for id=" << ipl_->data["EventID"];
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "Control::CR(...): SHP_MediaFile media_file = musicStore->GetFile(ipl_->data[IPL::fileName]);";
-	SHP_MediaFile media_file = musicStore->GetFile(ipl_->data[IPL::fileName]);
+	SHP_MediaFile media_file = musicStore->GetFile(ipl_->data["FileName"]);
 	if (media_file == nullptr) 
 	{ 
-		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): media_file == nullptr for id=" << ipl_->data[IPL::eventID];
+		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): media_file == nullptr for id=" << ipl_->data["EventID"];
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "Control::CR(...): SHP_Ann new_ann = make_shared<Ann>(media_file, ipl_);";
@@ -36,7 +37,7 @@ void Control::DL(SHP_IPL ipl_)
 	SHP_Ann found_ann = FindAnn(ipl_);
 	if (found_ann == nullptr)
 	{
-		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): found_ann == nullptr for id=" << ipl_->data[IPL::eventID];
+		BOOST_LOG_SEV(lg, fatal) << "Control::CR(...): found_ann == nullptr for id=" << ipl_->data["EventID"];
 		return;
 	}
 	BOOST_LOG_SEV(lg, trace) << "Control::DL(...): found_ann->DL();";
@@ -49,15 +50,10 @@ void Control::DL(SHP_IPL ipl_)
 //*///------------------------------------------------------------------------------------------
 void Control::Preprocessing(SHP_IPL ipl_)
 {
-	switch (ipl_->type)
+	if (ipl_->data["EventType"] == "cr") CR(ipl_);
+	else if (ipl_->data["EventType"] == "dl") DL(ipl_);
+	else
 	{
-	case IPL::cr:
-		CR(ipl_);
-		break;
-	case IPL::dl:
-		DL(ipl_);
-		break;
-	default:
 		BOOST_LOG_SEV(lg, fatal) << "Control::Preprocessing(...): DEFAULT ERROR";
 		return;
 	}
@@ -66,7 +62,7 @@ void Control::Preprocessing(SHP_IPL ipl_)
 //*///------------------------------------------------------------------------------------------
 SHP_Ann Control::FindAnn(SHP_IPL ipl_)
 {
-	for (auto& ann : vecAnn) if (ann->annID == ipl_->data[IPL::eventID]) return ann;
+	for (auto& ann : vecAnn) if (ann->annID == ipl_->data["EventID"]) return ann;
 	return nullptr;
 }
 //*///------------------------------------------------------------------------------------------

@@ -1,6 +1,5 @@
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
+#include "Server.h"
 
 
 //*///------------------------------------------------------------------------------------------
@@ -30,9 +29,9 @@ int main(int argc, char* argv[])
 		Запуск MGCP-сервера
 		************************************************************************/
 		BOOST_LOG_SEV(lg, debug) << "Initing done.->InnerServer server_inner;";
-		//InnerServer server_inner(modul_num, modul_name);
+		SIPServer sip_server(modul_num, modul_name);
 		BOOST_LOG_SEV(lg, debug) << "InnerServer server_inner;->server_inner.Run();";
-		//server_inner.Run();
+		sip_server.Run();
 		BOOST_LOG_SEV(lg, debug) << "server_inner.Run();->net_Data->GI(NETDATA::in).run();";
 		net_Data->GI(NETDATA::in).run();
 		BOOST_LOG_SEV(lg, debug) << "net_Data->GI(NETDATA::in).run();";

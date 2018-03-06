@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 #include "MGCPparser.h"
 #include "CallerBase.h"
 
@@ -15,7 +13,7 @@ public:
 
 	void RQNT(SHP_MGCP);
 	void DLCX(SHP_MGCP);
-	string eventNum = "";
+	string eventID = "";
 private:
 	bool CheckFileExistance(string);
 	void SendToAnnModul(string);

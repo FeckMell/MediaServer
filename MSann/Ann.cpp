@@ -1,19 +1,20 @@
+#include "stdafx.h"
 #include "Ann.h"
 
 Ann::Ann(SHP_MediaFile mediafile_, SHP_IPL ipl_)
 {
-	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...) for ann " << ipl_->data[IPL::eventID];
-	annID = ipl_->data[IPL::eventID];
+	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...) for ann " << ipl_->data["EventID"];
+	annID = ipl_->data["EventID"];
 	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...): annID = ipl_->data[IPL::eventID];->mediaFile = mediafile_;";
 	mediaFile = mediafile_;
 	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...): mediaFile = mediafile_;->init socket and endpoint";
 	outerSOCK.reset(new SOCK(
 		init_Params->data[STARTUP::outerIP], //my IP
-		stoi(ipl_->data[IPL::serverPort]), // my port
+		stoi(ipl_->data["ServerPort"]), // my port
 		ioAnn));
 	endPoint = EP(
-		boost::asio::ip::address::from_string(ipl_->data[IPL::clientIP]),
-		stoi(ipl_->data[IPL::clientPort])
+		boost::asio::ip::address::from_string(ipl_->data["ClientIP"]),
+		stoi(ipl_->data["ClientPort"])
 		);
 	BOOST_LOG_SEV(lg, trace) << "Ann::Ann(...):init socket and endpoint DOBE->th.reset(new std::thread(&Ann::Run, this));";
 	th.reset(new std::thread(&Ann::Run, this));

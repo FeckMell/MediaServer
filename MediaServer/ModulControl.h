@@ -8,7 +8,7 @@ using namespace std;
 class MC
 {
 public:
-	enum MODULES{ mgcp, ann, cnf, maxModules };
+	enum MODULES{ mgcp, ann, cnf, sip, dtmf, maxModules };
 	MC();
 private:
 	bool RunProcess(string, DWORD, int);

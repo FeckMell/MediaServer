@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSsip", "MSsip\MSsip.vcxproj", "{8EEB5F60-C3F1-4479-AE3F-FF6E301C895A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSdtmf", "MSdtmf\MSdtmf.vcxproj", "{BF67D371-A507-4A20-80B7-B7053FC19A35}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MSmgcp2", "MSmgcp2\MSmgcp2.vcxproj", "{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -44,6 +48,14 @@ Global
 		{8EEB5F60-C3F1-4479-AE3F-FF6E301C895A}.Debug|Win32.Build.0 = Debug|Win32
 		{8EEB5F60-C3F1-4479-AE3F-FF6E301C895A}.Release|Win32.ActiveCfg = Release|Win32
 		{8EEB5F60-C3F1-4479-AE3F-FF6E301C895A}.Release|Win32.Build.0 = Release|Win32
+		{BF67D371-A507-4A20-80B7-B7053FC19A35}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BF67D371-A507-4A20-80B7-B7053FC19A35}.Debug|Win32.Build.0 = Debug|Win32
+		{BF67D371-A507-4A20-80B7-B7053FC19A35}.Release|Win32.ActiveCfg = Release|Win32
+		{BF67D371-A507-4A20-80B7-B7053FC19A35}.Release|Win32.Build.0 = Release|Win32
+		{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}.Debug|Win32.ActiveCfg = Debug|Win32
+		{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}.Debug|Win32.Build.0 = Debug|Win32
+		{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}.Release|Win32.ActiveCfg = Release|Win32
+		{16960DA4-EA63-4A5B-BA52-AFA9E99E4F76}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

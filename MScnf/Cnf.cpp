@@ -1,9 +1,10 @@
+#include "stdafx.h"
 #include "Cnf.h"
 
 Cnf::Cnf(SHP_IPL ipl_)
 {
-	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...) id=" << ipl_->data[IPL::eventID];
-	cnfID = ipl_->data[IPL::eventID];
+	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...) id=" << ipl_->data["EventID"];
+	cnfID = ipl_->data["EventID"];
 	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...):ParsePoints(ipl_);";
 	ParsePoints(ipl_);
 	BOOST_LOG_SEV(lg, debug) << "Cnf::Cnf(...): mixerAudio.reset(new Audio(vecPoints));";
@@ -25,9 +26,9 @@ void Cnf::MD(SHP_IPL ipl_)
 	mixerAudio->Stop();
 	BOOST_LOG_SEV(lg, debug) << "Cnf::MD(...)AddRmPoint(...) points was " << vecPoints.size();
 	AddRmPoint({
-		ipl_->data[IPL::clientPort],
-		ipl_->data[IPL::serverPort],
-		ipl_->data[IPL::clientIP]
+		ipl_->data["ClientPort"],
+		ipl_->data["ServerPort"],
+		ipl_->data["ClientIP"]
 	});
 	BOOST_LOG_SEV(lg, debug) << "Cnf::MD(...) points now " << vecPoints.size();
 	mixerAudio->MD(vecPoints);
@@ -50,9 +51,9 @@ void Cnf::ParsePoints(SHP_IPL ipl_)
 	vector<vector<string>> points_params;
 	points_params.resize(3);
 
-	string client_ports = ipl_->data[IPL::clientPort];
-	string server_ports = ipl_->data[IPL::serverPort];
-	string client_IPs = ipl_->data[IPL::clientIP];
+	string client_ports = ipl_->data["ClientPort"];
+	string server_ports = ipl_->data["ServerPort"];
+	string client_IPs = ipl_->data["ClientIP"];
 	size_t fd=0;
 	while (fd != string::npos)
 	{

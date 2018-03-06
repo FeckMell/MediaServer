@@ -1,8 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
-#include "../SharedSource/InnerParser.h"
+#include "stdafx.h"
 #include "CnfPoint.h"
 #include "Audio.h"
 

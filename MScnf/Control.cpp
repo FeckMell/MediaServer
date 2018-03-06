@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Control.h"
 
 Control::Control()
@@ -55,18 +56,11 @@ void Control::DL(SHP_IPL ipl_)
 //*///------------------------------------------------------------------------------------------
 void Control::Preprocessing(SHP_IPL ipl_)
 {
-	switch (ipl_->type)
+	if (ipl_->data["EventType"] == "cr") CR(ipl_);
+	else if (ipl_->data["EventType"] == "md") MD(ipl_);
+	else if (ipl_->data["EventType"] == "dl") DL(ipl_);
+	else 
 	{
-	case IPL::cr:
-		CR(ipl_);
-		break;
-	case IPL::md:
-		MD(ipl_);
-		break;
-	case IPL::dl:
-		DL(ipl_);
-		break;
-	default:
 		BOOST_LOG_SEV(lg, fatal) << "Control::Preprocessing(..) DEFAULT";
 		return;
 	}
@@ -76,7 +70,7 @@ void Control::Preprocessing(SHP_IPL ipl_)
 SHP_Cnf Control::FindCnf(SHP_IPL ipl_)
 {
 	if (vecCnf.size() == 0) return nullptr;
-	for (auto& cnf : vecCnf) if (cnf->cnfID == ipl_->data[IPL::eventID]) return cnf;
+	for (auto& cnf : vecCnf) if (cnf->cnfID == ipl_->data["EventID"]) return cnf;
 	return nullptr;
 }
 //*///------------------------------------------------------------------------------------------

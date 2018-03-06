@@ -9,7 +9,7 @@ struct STARTUP
 	enum ParamNames
 	{
 		outerIP, innerIP, innerPort, logLevel, outerPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
-		mediaPath, homePath,
+		mediaPath, homePath, portSIP,
 		maxParamNames
 	};
 	//Methods for Data.
@@ -63,7 +63,7 @@ typedef shared_ptr<PACKET> SHP_PACKET;
 class NETDATA
 {
 public:
-	enum E{ main, ser, ann, cnf, prx, sip, maxE };
+	enum E{ main, ser, ann, cnf, prx, sip, dtmf, maxE };
 	enum S{ out, in, maxS };
 
 	NETDATA(int);

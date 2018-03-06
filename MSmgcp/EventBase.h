@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 #include "MGCPparser.h"
 
 extern SHP_STARTUP init_Params;
@@ -16,14 +14,14 @@ protected:
 	string ReservePort();
 	void FreePort(string);
 
-	string ReserveEventNum();
-	void FreeEventNum(string);
+	string ReserveEventID();
+	void FreeEventID(string);
 
 	string GenSDP(string, SHP_MGCP);
 
 	/*Data*/
 	static vector<int> usedPorts;
-	static vector<int> usedEventNum;
+	static vector<int> usedEventID;
 	static int lastSDP_ID;
 
 	/*Statistics*/

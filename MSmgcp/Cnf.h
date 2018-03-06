@@ -1,7 +1,5 @@
 #pragma once
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Structs.h"
-#include "../SharedSource/Functions.h"
+#include "stdafx.h"
 #include "MGCPparser.h"
 #include "CallerBase.h"
 
@@ -20,7 +18,7 @@ public:
 	string CheckExistance(SHP_MGCP);
 	bool DeleteCnf() { if (vecCallerBase.size() == 0) return true; else return false; }
 
-	string eventNum = "";
+	string eventID = "";
 private:
 	SHP_CallerBase FindCallerBase(SHP_MGCP);
 	void RemoveCallerBase(SHP_CallerBase);

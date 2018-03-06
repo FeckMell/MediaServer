@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "CallerBase.h"
 
 CallerBase::CallerBase(SHP_MGCP mgcp_, string server_sdp_, string server_port_)
@@ -79,7 +80,7 @@ string CallerBase::FindSDPmode(string sdp_)
 		if (sdp_.find(e) != string::npos)
 			return e;
 	}
-	BOOST_LOG_SEV(lg, fatal) << "CallerBase::FindSDPmode(...): default error";
+	BOOST_LOG_SEV(lg, fatal) << "CallerBase::FindSDPmode(...): not found";
 	return "error";
 }
 //*///------------------------------------------------------------------------------------------

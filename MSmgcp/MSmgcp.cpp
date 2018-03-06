@@ -1,6 +1,4 @@
-#include "../SharedSource/stdafx.h"
-#include "../SharedSource/Functions.h"
-#include "../SharedSource/Structs.h"
+#include "stdafx.h"
 #include "Server.h"
 
 //*///------------------------------------------------------------------------------------------
