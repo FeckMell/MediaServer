@@ -114,7 +114,7 @@ int CSrcCommon::openFile(const string& strFile)
 	_closeFormat();
 	//whatfor?
 	//strName_ = str(boost::format("%1%_%2%") % this % strFile);
-
+	cout << "\nSRCCOMMON:: OPENFILE-----------------------------------";
 	m_lastError = 0;
 	const char* filename = strFile.c_str();
 

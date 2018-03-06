@@ -59,7 +59,7 @@ public:
 	bool nonstop;
 
 private:
-	typedef chrono::time_point<chrono::high_resolution_clock> time_point;
+	typedef std::chrono::time_point<std::chrono::high_resolution_clock> time_point;
 
 	struct TSrcRef
 	{

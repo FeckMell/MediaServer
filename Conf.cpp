@@ -26,19 +26,18 @@ string CConfRoom::Make_addr_from_SDP(string output_SDP)
 	return result;
 }
 //--------------------------------------------------------------------------
-void CConfRoom::NewInitPoint(string input_SDP, string output_SDP, string CallID, int port)
+void CConfRoom::NewInitPoint(string SDP, string CallID, int port)
 {
 	loggit("void CConfRoom::NewInitPoint(string SDP)");
 	SHP_CConfPoint point(new CConfPoint());
-	string addr = Make_addr_from_SDP(output_SDP);
-
-	point->SetSDP(input_SDP);
-	point->Set_output_addr(addr);
-	
 
 	point->SetID(CallID);
-	point->SetPort(port);
-	//point->Set_output_addr("rtp://10.77.7.19:" + to_string(port));
+	point->SetMyPort(port);
+	point->SetSDP(SDP);
+	point->ModifySDP();
+	
+	point->SetRemotePort(atoi(MakeRemotePort(SDP).c_str()));
+	point->SetRemoteIP(MakeRemoteIP(SDP));
 
 	cllPoints_.push_back(point);
 	loggit("void CConfRoom::NewInitPoint(string SDP) ENDED");
@@ -48,23 +47,23 @@ void CConfRoom::Start()
 {
 	loggit("CConfRoom::Start()");
 	std::vector<string> SDPs;
-	std::vector<string> addr;
-	string logSDP = "";
-	string logAddr = "";
+	std::vector<string> IPs;
+	std::vector<int> ports1;
+	std::vector<int> ports2;
+	string logSDP = "\n";
 	for (auto &entry : cllPoints_)
 	{
-		logAddr += entry->Get_output_addr() + "\n";
-		logSDP += entry->GetSDP() + "\n\n";
+		logSDP += entry->GetSDP() + "\n";
 
-		addr.push_back(entry->Get_output_addr());
 		SDPs.push_back(entry->GetSDP());
-	}
+		IPs.push_back(entry->GetRemoteIP());
+		ports1.push_back(entry->GetMyPort());
+		ports2.push_back(entry->GetRemotePort());
 
-	loggit("Creating Mixer for SDPs:"+ logSDP + "\nand addresses:\n" + logAddr);
-	Mixer.reset(new CRTPReceive(SDPs, addr));
-	//SHP_CRTPReceive mix(new CRTPReceive(SDPs,addr));
-	//Mixer = mix;
-	loggit("\nmix->process_all();");
+	}
+	loggit("Creating Mixer for SDPs:"+ logSDP);
+	Mixer.reset(new CRTPReceive(SDPs, IPs, ports1, ports2));
+	loggit("mix->process_all();");
 	Mixer->process_all();
 }
 //--------------------------------------------------------------------------
@@ -77,4 +76,27 @@ SHP_CConfPoint CConfRoom::FindPoint(string CallID)
 	}
 	assert(true);
 	return NULL;
+}
+//--------------------------------------------------------------------------
+string CConfRoom::MakeRemoteIP(string SDP)
+{
+	std::size_t found = SDP.find("c=IN IP4");
+	if (found != std::string::npos)
+		return SDP.substr(found + 9, SDP.find("\n", found + 1) - found - 9);
+	return "";
+}
+//--------------------------------------------------------------------------
+string CConfRoom::MakeRemotePort(string SDP)
+{
+	std::size_t found = SDP.find("m=audio");
+	if (found != std::string::npos)
+		return SDP.substr(found + 8, SDP.find(" ", found + 10) - found - 8);
+	return "";
+}
+//--------------------------------------------------------------------------
+void CConfPoint::ModifySDP()
+{
+	std::size_t found = SDP_.find("m=audio");
+	if (found != std::string::npos)
+		SDP_ = SDP_.replace(found + 8, SDP_.find(" ", found + 10) - found - 8, to_string(GetMyPort()/* - 2000*/));
 }
