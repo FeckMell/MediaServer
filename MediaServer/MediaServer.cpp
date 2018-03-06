@@ -13,11 +13,10 @@ int main(int argc, char* argv[])
 	timeBeginPeriod(1);//CPU timer 1ms
 	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);//Realtime priority in system
 	setlocale(LC_ALL, "Russian");//Russia location
-
 	CFG::Init(argv[0]);
 	LOG::Init();
 	NET::Init();
-	cout << "\n INIT DONE\n";
+	BOOST_LOG_SEV(LOG::GL(0), trace) << "MAIN Init done with params:\n" << CFG::GetParams();
 
 	
 	ann::Control ann;

@@ -5,6 +5,7 @@ using namespace cnf;
 
 Audio::Audio(vector<SHP_Point> points_) : vecPoints(points_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF:Audio(..) starting for points.size=" << points_.size();
 	filter.reset(new  Filter(vecPoints));
 	CreateSilentFrame();
 	for (int i = 0; i < (int)vecPoints.size(); ++i) vecPoints[i]->SetMaxTimesTook(vecPoints.size());
@@ -12,6 +13,7 @@ Audio::Audio(vector<SHP_Point> points_) : vecPoints(points_)
 }
 Audio::~Audio()
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: ~Audio finished";
 	state = false;
 	for (auto& e : vecPoints) e->socket->s.cancel();
 	eventThread->join();
@@ -46,8 +48,10 @@ void Audio::Run()
 }
 void Audio::RunIO()
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Audio io run";
 	vecPoints[0]->socket->io->reset();
 	vecPoints[0]->socket->io->run();
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF: Audio io finished";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

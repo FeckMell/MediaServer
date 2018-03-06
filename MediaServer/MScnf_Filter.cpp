@@ -16,7 +16,7 @@ Filter::Filter(vector<SHP_Point> points_) : vecPoints(points_)
 	{
 		if (InitFilterGraph(i) < 0)
 		{
-			cout << "\n2\nsize=" << points_.size();
+			BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSCNF: Filter ERROR";
 			system("pause");
 		}
 	}

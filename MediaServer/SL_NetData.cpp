@@ -11,22 +11,25 @@ void NET::Init()
 	/* Sigs init */
 	vecSigsIN.resize(maxIN);
 	vecSigsOUT.resize(maxOUT);
-
+	 
 	/* IO init */
 	outerIO.reset(new IO());
-
+	 
 	/* Sockets init */
 	socketsOUT.resize(maxOUT);
+	 
 	socketsOUT[OUTER::mgcp_].reset(new SOCK(
 		CFG::data[CFG::outerIP],
 		stoi(CFG::data[CFG::mgcpPort]),
 		outerIO
 		));
+	 
 	socketsOUT[OUTER::sip_].reset(new SOCK(
 		CFG::data[CFG::outerIP],
-		stoi(CFG::data[CFG::sipPort]),
+		stoi(CFG::data[CFG::sipPort])+1,//debug
 		outerIO
 		));
+	 
 }
 
 SHP_SOCK NET::GS(OUTER s_)

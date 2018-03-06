@@ -11,7 +11,7 @@ Control::Control()
 void Control::Preprocessing(string message_)
 {
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
-
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSDTMF: ipl=\n" << message_;
 	if (ipl->data["EventType"] == "cr") { CR(ipl); }
 	else if (ipl->data["EventType"] == "dl") {DL(ipl);}
 	else

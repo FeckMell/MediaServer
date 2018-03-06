@@ -12,12 +12,12 @@ Control::Control()
 void Control::Preprocessing(string message_)
 {
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
-
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSCNF ipl=\n" << message_;
 	if (ipl->data["EventType"] == "cr") CR(ipl);
 	else if (ipl->data["EventType"] == "dl") DL(ipl);
 	else
 	{
-		cout << "\ncnfControlpreproc 1";
+		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSCNF: preprocess ERROR";
 		return;
 	}
 }
@@ -42,7 +42,7 @@ void Control::DL(SHP_IPL ipl_)
 	SHP_Cnf found_cnf = FindCnf(ipl_->data["EventID"]);
 	if (found_cnf == nullptr)
 	{
-		cout << "\ncnfControlDL 1";
+		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSCNF: DL ERROR";
 		return;
 	}
 	else

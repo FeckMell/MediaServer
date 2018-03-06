@@ -18,39 +18,33 @@ void Control::PreprocessingIN(string message_)
 void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message_.data, message_.sender));
-
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: message is:\n" << message_.data;
 	if (mgcp->outerError == "")
 	{
 		string cmd = mgcp->data["CMD"];
 		string type = mgcp->data["EventType"];
 		if (cmd == "CRCX" && type == "ann")
 		{
-
 			CRCX_ANN(mgcp);
 		}
 		else if (cmd == "CRCX" && type == "cnf")
 		{
-
 			CRCX_CNF(mgcp);
 		}
 		else if (cmd == "RQNT" && type == "ann")
 		{
-
 			RQNT_ANN(mgcp);
 		}
 		else if (cmd == "MDCX" && type == "cnf")
 		{
-
 			MDCX_CNF(mgcp);
 		}
 		else if (cmd == "DLCX" && type == "ann")
 		{
-
 			DLCX_ANN(mgcp);
 		}
 		else if (cmd == "DLCX" && type == "cnf")
 		{
-
 			DLCX_CNF(mgcp);
 		}
 		else

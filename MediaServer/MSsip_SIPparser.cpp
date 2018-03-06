@@ -105,7 +105,7 @@ string SIP::ReplyRinging()
 		}
 		else if (temp_line.find("To: ") != string::npos)
 		{
-			result += temp_line + ";tag=qwerty\r\n";//TODO
+			result += temp_line + ";tag=MediaServerSIP\r\n";//TODO
 		}
 		else if (temp_line.find("From: ") != string::npos)
 		{
@@ -152,7 +152,7 @@ string SIP::ReplyOK()
 		}
 		else if (temp_line.find("To: ") != string::npos)
 		{
-			result += temp_line + ";tag=qwerty\r\n";//TODO
+			result += temp_line + ";tag=MediaServerSIP\r\n";//TODO
 		}
 		else if (temp_line.find("From: ") != string::npos)
 		{
@@ -193,7 +193,7 @@ string SIP::ReplyOK()
 //*///------------------------------------------------------------------------------------------
 void SIP::ReplyClient()
 {
-	if (innerError == "" && outerError == "")
+	if (innerError != "" || outerError != "")
 	{
 		SendClient("SIP/2.0 400 Bad Request\r\n" + innerError + " " + outerError + "\r\n");
 		return;
@@ -215,5 +215,6 @@ void SIP::ReplyClient()
 //*///------------------------------------------------------------------------------------------
 void SIP::SendClient(string str_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: SIP Reply:\n" << str_;
 	NET::GS(NET::OUTER::sip_)->s.send_to(boost::asio::buffer(str_), sender);
 }

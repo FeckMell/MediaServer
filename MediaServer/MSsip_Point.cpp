@@ -5,6 +5,7 @@ using namespace sip;
 
 Point::Point(SHP_SIP sip_, string event_id_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Point created with id=" << sip_->data["CallID"];
 	clientSDP = sip_->clientSDP;
 	serverSDP = sip_->serverSDP;
 	eventID = event_id_;
@@ -18,7 +19,7 @@ Point::Point(SHP_SIP sip_, string event_id_)
 //*///------------------------------------------------------------------------------------------
 void Point::DTMFResult(SHP_IPL ipl_)
 {
-	
+	StopAnn();
 	if (state == login)
 	{
 		
@@ -27,7 +28,7 @@ void Point::DTMFResult(SHP_IPL ipl_)
 	}
 	else
 	{
-		cout << "sip: dtmf pass not ready";
+		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Point ERROR 1";
 		exit(-1);
 	}
 	
@@ -61,7 +62,6 @@ void Point::PlayAnn(string file_name_)
 //*///------------------------------------------------------------------------------------------
 void Point::StopAnn()
 {
-	
 	string result = "";
 	result += "From=sip\n";
 	result += "To=ann\n";
@@ -76,7 +76,6 @@ void Point::StopAnn()
 //*///------------------------------------------------------------------------------------------
 void Point::ListenDTMF()
 {
-	
 	string result = "";
 	result += "From=sip\n";
 	result += "To=dtmf\n";
@@ -92,7 +91,6 @@ void Point::ListenDTMF()
 //*///------------------------------------------------------------------------------------------
 void Point::StopDTMF()
 {
-	
 	string result = "";
 	result += "From=sip\n";
 	result += "To=dtmf\n";

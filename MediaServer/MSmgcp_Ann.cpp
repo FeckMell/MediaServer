@@ -11,9 +11,8 @@ Ann::Ann(SHP_Point point_, SHP_MGCP mgcp_) : point(point_), eventID(mgcp_->data[
 //*///------------------------------------------------------------------------------------------
 void Ann::Delete()
 {
-	
-	if (state == true){ SendToAnnModul("dl"); }
-	
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: Ann Del with id=" << eventID;
+	if (state == true) SendToAnnModul("dl"); 
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -22,7 +21,7 @@ void Ann::RequestMusic(SHP_MGCP mgcp_)
 	fileName = get_substr(mgcp_->data["S"], ",file:///", ")");
 	if (CheckFileExistance() == false)
 	{
-		mgcp_->innerError = "File does not exist";
+		mgcp_->innerError = "File=" + fileName + " does not exist";
 		return;
 	}
 	

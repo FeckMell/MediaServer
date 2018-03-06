@@ -29,7 +29,6 @@ namespace sip
 
 		string ReplyRinging();
 		string ReplyOK();
-		//void ResponseBAD();
 		void SendClient(string);
 
 		EP sender;

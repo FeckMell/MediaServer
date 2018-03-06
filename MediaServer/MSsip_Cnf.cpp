@@ -5,7 +5,8 @@ using namespace sip;
 
 Cnf::Cnf(SHP_Point point_)
 {
-	point_->PlayAnn("music_alaw.wav");
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Cnf created with id=" << point_->roomID;
+	//point_->PlayAnn("music_alaw.wav");
 	vecPoints.push_back(point_);
 	eventID = point_->roomID;
 }
@@ -13,6 +14,7 @@ Cnf::Cnf(SHP_Point point_)
 //*///------------------------------------------------------------------------------------------
 void Cnf::AddPoint(SHP_Point point_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Cnf Add point with id=" << point_->callID;
 	vecPoints.push_back(point_);
 	point_->StopAnn();
 	Process();
@@ -21,6 +23,7 @@ void Cnf::AddPoint(SHP_Point point_)
 //*///------------------------------------------------------------------------------------------
 bool Cnf::RmPoint(SHP_Point point_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Cnf DL point with id=" << point_->callID;
 	vecPoints.erase(std::remove(vecPoints.begin(), vecPoints.end(), point_), vecPoints.end());
 	Process();
 	if (vecPoints.size() == 0) return true;

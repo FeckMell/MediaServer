@@ -208,5 +208,6 @@ string MGCP::PrintAll()
 //*///------------------------------------------------------------------------------------------
 void MGCP::SendClient(string str_)
 {
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSMGCP: MGCP sent client:\n" << str_;
 	NET::GS(NET::OUTER::mgcp_)->s.send_to(boost::asio::buffer(str_), sender);
 }

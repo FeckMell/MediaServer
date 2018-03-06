@@ -12,11 +12,12 @@ Control::Control()
 void Control::PreprocessingIN(string message_)
 {
 	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: ipl:\n" << message_;
 
 	SHP_Point found_point = FindPoint(ipl->data["CallID"]);
 	if (found_point == nullptr)
 	{
-		cout << "\nsip er1";
+		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 1";
 		exit(-1);
 	}
 	else if (ipl->data["From"] == "dtmf")
@@ -25,11 +26,11 @@ void Control::PreprocessingIN(string message_)
 	}
 	else if (ipl->data["From"] == "sql")
 	{
-		cout << "\nsip: SQL not done";
+		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 3";
 	}
 	else
 	{
-		cout << "\nsip er2";
+		BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc ERROR 2";
 		exit(-1);
 	}
 
@@ -40,12 +41,14 @@ void Control::PreprocessingIN(string message_)
 void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_SIP sip = make_shared<SIP>(SIP(message_.data, message_.sender));
+	BOOST_LOG_SEV(LOG::GL(0), info) << "MSSIP: Preproc sip:\n" << message_.data;
 
 	if (sip->outerError == "")
 	{
 		if (sip->data["CMD"] == "INVITE")
 		{
 			Invite(sip);
+			sip->ReplyClient();
 		}
 		else if (sip->data["CMD"] == "ACK")
 		{
@@ -54,10 +57,9 @@ void Control::PreprocessingOUT(REQUEST message_)
 		else if (sip->data["CMD"] == "BYE")
 		{
 			Bye(sip);
+			sip->ReplyClient();
 		}
 	}
-
-	sip->ReplyClient();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

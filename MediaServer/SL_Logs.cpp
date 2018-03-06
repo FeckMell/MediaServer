@@ -26,7 +26,7 @@ void LOG::Init()
 		boost::log::add_common_attributes();
 	//}
 }
-BOOSTLOGGER LOG::GL(L l_)
+BOOSTLOGGER LOG::GL(/*L*/int l_)
 {
 	//try{ return vecLogs[l_]; }
 	try{ return vecLogs; }

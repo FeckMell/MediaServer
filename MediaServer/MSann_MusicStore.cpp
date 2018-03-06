@@ -8,6 +8,7 @@ MediaFile::MediaFile(string filename_)
 	fileName = filename_;
 	if (OpenFile() == -1) 
 	{ 
+		BOOST_LOG_SEV(LOG::GL(0), fatal) << "MSANN: MediaFile ERROR 1";
 		error = "error read file"; 
 	}
 }
