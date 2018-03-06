@@ -1,8 +1,6 @@
-#include "stdafx.h"
 #include "Filter.h"
+//TODO: logs
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
 {
 	tracks = cnfPoints.size();
@@ -14,7 +12,7 @@ Filter::Filter(vector<SHP_CnfPoint> points_) : cnfPoints(points_)
 	{
 		if (InitFilterGraph(i) < 0)
 		{
-			cout << "\nFilter::Filter init error";
+			BOOST_LOG_SEV(lg, fatal) << "Filter::Filter(..) ERROR";
 			system("pause");
 		}
 	}
@@ -28,8 +26,10 @@ int Filter::InitFilterGraph(int for_client_)
 	AVFilter        *abuffersink;
 	AVFilterContext *abuffersink_ctx;
 	AVFilterGraph   *filter_graph;
-	char args[512];
-	char arg[10];
+
+	auto template_arg_create_graph = boost::format(string("sample_rate=%1%:sample_fmt=%2%:channel_layout=0x%3%"));
+	auto template_arg_create_filter = boost::format(string("inputs=%1%"));
+
 	int err;
 
 	/* Создаем фильтр-граф, содержащий все фильтры */
@@ -39,39 +39,25 @@ int Filter::InitFilterGraph(int for_client_)
 	for (int i = 0; i < tracks; ++i)
 	{
 		/*for i==for_client_ we dont set buffer*/
-		if (i == for_client_) continue;// вернуть
-		AVFilter *abuffer0;
+		if (i == for_client_) continue;
+		
 		/* Создаем абуффер фильтр. он используется для "скармливания" информации в граф */
+		AVFilter *abuffer0;
 		abuffer0 = avfilter_get_by_name("abuffer");
-		if (!abuffer0)
-		{
-			return AVERROR_FILTER_NOT_FOUND;
-		}
+		if (!abuffer0){ return AVERROR_FILTER_NOT_FOUND; }
+
 		/*источник буффера: раскодированные фреймы из декодера будут в здесь*/
-		/* buffer audio source: the decoded frames from the decoder will be inserted here. */
 		if (!cnfPoints[i]->iccx->channel_layout)
-		{
-			cnfPoints[i]->iccx->channel_layout = av_get_default_channel_layout(cnfPoints[i]->iccx->channels);
-		}
-		snprintf(
-			args, 
-			sizeof(args),
-			"sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64,
-			cnfPoints[i]->iccx->sample_rate,
-			av_get_sample_fmt_name(cnfPoints[i]->iccx->sample_fmt),
-			cnfPoints[i]->iccx->channel_layout
+			{ cnfPoints[i]->iccx->channel_layout = av_get_default_channel_layout(cnfPoints[i]->iccx->channels); }
+		
+		string arg1 = str(template_arg_create_graph
+			%cnfPoints[i]->iccx->sample_rate
+			%av_get_sample_fmt_name(cnfPoints[i]->iccx->sample_fmt)
+			%cnfPoints[i]->iccx->channel_layout
 			);
-		//snprintf(arg, sizeof(arg), "src%d-%d", for_client_, i);
-		snprintf(arg, sizeof(arg), "src");
 		//разбиение индекса для SSource.
-		if (i < for_client_)
-		{
-			err = avfilter_graph_create_filter(&data.afcx[for_client_][i], abuffer0, arg, args, NULL, filter_graph);
-		}
-		else
-		{
-			err = avfilter_graph_create_filter(&data.afcx[for_client_][i - 1], abuffer0, arg, args, NULL, filter_graph);
-		}
+		if (i < for_client_) { err = avfilter_graph_create_filter(&data.afcx[for_client_][i], abuffer0, "src", arg1.c_str(), NULL, filter_graph); }
+		else { err = avfilter_graph_create_filter(&data.afcx[for_client_][i - 1], abuffer0, "src", arg1.c_str(), NULL, filter_graph); }
 
 		if (err < 0) { return err; }
 	}
@@ -79,25 +65,17 @@ int Filter::InitFilterGraph(int for_client_)
 	/****** amix ******* */
 	/* Create mix filter. */
 	mix_filter = avfilter_get_by_name("amix");
-	if (!mix_filter)
-	{
-		return AVERROR_FILTER_NOT_FOUND;
-	}
+	if (!mix_filter){ return AVERROR_FILTER_NOT_FOUND; }
 
-	//snprintf(arg, sizeof(arg), "amix%d", for_client_);
-	snprintf(arg, sizeof(arg), "amix");
-	snprintf(args, sizeof(args), "inputs=%d", tracks - 1);
-
-	err = avfilter_graph_create_filter(&mix_ctx, mix_filter, arg, args, NULL, filter_graph);
+	string arg2 = str(template_arg_create_filter % (tracks - 1));
+	err = avfilter_graph_create_filter(&mix_ctx, mix_filter, "amix", arg2.c_str(), NULL, filter_graph);
 	if (err < 0) { return err; }
 
 	/* Finally create the abuffersink filter;* it will be used to get the filtered data out of the graph. */
 	abuffersink = avfilter_get_by_name("abuffersink");
 	if (!abuffersink){ return AVERROR_FILTER_NOT_FOUND; }
 
-	//snprintf(arg, sizeof(arg), "sink%d", for_client_);
-	snprintf(arg, sizeof(arg), "sink");
-	abuffersink_ctx = avfilter_graph_alloc_filter(filter_graph, abuffersink, arg);
+	abuffersink_ctx = avfilter_graph_alloc_filter(filter_graph, abuffersink, "sink");
 	if (!abuffersink_ctx){ return AVERROR(ENOMEM); }
 
 	/* Same sample fmts as the output file. */
@@ -116,7 +94,6 @@ int Filter::InitFilterGraph(int for_client_)
 	int indexx = 0;
 	for (int i = 0; i < tracks - 1; ++i)
 	{
-		//if (i == for_client_) continue;
 		err = avfilter_link(data.afcx[for_client_][i], 0, mix_ctx, i);
 		if (err < 0){ return err; }
 		++indexx;
@@ -129,7 +106,6 @@ int Filter::InitFilterGraph(int for_client_)
 	if (err < 0){ return err; }
 
 	char* dump = avfilter_graph_dump(filter_graph, NULL);
-	av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
 
 	data.graphVec.push_back(filter_graph);
 	data.sinkVec.push_back(abuffersink_ctx);

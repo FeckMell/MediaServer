@@ -1,31 +1,25 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
-
+extern SHP_STARTUP init_Params;
 
 class MediaFile
 {
 public:
 	MediaFile(string);
 
-	SHP_CAVPacket GetPacket(int);
+	SHP_PACKET GetPacket(int);
 	int Size();
 
 	string fileName;
 	string error = "";
 private:
 	int OpenFile();
-	void CutPackets(vector<SHP_CAVPacket>);
+	void CutPackets(vector<SHP_PACKET>);
 
-	vector<SHP_CAVPacket> data;
+	vector<SHP_PACKET> data;
 };
 typedef shared_ptr<MediaFile> SHP_MediaFile;
 //*///------------------------------------------------------------------------------------------

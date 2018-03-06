@@ -1,4 +1,3 @@
-#include "stdafx.h"
 #include "MGCPparser.h"
 
 //*///------------------------------------------------------------------------------------------
@@ -100,7 +99,7 @@ string MGCP::ResponseOK(int code_, string include_Event_Type_)
 }
 string MGCP::ResponseBAD(int code_, string message_)
 {
-	auto result = boost::to_string(code_) + " " + boost::to_string(stoi(data[MessNum]) + 1) + " BAD";
+	auto result = /*boost::*/to_string(code_) + " " + /*boost::*/to_string(stoi(data[MessNum]) + 1) + " BAD";
 	if (message_ != ""){ result += "\nZ: " + message_; }
 	return result;
 }
@@ -160,10 +159,14 @@ string MGCP::PrintAll()
 	for (int i = 0; i < MaxParamNames;++i)
 		result += "_" + EnumToStr(0, i) + "=_" + data[i] + "_;\n";
 	result += "Error:_" + error + "_\n";
-	result += "============================================================================";
 	return result;
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+void MGCP::ReplyClient(SHP_SOCK s_, string str_)
+{
+	BOOST_LOG_SEV(lg, warning) << "Reply is:\n" << str_;
+	s_->s.send_to(boost::asio::buffer(str_), sender);
+}
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

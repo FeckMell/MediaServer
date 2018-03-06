@@ -1,52 +1,53 @@
 #pragma once
 #include "stdafx.h"
-using namespace std;
+extern BOOSTLOGGER lg;
 
-typedef shared_ptr<thread> SHP_thread;
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-struct IPar
+
+struct STARTUP
 {
 	//Tipes of parametrs.
 	enum ParamNames
 	{
-		modulName, innerIP, innerPort, outerIP, pathHome, logLevel,
+		outerIP, innerIP, innerPort, logLevel, outerPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
+		mediaPath, homePath,
 		maxParamNames
 	};
 	//Methods for Data.
-	IPar(char* argv_[]);
+	STARTUP(char**, string);
 	string GetParams();
 
 	//Data.
+	string modulName;
 	vector<string> data;
 	string error = "";
 };
-typedef shared_ptr<IPar> SHP_IPar;
+typedef shared_ptr<STARTUP> SHP_STARTUP;
+extern SHP_STARTUP init_Params;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-class Socket
+class SOCK
 {
 public:
-	Socket(string, int, boost::asio::io_service&);
-	~Socket();
+	SOCK(string, int, IO&);
+	~SOCK();
 	boost::asio::ip::udp::socket s;
 };
-typedef shared_ptr<Socket> SHP_Socket;
+typedef shared_ptr<SOCK> SHP_SOCK;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-struct InnerMes
+struct REQUEST
 {
 	EP sender;
-	char rawMes[2048];
+	char data[2048];
 };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-class CAVPacket
+class PACKET
 {
 public:
-	CAVPacket();
-	CAVPacket(size_t sz);
-	~CAVPacket();
+	PACKET();
+	PACKET(size_t sz);
+	~PACKET();
 
 	AVPacket* Get();
 	int Size();
@@ -56,9 +57,30 @@ public:
 private:
 	AVPacket packet;
 };
-typedef shared_ptr<CAVPacket> SHP_CAVPacket;
+typedef shared_ptr<PACKET> SHP_PACKET;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+class NETDATA
+{
+public:
+	enum E{ main, ser, ann, cnf, prx, sip, maxE };
+	enum S{ out, in, maxS };
+
+	NETDATA(int);
+	SHP_SOCK GS(int);//GetSOCK
+	EP GE(int);//GetEndpPoint
+	IO& GI(int);//GetIO
+	void SendModul(int, string);
+
+private:
+	vector<SHP_SOCK> sockets;
+	vector<EP> endPoints;
+	vector<SHP_IO> ios;
+};
+typedef shared_ptr<NETDATA> SHP_NETDATA;
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+// R T P -> R T PMES
 struct RTP
 {
 	/* первый байт */
@@ -78,6 +100,7 @@ struct RTP
 };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+//R T P_struct -> GAVSRT111 -> R T P 
 struct RTP_struct
 {
 	RTP header;
@@ -97,12 +120,12 @@ struct Data
 };
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-class CAVFrame
+class FRAME
 {
 public:
-	CAVFrame();
-	CAVFrame(bool a);
-	~CAVFrame();
+	FRAME();
+	FRAME(bool a);
+	~FRAME();
 
 	AVFrame* Get();
 	void Free();
@@ -111,18 +134,23 @@ private:
 	bool empty;
 	AVFrame* frame;
 };
-typedef shared_ptr<CAVFrame> SHP_CAVFrame;
+typedef shared_ptr<FRAME> SHP_FRAME;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 struct FFF
 {
-	~FFF() 
+	~FFF()
 	{
-		//for (auto &e : sinkVec) avfilter_free(e);//?
-		//for (auto &e1 : afcx) for (auto &e2 : e1) avfilter_free(e2);//??
+		for (auto &e : sinkVec) avfilter_free(e);//?
+		for (auto &e1 : afcx) for (auto &e2 : e1) avfilter_free(e2);//??
 		for (auto &e : graphVec) avfilter_graph_free(&e);//!
 	}
 	std::vector<vector<AVFilterContext*>> afcx;
 	std::vector<AVFilterGraph*> graphVec;
 	std::vector<AVFilterContext*> sinkVec;
 };
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+

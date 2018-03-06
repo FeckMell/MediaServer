@@ -1,20 +1,12 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
 #include "MGCPparser.h"
 #include "MGCPcontrol.h"
-using namespace std;
-using boost::asio::ip::udp;
 
-extern SHP_IPar init_Params;
+extern SHP_STARTUP init_Params;
 extern SHP_NETDATA net_Data;
 
-
-
-
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class MGCPServer
 {
 public:
@@ -26,5 +18,5 @@ private:
 
 
 	SHP_MGCPcontrol mgcpManagement;
-	Request message = (Request());
+	REQUEST message = (REQUEST());
 };

@@ -1,21 +1,18 @@
 #pragma once
-#include "stdafx.h"
+#include "../SharedSource/stdafx.h"
 using namespace std;
 
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
-struct IPar
+struct STARTUP
 {
 	//Tipes of parametrs.
 	enum ParamNames
 	{
-		RTPPort, outerPort, innerPort, MediaPath, outerIP, innerIP, MaxTimeAnn, MaxTimeCnf, MaxTimePrx,
-		LogLevel, PathEXE,
-		MaxParamNames
+		outerIP, innerIP, innerPort, logLevel, outerPort, rtpPort, maxTimeAnn, maxTimeCnf, maxTimePrx,
+		mediaPath, homePath,
+		maxParamNames
 	};
 	//Methods for Data.
-	IPar(char*);
+	STARTUP(char*);
 	string GetParams();
 	void GetPathExe(char*);
 	void ParseConfigFile();
@@ -25,6 +22,7 @@ struct IPar
 	vector<string> data;
 	string error = "";
 };
-typedef shared_ptr<IPar> SHP_IPar;
+typedef shared_ptr<STARTUP> SHP_STARTUP;
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
+//void LogsInit(string my_modul_name_);

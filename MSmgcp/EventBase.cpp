@@ -1,22 +1,21 @@
-#include "stdafx.h"
 #include "EventBase.h"
+
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 vector<int> EventBase::usedPorts;
 vector<int> EventBase::usedEventNum;
 int EventBase::lastSDP_ID = 0;
-
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 EventBase::EventBase()
 {
-	//Nothing to do
+	BOOST_LOG_SEV(lg, trace) << "EventBase::EventBase()";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 string EventBase::ReservePort()
 {
-	int free_port = stoi(init_Params->data[IPar::RTPPort]);
+	int free_port = stoi(init_Params->data[STARTUP::rtpPort]);
 	if (usedPorts.size() == 0)
 	{
 		usedPorts.push_back(free_port);
@@ -81,7 +80,7 @@ string EventBase::GenSDP(string port_s_, SHP_MGCP mgcp_)
 		"a=sendrecv\n"
 		)); // формируем тип ответа
 	auto result = str(template_sdp
-		%init_Params->data[IPar::outerIP]
+		%init_Params->data[STARTUP::outerIP]
 		% port_s_
 		%lastSDP_ID
 		%mgcp_->data[MGCP::ParamC]

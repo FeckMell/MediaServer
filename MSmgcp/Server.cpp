@@ -1,17 +1,15 @@
-#include "stdafx.h"
 #include "Server.h"
 
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 MGCPServer::MGCPServer()
 {
+	BOOST_LOG_SEV(lg, trace) << "MGCPServer::MGCPServer()";
 	mgcpManagement = make_shared<MGCPcontrol>(MGCPcontrol());
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void MGCPServer::Run()
 {
+	BOOST_LOG_SEV(lg, trace) << "MGCPServer::Run()";
 	net_Data->GS(NETDATA::out)->s.async_receive_from(boost::asio::buffer(message.data, 2048), message.sender,
 		boost::bind(&MGCPServer::Receive, this, _1, _2));
 }
@@ -19,15 +17,21 @@ void MGCPServer::Run()
 //*///------------------------------------------------------------------------------------------
 void MGCPServer::Receive(boost::system::error_code ec_, size_t size_)
 {
-	cout << "\nMessage received, starting listening again and proceed this.";
+	BOOST_LOG_SEV(lg, trace) << "MGCPServer::Run()";
 	if (size_ > 10)
 	{
 		message.data[size_] = 0;
-		cout << "\nIncome Message is:\n" << message.data<<"\n+++++++++++++++++++++++++++++++++++++++++++++++++";
+		BOOST_LOG_SEV(lg, warning) << "\nIncome Message is:\n" << message.data;
 		SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message.data, message.sender));
-		//cout << mgcp->PrintAll();//DEBUG
-		if (mgcp->error != "") ReplyError(mgcp);
-		else mgcpManagement->Preprocessing(mgcp);
+		BOOST_LOG_SEV(lg, debug) << mgcp->PrintAll();
+		if (mgcp->error != "") 
+		{ 
+			ReplyError(mgcp);
+		}
+		else 
+		{
+			mgcpManagement->Preprocessing(mgcp);
+		}
 	}
 	net_Data->GS(NETDATA::out)->s.async_receive_from(boost::asio::buffer(message.data, 2048), message.sender,
 		boost::bind(&MGCPServer::Receive, this, _1, _2));
@@ -36,11 +40,9 @@ void MGCPServer::Receive(boost::system::error_code ec_, size_t size_)
 //*///------------------------------------------------------------------------------------------
 void MGCPServer::ReplyError(SHP_MGCP mgcp_)
 {
-	cout << "\nReply is:\n" + mgcp_->error + "_\n=======================================================================";//DEBUG
-	string result = mgcp_->ResponseBAD(400, "\nNOT MGCP. REASON:\n"+mgcp_->error);
+	string result = mgcp_->ResponseBAD(400, "\nNOT MGCP. REASON:\n" + mgcp_->error);
+	BOOST_LOG_SEV(lg, fatal) << "\nMessage was not MGCP:\n" << mgcp_->MGCPstring << "\nReason:" << mgcp_->error << "\nReplied:\n" << result;
 	net_Data->GS(NETDATA::out)->s.send_to(boost::asio::buffer(result), mgcp_->sender);
 }
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

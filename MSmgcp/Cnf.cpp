@@ -1,47 +1,51 @@
-#include "stdafx.h"
 #include "Cnf.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 Cnf::Cnf(SHP_MGCP mgcp_)
 {
+	BOOST_LOG_SEV(lg, trace) << "Cnf::Cnf(...) eventNum=" << mgcp_->data[MGCP::EventNum];
 	eventNum = mgcp_->data[MGCP::EventNum];
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::CRCX(SHP_MGCP mgcp_, string server_sdp_, string server_port_)
 {
+	BOOST_LOG_SEV(lg, trace) << "Cnf::CRCX(...) for eventNum=" << mgcp_->data[MGCP::EventNum] << " creating new point";
 	SHP_CallerBase new_point = make_shared<CallerBase>(CallerBase(mgcp_, server_sdp_, server_port_));
 	vecCallerBase.push_back(new_point);
-	ReplyClient(mgcp_, mgcp_->ResponseOK(200, "add event type") + "\n\n" + server_sdp_);
+	BOOST_LOG_SEV(lg, error) << "Created Added point to CNF ID=" << eventNum << " with params:" << "\n1)ID=" << new_point->callID << "\n2)IP=" << new_point->clientIP << "\n3)Port=" << new_point->clientPort << "\n4)ServerPort=" << new_point->serverPort;
+	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, "add event type") + "\n\n" + server_sdp_);
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Cnf::MDCX(SHP_MGCP mgcp_)
 {
+	BOOST_LOG_SEV(lg, trace) << "Cnf::MDCX(...) for eventNum=" << mgcp_->data[MGCP::EventNum];
 	SHP_CallerBase found_point = FindCallerBase(mgcp_);
 	if (found_point==nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found.3"));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found.3"));
 		return;
 	}
+	BOOST_LOG_SEV(lg, trace) << "Cnf::MDCX(...): next call: found_point->ModifyCallerBase";
 	string action_result = found_point->ModifyCallerBase(mgcp_);
 	if (action_result == "0") // client sent first SDP
 	{
 		if (ActivePoints() >= 3) state = true;
 		SendToCnfModulCR(); //true-false inside
-		ReplyClient(mgcp_, mgcp_->ResponseOK(200, ""));
+		BOOST_LOG_SEV(lg, error) << "Point with ID=" << found_point->callID << " is now active (Sent SDP)";
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, ""));
 		return;
 	}
 	else if (action_result == "1") //client changed SDP
 	{
-
-		ReplyClient(mgcp_, mgcp_->ResponseOK(200, "") + "\n\n" + found_point->serverSDP);
+		BOOST_LOG_SEV(lg, error) << "Point with ID=" << found_point->callID << " changed SDP:mode=" << found_point->state;
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(200, "") + "\n\n" + found_point->serverSDP);
 		return;
 	}
 	else // some error
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, action_result));
+		BOOST_LOG_SEV(lg, fatal) << "Cnf::MDCX(...): default error:" << action_result;
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, action_result));
 		return;
 	}
 
@@ -50,18 +54,24 @@ void Cnf::MDCX(SHP_MGCP mgcp_)
 //*///------------------------------------------------------------------------------------------
 string Cnf::DLCX(SHP_MGCP mgcp_)
 {
+	BOOST_LOG_SEV(lg, trace) << "Cnf::DLCX(...) for eventNum=" << mgcp_->data[MGCP::EventNum];
 	SHP_CallerBase found_point = FindCallerBase(mgcp_);
 	if (found_point == nullptr)
 	{
-		ReplyClient(mgcp_, mgcp_->ResponseBAD(400, "Error. Client could not be found."));
+		mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseBAD(400, "Error. Client could not be found."));
 		return "";
 	}
 	string action_result = found_point->serverPort;
+	BOOST_LOG_SEV(lg, error) << "DELETED point with ID=" << found_point->callID;
 	RemoveCallerBase(found_point);
-	if (ActivePoints() < 2) state = false;
+	if (ActivePoints() < 2) 
+	{
+		state = false;
+		BOOST_LOG_SEV(lg, error) << "Set state=" << state;
+	}
 
 	SendToCnfModulMD_DL(found_point);
-	ReplyClient(mgcp_, mgcp_->ResponseOK(250, ""));
+	mgcp_->ReplyClient(net_Data->GS(NETDATA::out), mgcp_->ResponseOK(250, ""));
 	return action_result;
 }
 //*///------------------------------------------------------------------------------------------
@@ -107,17 +117,18 @@ void Cnf::SendToCnfModulCR()
 		string clientIP = "";
 		string clientPort = "";
 		string serverPort = "";
+		BOOST_LOG_SEV(lg, trace) << "Cnf::SendToCnfModulCR(): Chacking points:";
 		for (auto &e : vecCallerBase)
 		{
+			BOOST_LOG_SEV(lg, debug) << "Point: ID=" << e->callID << " State=" << state;
 			if (e->state)
 			{
+				BOOST_LOG_SEV(lg, debug) << "Adding to message: IP=" << e->clientIP << " Clientport=" << e->clientPort << " ServerPort=" << e->serverPort;
 				clientIP += " " + e->clientIP;
 				clientPort += " " + e->clientPort;
 				serverPort += " " + e->serverPort;
 			}
 		}
-		cout << "\nDEBUG:";
-		cout << "\nclientIP=" << clientIP << "\nclientPort=" << clientPort << "\nserverPort=" << serverPort;
 		clientIP.erase(0, 1);//удаляем лишний пробел
 		clientPort.erase(0, 1);
 		serverPort.erase(0, 1);
@@ -127,7 +138,7 @@ void Cnf::SendToCnfModulCR()
 		result += "clientPort=" + clientPort + "\n";
 		result += "serverPort=" + serverPort + "\n";
 		result += "eventID=" + eventNum + "\n";
-		SendModul(NETDATA::cnf, result);
+		net_Data->SendModul(NETDATA::cnf, result);
 	}
 }
 //*///------------------------------------------------------------------------------------------
@@ -142,7 +153,7 @@ void Cnf::SendToCnfModulMD_DL(SHP_CallerBase point_)
 		result += "clientPort=" + point_->clientPort + "\n";
 		result += "serverPort=" + point_->serverPort + "\n";
 		result += "eventID=" + eventNum + "\n";
-		SendModul(NETDATA::cnf, result);
+		net_Data->SendModul(NETDATA::cnf, result);
 	}
 	else
 	{
@@ -152,7 +163,7 @@ void Cnf::SendToCnfModulMD_DL(SHP_CallerBase point_)
 			result += "eventType=dl\n";
 			result += "eventID=" + eventNum + "\n";
 			deleted = true;
-			SendModul(NETDATA::cnf, result);
+			net_Data->SendModul(NETDATA::cnf, result);
 		}
 	}
 	return;

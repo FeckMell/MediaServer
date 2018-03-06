@@ -1,33 +1,37 @@
-#include "stdafx.h"
 #include "CnfPoint.h"
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 CnfPoint::CnfPoint(string c_port_, string s_port_, string c_IP_, string s_IP_, boost::asio::io_service& ioCnf_)
 	: ioCnf(ioCnf_), clientPort(c_port_), serverPort(s_port_), clientIP(c_IP_), serverIP(s_IP_)
 {
-	socket.reset(new Socket(
+	BOOST_LOG_SEV(lg, debug) << "CnfPoint::CnfPoint(...) with serverport=" << s_port_;
+	socket.reset(new SOCK(
 		serverIP, //my IP
 		stoi(serverPort), // my port
 		ioCnf));
-	endPoint = udp::endpoint(
+	endPoint = EP(
 		boost::asio::ip::address::from_string(clientIP),
 		stoi(clientPort)
 		);
+	BOOST_LOG_SEV(lg, trace) << "CnfPoint::CnfPoint(...): net init DONE";
 	InitCodec(&iccx, true);
+	BOOST_LOG_SEV(lg, trace) << "CnfPoint::CnfPoint(...): InitCodec(&iccx, true); DONE";
 	InitCodec(&occx, false);
+	BOOST_LOG_SEV(lg, trace) << "CnfPoint::CnfPoint(...): InitCodec(&occx, false); DONE";
 }
 CnfPoint::~CnfPoint()
 {
+	BOOST_LOG_SEV(lg, debug) << "CnfPoint::~CnfPoint() with serverport=" << serverPort;
 	avcodec_close(iccx);
 	avcodec_close(occx);
 	avcodec_free_context(&iccx);
 	avcodec_free_context(&occx);
+	BOOST_LOG_SEV(lg, debug) << "CnfPoint::~CnfPoint() DONE";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, false-encoder
 {
+	BOOST_LOG_SEV(lg, trace) << "CnfPoint::InitCodec()";
 	AVCodec *x_codec;//possible leak
 	if (mode_) x_codec = avcodec_find_decoder(AV_CODEC_ID_PCM_ALAW);
 	else x_codec = avcodec_find_encoder(AV_CODEC_ID_PCM_ALAW);
@@ -42,6 +46,7 @@ void CnfPoint::InitCodec(AVCodecContext** xccx_, bool mode_)//true-decoder, fals
 	(*xccx_)->time_base = { 1, (*xccx_)->sample_rate };
 
 	avcodec_open2((*xccx_), x_codec, nullptr);
+	BOOST_LOG_SEV(lg, trace) << "CnfPoint::InitCodec() DONE";
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -51,7 +56,7 @@ void CnfPoint::SetMaxTimesTook(int t_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-SHP_CAVFrame CnfPoint::GetFrame()
+SHP_FRAME CnfPoint::GetFrame()
 {
 	if (timesTook >= timesTookMax) return nullptr;
 	timesTook++;
@@ -59,7 +64,7 @@ SHP_CAVFrame CnfPoint::GetFrame()
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void CnfPoint::StoreFrame(SHP_CAVFrame f_)
+void CnfPoint::StoreFrame(SHP_FRAME f_)
 {
 	bufFrame = f_;
 	timesTook = 0;

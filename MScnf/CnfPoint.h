@@ -1,14 +1,9 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
-using namespace std;
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
+extern SHP_STARTUP init_Params;
 
 class CnfPoint
 {
@@ -17,8 +12,8 @@ public:
 	~CnfPoint();
 
 	void SetMaxTimesTook(int);
-	SHP_CAVFrame GetFrame();
-	void StoreFrame(SHP_CAVFrame);
+	SHP_FRAME GetFrame();
+	void StoreFrame(SHP_FRAME);
 
 	string clientPort;
 	string clientIP;
@@ -26,9 +21,9 @@ public:
 	string serverIP;
 	AVCodecContext* iccx;
 	AVCodecContext* occx;
-	SHP_Socket socket;
+	SHP_SOCK socket;
 	RTP_struct rtp;
-	udp::endpoint endPoint;
+	EP endPoint;
 	IO& ioCnf;
 
 private:
@@ -36,6 +31,6 @@ private:
 
 	int timesTookMax = 0;
 	int timesTook = 0;
-	SHP_CAVFrame bufFrame = nullptr;
+	SHP_FRAME bufFrame = nullptr;
 };
 typedef shared_ptr<CnfPoint> SHP_CnfPoint;

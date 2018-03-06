@@ -1,25 +1,17 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "MusicStore.h"
 #include "Ann.h"
-using namespace std;
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
+extern SHP_STARTUP init_Params;
 
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class Control
 {
 public:
 	Control();
 	void Preprocessing(SHP_IPL);
-
 
 private:
 	void CR(SHP_IPL);

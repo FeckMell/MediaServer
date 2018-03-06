@@ -15,28 +15,13 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="Ann.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="CallerBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Functions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MGCPparser.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MGCPcontrol.h">
+    <ClInclude Include="Cnf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="EventAnn.h">
@@ -45,36 +30,27 @@
     <ClInclude Include="EventBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CallerBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="EventCnf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Ann.h">
+    <ClInclude Include="MGCPcontrol.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Cnf.h">
+    <ClInclude Include="MGCPparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="Ann.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Functions.cpp">
+    <ClCompile Include="CallerBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Structs.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Server.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MGCPparser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="MGCPcontrol.cpp">
+    <ClCompile Include="Cnf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="EventAnn.cpp">
@@ -83,20 +59,32 @@
     <ClCompile Include="EventBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CallerBase.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="EventCnf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Ann.cpp">
+    <ClCompile Include="MGCPcontrol.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Cnf.cpp">
+    <ClCompile Include="MGCPparser.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="MSmgcp.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Server.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SharedSource\Functions.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SharedSource\InnerParser.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SharedSource\stdafx.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\SharedSource\Structs.cpp">
+      <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

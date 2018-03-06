@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{8D2173D8-215D-4E74-9A5B-F1BEA7C49E31}</ProjectGuid>
+    <ProjectGuid>{8EEB5F60-C3F1-4479-AE3F-FF6E301C895A}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>MediaServer</RootNamespace>
+    <RootNamespace>MSsip</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -60,6 +60,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -71,7 +72,6 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -80,19 +80,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
-    <Bscmake>
-      <PreserveSbr>true</PreserveSbr>
-    </Bscmake>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\SharedSource\Functions.cpp" />
+    <ClCompile Include="..\SharedSource\InnerParser.cpp" />
     <ClCompile Include="..\SharedSource\stdafx.cpp" />
-    <ClCompile Include="MediaServer.cpp" />
-    <ClCompile Include="ModulControl.cpp" />
-    <ClCompile Include="Structs.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ModulControl.h" />
-    <ClInclude Include="Structs.h" />
+    <ClCompile Include="..\SharedSource\Structs.cpp" />
+    <ClCompile Include="MSsip.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

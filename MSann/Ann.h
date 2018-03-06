@@ -1,16 +1,11 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
+#include "../SharedSource/InnerParser.h"
 #include "MusicStore.h"
-using namespace std;
-using boost::asio::ip::udp;
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
+extern SHP_STARTUP init_Params;
 
 class Ann
 {
@@ -21,16 +16,16 @@ public:
 	string annID;
 private:
 	void Run();
-	SHP_CAVPacket CreatePacket(int);
-	void SendPacket(SHP_CAVPacket);
+	SHP_PACKET CreatePacket(int);
+	void SendPacket(SHP_PACKET);
 
 	bool state = true;
 	SHP_thread th;
 
-	boost::asio::io_service ioAnn;
-	SHP_Socket outerSocket;
+	IO ioAnn;
+	SHP_SOCK outerSOCK;
 	RTP_struct rtpHDR;
 	SHP_MediaFile mediaFile;
-	udp::endpoint endPoint;
+	EP endPoint;
 };
 typedef shared_ptr<Ann> SHP_Ann;

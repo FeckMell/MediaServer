@@ -1,20 +1,12 @@
 #pragma once
-#include "stdafx.h"
-#include "Structs.h"
-#include "Functions.h"
+#include "../SharedSource/stdafx.h"
+#include "../SharedSource/Structs.h"
+#include "../SharedSource/Functions.h"
 #include "CnfPoint.h"
 #include "Filter.h"
-using namespace std;
 
-extern SHP_IPar init_Params;
-//extern boost::asio::io_service io_Server;
-extern boost::asio::io_service io_Apps;
-//extern SHP_Socket outer_Socket;
-extern SHP_Socket inner_Socket;
+extern SHP_STARTUP init_Params;
 
-
-//*///------------------------------------------------------------------------------------------
-//*///------------------------------------------------------------------------------------------
 class Audio
 {
 public:
@@ -30,14 +22,14 @@ private:
 	
 	/*Main activity*/
 	void Receive(boost::system::error_code, size_t, int);
-	SHP_CAVFrame Decode(SHP_CAVPacket, int);
+	SHP_FRAME Decode(SHP_PACKET, int);
 	void ProceedData(int);
 	void FillFilter(int);
-	void EncodeAndSend(SHP_CAVFrame, int);
-	SHP_CAVFrame GetFrameFromFilter(int);
+	void EncodeAndSend(SHP_FRAME, int);
+	SHP_FRAME GetFrameFromFilter(int);
 
 	/*Data*/
-	SHP_CAVFrame silentFrame;
+	SHP_FRAME silentFrame;
 	SHP_thread eventThread;
 	bool state;// = true;
 	Data rawBuf;
