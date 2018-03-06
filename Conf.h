@@ -3,6 +3,7 @@
 //#include "SrcCash.h"
 #include "CRTPReceive.h"
 #include "DestFusion.h"
+#include <boost/thread/thread.hpp>
 extern FILE *FileLogConfPoint;
 extern FILE *FileLogConfRoom;
 /************************************************************************
@@ -34,7 +35,7 @@ public:
 
 
 	
-	void ModifySDP();
+	void ModifySDP(int a);
 
 private:
 	friend class CConfRoom;
@@ -58,7 +59,8 @@ typedef std::shared_ptr<CConfPoint> SHP_CConfPoint;
 class CConfRoom : public boost::noncopyable
 {
 public:
-	CConfRoom(){ loggit("Room construct"); }
+	CConfRoom(){ on = false; loggit("Room construct"); }
+	int DeletePoint(string CallID);
 	void NewInitPoint(string SDP, string CallID, int port);
 	void Start();
 	void SetRoomID(int i) { RoomID_ = i; }
@@ -74,6 +76,9 @@ private:
 	SHP_CRTPReceive Mixer;
 	std::vector<SHP_CConfPoint> cllPoints_;
 	int RoomID_;
+	bool on;
+	boost::shared_ptr<boost::thread> thread;
+	//boost::shared_ptr<boost::thread> thread(new boost::thread thread);
 	
 };
 typedef std::shared_ptr<CConfRoom> SHP_CConfRoom;

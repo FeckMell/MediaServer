@@ -16,7 +16,9 @@
 #ifdef WIN32
 //#include "vld.h" //visual leak detector
 #endif // WIN32
-
+#include <boost/filesystem/operations.hpp>
+#include <boost/filesystem/path.hpp>
+namespace fs = boost::filesystem;
 namespace opt = boost::program_options;
 namespace cmdstyle = opt::command_line_style;
 const auto cmdline_style = cmdstyle::unix_style | cmdstyle::allow_long_disguise;
@@ -27,6 +29,7 @@ FILE *FileLog;
 FILE *FileLogConfPoint;
 FILE *FileLogConfRoom;
 FILE *FileLogMixer;
+FILE *FileLogMixerInit;
 FILE *FileLogServer;
 
 //extern FILE *FileLogConfPoint;
@@ -40,20 +43,33 @@ int main(int argc, char* argv[])
 {
 	try
 	{
+		fs::path full_path(fs::initial_path<fs::path>());
+		full_path = fs::system_complete(fs::path(argv[0]));
+		string pathEXE = full_path.parent_path().string();
+		string tempPath = pathEXE + "\\LOGS.txt";
 		setlocale(LC_ALL, "Russian"/*"ru_RU.UTF-8"*/);
-		fopen_s(&FileLog, "LOGS.txt", "w");
-		fopen_s(&FileLogConfPoint, "LOGS_ConfPoint.txt", "w");
-		fopen_s(&FileLogConfRoom, "LOGS_ConfRoom.txt", "w");
-		fopen_s(&FileLogMixer, "LOGS_Mixer.txt", "w");
-		fopen_s(&FileLogServer, "LOGS_Server.txt", "w");
+		fopen_s(&FileLog, tempPath.c_str(), "w");
+		tempPath = pathEXE + "\\LOGS_ConfPoint.txt";
+		fopen_s(&FileLogConfPoint, tempPath.c_str(), "w");
+		tempPath = pathEXE + "\\LOGS_ConfRoom.txt";
+		fopen_s(&FileLogConfRoom, tempPath.c_str(), "w");
+		tempPath = pathEXE + "\\LOGS_Mixer.txt";
+		fopen_s(&FileLogMixer, tempPath.c_str(), "w");
+		tempPath = pathEXE + "\\LOGS_Server.txt";
+		fopen_s(&FileLogServer, tempPath.c_str(), "w");
+		tempPath = pathEXE + "\\LOGS_MixerInit.txt";
+		fopen_s(&FileLogMixerInit, tempPath.c_str(), "w");
 		LogMain("\nmain.cpp started");
 		
+		
+		LogMain(full_path.string());
 		/************************************************************************
-			Парсинг входящих параметров			                                                                     
+			Парсинг входящих параметров	                                                                     
 		************************************************************************/
 		unsigned short port = 2427;
 		string strMediaPath;
-		string strConfigFile("mgcpserver.cfg");
+		//string strConfigFile("mgcpserver.cfg");
+		string strConfigFile(pathEXE + "mgcpserver.cfg");
 
 		//Параметры командной строки
 		descCmdLine.add_options()
@@ -65,14 +81,18 @@ int main(int argc, char* argv[])
 		//Параметры в файле конфигурации
 		descConfig.add_options()
 			("port,p", opt::value<unsigned short>(&port)->default_value(port), "set MGCPserver port")
-			("mpath,m", opt::value<string>(&strMediaPath)->default_value("./MediaFiles"), "path to ann mediafiles")
+			//("mpath,m", opt::value<string>(&strMediaPath)->default_value("./MediaFiles"), "path to ann mediafiles")
+			("mpath,m", opt::value<string>(&strMediaPath)->default_value(pathEXE + "\\MediaFiles"), "path to ann mediafiles")
 			;
 
 		//Объединение параметров для командной строки
 		descCmdLine.add(descConfig);
 
 		opt::variables_map vm; //Storage распарсенных опций
-
+		string str(argv[0]);
+		cout << "\n--------\n" << argv[0] << "\n-------\n";
+		cout << "\n--------\n" << str << "\n-------\n";
+		cout << "\n--------\n" << pathEXE << "\n-------\n";
 		//Парсинг командной строки
 		opt::store(opt::parse_command_line(argc, argv, descCmdLine, cmdline_style), vm);
 		opt::notify(vm);

@@ -56,10 +56,7 @@ bool parse_filename(Iterator first, Iterator last, string& strOut)
 	return b;
 }
 //--------------------------------------------------------------------------------------------
-void StartRoom(SHP_CConfRoom room)
-{
-	room->Start();
-}
+
 //--------------------------------------------------------------------------------------------
 void threadSendMedia(SHP_CMGCPConnection conn, string strFile, string CallID)
 {
@@ -114,6 +111,7 @@ void CMGCPServer::Run()
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::do_receive()
 {
+	loggit("do_receive");
 	socket_.async_receive_from(
 		asio::buffer(data_, max_length), sender_endpoint_,
 		[this](boost::system::error_code ec, std::size_t bytes_recvd)
@@ -162,9 +160,10 @@ void CMGCPServer::respond(const string str)
 void CMGCPServer::reply(const string& str, const udp::endpoint& udpTO)
 {
 	socket_.send_to(asio::buffer(str), udpTO);
-	auto f = boost::format("----------REPLIED TO %1%:\n%2%\n------------------\n") % udpTO % str;
-	loggit("void CMGCPServer::reply\n" + f.str());
+	//auto f = boost::format("----------REPLIED TO %1%:\n%2%\n------------------") % udpTO % str;
+	
 	cout << "\n --------------------Server REPLIED------------------------\n";
+	loggit("void CMGCPServer::reply:\n" + str);
 	//cout << boost::format("----------REPLIED TO %1%:\n%2%\n------------------\n")% udpTO % str;
 }
 //--------------------------------------------------------------------------------------------
@@ -220,6 +219,7 @@ void CMGCPServer::proceedReceiveBuffer(const char* pCh, const udp::endpoint& udp
 		reply(str(boost::format("504 %1% unsupported command") % mgcp.IdTransact), udpTO);
 		break;
 	}
+	loggit("proceed done");
 }
 //--------------------------------------------------------------------------------------------
 void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
@@ -248,7 +248,17 @@ void CMGCPServer::proceedDLCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 		if (!id && qi::parse(epMGCP.m_point.cbegin(), epMGCP.m_point.cend(),
 			"cnf/" >> qi::uint_[phoenix::ref(id) = qi::_1]))
 		{
-			;
+			string num = GetRoomIDConn(mgcp.EndPoint.m_point); // получаем номер, куда обращаемся
+			string EndpntConf = "cnf/" + num;// создаем вид обращения
+			auto DestRoom = FindRoom(atoi(EndpntConf.c_str()));
+			if (!DestRoom)
+			{
+				reply(mgcp.ResponseBAD(400) + "cnf/* - couldn`t find room", udpTO);//
+				return;
+			}
+			if (DestRoom->DeletePoint(mgcp.getCallID()) == -1)
+				RoomsVec_.erase(std::remove(RoomsVec_.begin(), RoomsVec_.end(), DestRoom), RoomsVec_.end());
+			reply(mgcp.ResponseOK(250), udpTO);
 		}
 		else { reply(mgcp.ResponseBAD(400) + "didn`t find connection code", udpTO); return; }
 	}
@@ -354,16 +364,16 @@ void CMGCPServer::proceedMDCX(MGCP::TMGCP &mgcp, const udp::endpoint& udpTO)
 		}
 		loggit("found room with ID=" + EndpntConf + "\nDestRoom->NewInitPoint(mgcp.SDP);");
 		//
+		reply(mgcp.ResponseOK(), udpTO);
 		auto confparams = FindClient(mgcp.getCallID());
 		confparams->input_SDP = DeleteFromSDP(mgcp.SDP, confparams->my_port);
-		DestRoom->NewInitPoint(/*mgcp.SDP*/confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
-		if (DestRoom->GetNumCllPoints() >= 3)
+		DestRoom->NewInitPoint(confparams->input_SDP, mgcp.getCallID(), confparams->my_port);
+		/*if (DestRoom->GetNumCllPoints() >= 3)
 		{
 			loggit("if (DestRoom->GetNumCllPoints() == 3)");
-			boost::thread my_thread(&StartRoom, DestRoom);
-			my_thread.detach();
-		}
-		reply(mgcp.ResponseOK(), udpTO);
+			DestRoom->Start();
+		}*/
+		
 		loggit("MDCX:" + EndpntConf + "ENDED");
 		return;
 	}
@@ -568,7 +578,7 @@ SHP_CConfRoom CMGCPServer::CreateNewRoom()
 	std::sort(copyID.begin(), copyID.end());
 
 	/* Ищем минимальный незанятый номер и устанавливаем его новой комнате*/
-	for (int i = 0; i < copyID.size(); ++i)
+	for (unsigned int i = 0; i < copyID.size(); ++i)
 	{
 		if (i != copyID[i])
 		{

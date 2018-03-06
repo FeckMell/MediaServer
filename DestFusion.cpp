@@ -68,9 +68,9 @@ int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 {
 	//cout << "\n RTP OPENED";
 	_cleanup();
-	cout << "\n888888888888888888888888888888888888888888888888888888888888888888\n\n";
-	cout << "rtpdest.strAddr=" << rtpdest.strAddr << "rtpdest.portDest=" << rtpdest.portDest << "rtpdest.portSrc=" << rtpdest.portSrc;
-	cout << "\n\n888888888888888888888888888888888888888888888888888888888888888888\n";
+	//cout << "\n888888888888888888888888888888888888888888888888888888888888888888\n\n";
+	//cout << "rtpdest.strAddr=" << rtpdest.strAddr << "rtpdest.portDest=" << rtpdest.portDest << "rtpdest.portSrc=" << rtpdest.portSrc;
+	//cout << "\n\n888888888888888888888888888888888888888888888888888888888888888888\n";
 	isRTP_ = true;
 	ptimeRTP_ = rtpdest.ptimeRTP;
 
@@ -120,7 +120,6 @@ int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 //-----------------------------------------------------------------------
 int CDestFusion::openFile(const char *filename)
 {
-	cout << "\nDESTFUSION::OPENFILE-------------------------------";
 	_cleanup();
 	isRTP_ = false;
 	BOOST_SCOPE_EXIT_ALL(&)
