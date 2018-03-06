@@ -32,11 +32,11 @@ bool Cnf::DeletePoint(SHP_Point point_)
 void Cnf::Process()
 {
 	vector<SHP_Point> active_points;
-	for (auto& e : vecPoints) if (e->state == true) active_points.push_back(e);
-
+	for (auto& e : vecPoints) if (e->state == true) active_points.push_back(e); 
+	
 	if (state == false)
 	{
-		if (active_points.size() == 2)
+		if (active_points.size() == 3)
 		{
 			SendCR(active_points);
 			state = true;

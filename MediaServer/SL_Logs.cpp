@@ -6,6 +6,7 @@ SHP_SOCK LOG::socket;
 vector<string> LOG::fileNames = { "MAIN", "ANN", "CNF", "DTMF", "MGCP", "SIP" };
 string LOG::lastDate = "";
 uint8_t LOG::fake_data[10];
+SHP_thread LOG::th;
 
 void LOG::Init()
 {
@@ -19,8 +20,9 @@ void LOG::Init()
 	socket.reset(new SOCK("127.0.0.1", stoi(CFG::data["logPort"]), new_io));
 	socket->s.async_receive_from(boost::asio::buffer(fake_data, 10), endPoint, boost::bind(&LOG::FakeReceive, _1, _2));
 
-	thread th([]{cout << "\nLOG:IO"; socket->io->run(); cout << "\nLOG::IO F"; });
-	th.detach();
+	th.reset(new thread([]{cout << "\nLOG:IO"; socket->io->run(); cout << "\nLOG::IO F"; }));
+	//thread th([]{cout << "\nLOG:IO"; socket->io->run(); cout << "\nLOG::IO F"; });
+	//th.deach();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

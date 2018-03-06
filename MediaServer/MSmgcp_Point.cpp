@@ -3,7 +3,7 @@
 using namespace mgcp;
 
 
-Point::Point(SHP_MGCP mgcp_)
+Point::Point(SHP_MGCP mgcp_) //: mgcp(mgcp_)
 {
 	LOG::Log(LOG::info, "MGCP", "MSMGCP: Point created with id=" + mgcp_->data["CallID"]);
 	clientSDP.reset(new SDP());

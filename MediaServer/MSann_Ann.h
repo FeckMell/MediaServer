@@ -14,6 +14,7 @@ namespace ann
 		void DL();
 
 		string eventID;
+		string callID;
 
 	private:
 
@@ -21,12 +22,14 @@ namespace ann
 		SHP_PACKET CreatePacket(int);
 		void SendPacket(SHP_PACKET);
 
+		void SendModul(string);
+
+
 		bool state = true;
 		SHP_thread th;
 
-		IO ioAnn;
+		string loop;
 		SHP_SOCK outerSOCK = nullptr;
-		//RTP_struct rtpHDR;
 		SHP_MediaFile mediaFile;
 		EP endPoint;
 

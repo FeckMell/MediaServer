@@ -74,11 +74,16 @@ void MGCP::ParseMain()
 		outerError = "Not MGCP";
 		return;
 	}
-	data.insert({ "CMD", result.str(1) });
+	data["CMD"] = result.str(1);
+	data["MessNum"] = result.str(2);
+	data["EventType"] = result.str(3);
+	data["EventID"] = result.str(4);
+	data["Addr"] = result.str(5);
+	/*data.insert({ "CMD", result.str(1) });
 	data.insert({ "MessNum", result.str(2) });
 	data.insert({ "EventType", result.str(3) });
 	data.insert({ "EventID", result.str(4) });
-	data.insert({ "Addr", result.str(5) });
+	data.insert({ "Addr", result.str(5) });*/
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -91,7 +96,8 @@ void MGCP::ParseRest()
 	{
 		cmatch result;
 		regex_match(line.c_str(), result, e);
-		data.insert({ result.str(1), result.str(2) });
+		data[result.str(1)] = result.str(2);
+		//data.insert({ result.str(1), result.str(2) });
 		line_num++;
 		line = copy_single_n_line(mgcp, line_num);
 	}
@@ -139,14 +145,16 @@ void MGCP::CheckValid()
 		}
 		else
 		{
-			data.insert({ "CallID", data["X"] });
+			data["CallID"] = data["X"];
+			//data.insert({ "CallID", data["X"] });
 			data.erase("X");
 			data.erase("C");
 		}
 	}
 	else
 	{
-		data.insert({ "CallID", data["C"] });
+		data["CallID"] = data["C"];
+		//data.insert({ "CallID", data["C"] });
 		data.erase("C");
 	}
 
@@ -160,6 +168,16 @@ void MGCP::CheckValid()
 		outerError = "NOT MGCP";
 		e;
 		return;
+	}
+
+	//Check ann param Q
+	if (data["CMD"] == "RQNT" && data["EventType"] == "ann")
+	{
+		if (!(data["Q"] == "loop" || data["Q"] == "once"))
+		{
+			outerError = "BAD param Q";
+			return;
+		}
 	}
 
 	// Check SDP
@@ -210,4 +228,12 @@ void MGCP::SendClient(string str_)
 {
 	LOG::Log(LOG::info, "MGCP", "MSMGCP: MGCP sent client:\n" + str_);
 	NET::GS(NET::OUTER::mgcp_)->s.send_to(boost::asio::buffer(str_), sender);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void MGCP::ReplyNTFY()
+{
+	string result = "NTFY " + data["MessNum"] + " " + data["EventType"] + "/" + data["EventID"] + "@[" + data["Addr"] + "]" + "mgcp 1.0";
+	result += "\nC: " + data["CallID"];
+	SendClient(result);
 }

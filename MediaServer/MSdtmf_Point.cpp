@@ -13,7 +13,6 @@ Point::Point(SHP_IPL ipl_)
 	
 	socket = SSTORAGE::GetSocket(serverPort);
 	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
-	
 }
 void Point::Run()
 {
@@ -22,8 +21,7 @@ void Point::Run()
 		endPoint,
 		boost::bind(&Point::Receive, this, _1, _2)
 		);
-	thread th(&Point::RunIO,this);
-	th.detach();
+	th.reset(new thread(&Point::RunIO, this));
 }
 void Point::RunIO()
 {
@@ -37,6 +35,7 @@ Point::~Point()
 	state = false;
 	socket->s.cancel();
 	socket->io->reset();
+	th->join();
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

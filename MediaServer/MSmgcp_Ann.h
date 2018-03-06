@@ -14,7 +14,7 @@ namespace mgcp
 		Ann(SHP_Point, SHP_MGCP);
 
 		void RequestMusic(SHP_MGCP);
-		void Delete();
+		void Stop();
 
 		string eventID;
 
@@ -24,6 +24,7 @@ namespace mgcp
 		void SendToAnnModul(string);
 
 		bool state = false;
+		string loop;
 		string fileName;
 		SHP_Point point;
 	};

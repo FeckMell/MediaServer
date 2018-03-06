@@ -38,6 +38,7 @@ typedef shared_ptr<FRAME> SHP_FRAME;
 //*///------------------------------------------------------------------------------------------
 struct FFF
 {
+public:
 	~FFF()
 	{
 		for (auto &e : sinkVec) avfilter_free(e);

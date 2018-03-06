@@ -5,7 +5,7 @@ using namespace cnf;
 
 Audio::Audio(vector<SHP_Point> points_) : vecPoints(points_)
 {
-	LOG::Log(LOG::info, "CNF", "MSCNF:Audio(..) starting for points.size="+ points_.size());
+	LOG::Log(LOG::info, "CNF", "MSCNF:Audio(..) starting for points.size=" + to_string(vecPoints.size()));
 	filter.reset(new  Filter(vecPoints));
 	CreateSilentFrame();
 	for (int i = 0; i < (int)vecPoints.size(); ++i) vecPoints[i]->SetMaxTimesTook(vecPoints.size());

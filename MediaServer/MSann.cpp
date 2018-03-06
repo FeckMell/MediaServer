@@ -16,15 +16,18 @@ void Control::CR(SHP_IPL ipl_)
 		LOG::Log(LOG::fatal, "ANN", "MSANN: CR ERROR 1");
 		return;
 	}
-	
-	SHP_MediaFile media_file = musicStore->GetFile(ipl_->data["FileName"]);
+	//SHP_MediaFile media_file = musicStore->GetFile(ipl_->data["FileName"]);
+	//SHP_MediaFile media_file = make_shared<MediaFile>(ipl_->data["FileName"]);
+	//SHP_AudioFile media_file = make_shared<AudioFile>(ipl_->data["FileName"]);
+	SHP_MediaFile media_file; media_file.reset(new MediaFile(ipl_->data["FileName"]));
 	if (media_file == nullptr) 
 	{ 
 		LOG::Log(LOG::fatal, "ANN", "MSANN: CR ERROR 2");
 		return;
 	}
 	
-	SHP_Ann new_ann = make_shared<Ann>(media_file, ipl_);
+	SHP_Ann new_ann;// = make_shared<Ann>(media_file, ipl_);
+	new_ann.reset(new Ann(media_file, ipl_));
 	vecAnn.push_back(new_ann);
 }
 //*///------------------------------------------------------------------------------------------

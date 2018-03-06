@@ -23,6 +23,7 @@ namespace dtmf
 		bool Analyze(uint8_t ch[2]);
 		void SendModul();
 
+		SHP_thread th;
 		EP endPoint;
 		SHP_SOCK socket;
 		Data rawBuf;

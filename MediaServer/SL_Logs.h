@@ -22,6 +22,7 @@ private:
 	static SHP_SOCK socket;
 	static string lastDate;
 
+	static SHP_thread th;
 	static void FakeReceive(boost::system::error_code, size_t);
 	static uint8_t fake_data[10];
 };

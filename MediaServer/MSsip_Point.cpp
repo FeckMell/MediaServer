@@ -54,6 +54,7 @@ void Point::PlayAnn(string file_name_)
 	result += "From=sip\n";
 	result += "To=ann\n";
 	result += "EventID=sip" + eventID + "\n";
+	result += "CallID" + callID + "\n";
 	result += "EventType=cr\n";
 	result += "ClientIP=" + clientSDP->data["IP"] + "\n";
 	result += "ClientPort=" + clientSDP->data["Port"] + "\n";
@@ -71,6 +72,7 @@ void Point::StopAnn()
 	result += "From=sip\n";
 	result += "To=ann\n";
 	result += "EventID=sip" + eventID + "\n";
+	result += "CallID" + callID + "\n";
 	result += "EventType=dl\n";
 	result += "ClientIP=" + clientSDP->data["IP"] + "\n";
 	result += "ClientPort=" + clientSDP->data["Port"] + "\n";
@@ -85,6 +87,7 @@ void Point::ListenDTMF()
 	result += "From=sip\n";
 	result += "To=dtmf\n";
 	result += "EventID=sip" + eventID + "\n";
+	result += "CallID" + callID + "\n";
 	result += "EventType=cr\n";
 	result += "ClientIP=" + clientSDP->data["IP"] + "\n";
 	result += "ClientPort=" + clientSDP->data["Port"] + "\n";
@@ -100,6 +103,7 @@ void Point::StopDTMF()
 	result += "From=sip\n";
 	result += "To=dtmf\n";
 	result += "EventID=sip" + eventID + "\n";
+	result += "CallID" + callID + "\n";
 	result += "EventType=dl\n";
 	NET::vecSigsIN[NET::INNER::dtmf](result);
 }

@@ -9,10 +9,14 @@ Ann::Ann(SHP_Point point_, SHP_MGCP mgcp_) : point(point_), eventID(mgcp_->data[
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Ann::Delete()
+void Ann::Stop()
 {
-	LOG::Log(LOG::info, "MGCP", "MSMGCP: Ann Del with id=" + eventID);
-	if (state == true) SendToAnnModul("dl"); 
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: Ann Stop with id=" + eventID);
+	if (state == true) 
+	{ 
+		state = false;
+		SendToAnnModul("dl");
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
@@ -24,7 +28,7 @@ void Ann::RequestMusic(SHP_MGCP mgcp_)
 		mgcp_->innerError = "File=" + fileName + " does not exist";
 		return;
 	}
-	
+	loop = mgcp_->data["Q"];
 	if (point->state == true)
 	{
 		state = true;
@@ -48,11 +52,13 @@ void Ann::SendToAnnModul(string event_)
 	result += "From=mgcp\n";
 	result += "To=ann\n";
 	result += "EventID=mgcp" + eventID + "\n";
+	result += "CallID=" + point->callID + "\n";
 	result += "EventType=" + event_ + "\n";
 	result += "ClientIP=" + point->clientSDP->data["IP"] + "\n";
 	result += "ClientPort=" + point->clientSDP->data["Port"] + "\n";
 	result += "ServerPort=" + point->serverSDP->data["Port"] + "\n";
 	result += "FileName=" + fileName + "\n";
+	result += "Loop=" + loop + "\n";
 	NET::vecSigsIN[NET::INNER::ann](result);
 	
 }

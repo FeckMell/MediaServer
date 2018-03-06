@@ -13,6 +13,7 @@ namespace mgcp
 		Point(SHP_MGCP);
 		void ModifyPoint(SHP_MGCP);
 
+		SHP_MGCP mgcp;
 		SHP_SDP serverSDP;
 		SHP_SDP clientSDP;
 		string callID;

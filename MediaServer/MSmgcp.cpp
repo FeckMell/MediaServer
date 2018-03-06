@@ -11,14 +11,24 @@ Control::Control()
 //*///------------------------------------------------------------------------------------------
 void Control::PreprocessingIN(string message_)
 {
-	cout << "\nvoid mgcp::Control::PreprocessingIN(string message_)";
+	SHP_IPL ipl = make_shared<IPL>(IPL(message_));
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: ipl:\n" + message_);
+
+	if (ipl->data["From"] == "ann")
+	{
+		IN_ANN(ipl);
+	}
+	else
+	{
+		LOG::Log(LOG::fatal, "MGCP", "MSMGCP: ipl ERROR");
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
 void Control::PreprocessingOUT(REQUEST message_)
 {
 	SHP_MGCP mgcp = make_shared<MGCP>(MGCP(message_.data, message_.sender));
-	//LOG::Log(LOG::info, "MGCP", "MSMGCP: message is:\n" + message_.data);
+	LOG::Log(LOG::info, "MGCP", "MSMGCP: message is:\n" + string(message_.data));
 	LOG::Log(LOG::info, "MGCP", "MSMGCP: message Paresed as:\n" + mgcp->PrintAll());
 	if (mgcp->outerError == "")
 	{
@@ -175,9 +185,21 @@ void Control::DLCX_ANN(SHP_MGCP mgcp_)
 		mgcp_->innerError = "Control::DLCX_ANN ann not found ERROR";
 		return;
 	}
-	found_ann->Delete();
+	found_ann->Stop();
 	RemoveAnn(found_ann);
 	RemovePoint(found_point);
+}
+//*///------------------------------------------------------------------------------------------
+//*///------------------------------------------------------------------------------------------
+void Control::IN_ANN(SHP_IPL ipl_)
+{
+	SHP_Point found_point = FindPoint(ipl_->data["CallID"]);
+	SHP_Ann found_ann = FindAnn(ipl_->data["EventID"]);
+	if (ipl_->data["Loop"] == "end")
+	{
+		found_ann->Stop();
+		found_point->mgcp->ReplyNTFY();
+	}
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------

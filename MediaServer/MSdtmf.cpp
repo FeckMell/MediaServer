@@ -23,7 +23,7 @@ void Control::Preprocessing(string message_)
 //*///------------------------------------------------------------------------------------------
 void Control::CR(SHP_IPL ipl_)
 {
-	SHP_Point new_point = make_shared<Point>(Point(ipl_));
+	SHP_Point new_point; new_point.reset(new Point(ipl_));
 	vecPoints.push_back(new_point);
 	new_point->Run();
 }

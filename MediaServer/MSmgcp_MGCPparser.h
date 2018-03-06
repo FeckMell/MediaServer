@@ -12,6 +12,7 @@ namespace mgcp
 		MGCP(char*, EP);
 
 		void ReplyClient();
+		void ReplyNTFY();
 		string PrintAll();
 
 		EP sender;
