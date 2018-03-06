@@ -29,8 +29,9 @@ namespace ann
 		SHP_thread th;
 
 		string loop;
-		SHP_SOCK socket;
+		SHP_SOCK outerSOCK = nullptr;
 		SHP_MediaFile mediaFile;
+		EP endPoint;
 
 	};
 	typedef shared_ptr<Ann> SHP_Ann;

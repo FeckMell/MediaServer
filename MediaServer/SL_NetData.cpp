@@ -3,7 +3,7 @@
 
 vector<SHP_SOCK> NET::socketsOUT = {};
 vector<boost::signals2::signal<void(string)>> NET::vecSigsIN = {};
-vector<boost::signals2::signal<void()>> NET::vecSigsOUT = {};
+vector<boost::signals2::signal<void(REQUEST)>> NET::vecSigsOUT = {};
 SHP_IO NET::outerIO;
 
 void NET::Init()

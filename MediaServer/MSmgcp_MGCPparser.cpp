@@ -2,7 +2,8 @@
 #include "MSmgcp_MGCPparser.h"
 using namespace mgcp;
 
-MGCP::MGCP(bool parse_) :request((char*)NET::GS(NET::OUTER::mgcp_)->buffer), sender(NET::GS(NET::OUTER::mgcp_)->endPoint)
+
+MGCP::MGCP(char* rawMes_, boost::asio::ip::udp::endpoint sender_) : request(rawMes_), sender(sender_)
 {
 	clientSDP.reset(new SDP());
 	serverSDP.reset(new SDP());

@@ -20,8 +20,8 @@ void LOG::Init()
 	socket.reset(new SOCK("127.0.0.1", stoi(CFG::data["logPort"]), new_io));
 	socket->s.async_receive_from(boost::asio::buffer(fake_data, 10), endPoint, boost::bind(&LOG::FakeReceive, _1, _2));
 
-	th.reset(new thread([]{ socket->io->run(); }));
-	//thread th([]{socket->io->run(); });
+	th.reset(new thread([]{cout << "\nLOG:IO"; socket->io->run(); cout << "\nLOG::IO F"; }));
+	//thread th([]{cout << "\nLOG:IO"; socket->io->run(); cout << "\nLOG::IO F"; });
 	//th.deach();
 }
 //*///------------------------------------------------------------------------------------------

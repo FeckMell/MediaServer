@@ -19,8 +19,26 @@
     <Filter Include="SharedLib\Header">
       <UniqueIdentifier>{52cb22aa-e349-4117-b502-fd7df570e37d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="MSann\Source">
+      <UniqueIdentifier>{d1af8bfd-8f89-4166-b6bb-05314efd6fce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSann\Resource">
+      <UniqueIdentifier>{8c1be90a-80d4-4194-b353-d87f4f29df71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSann\Header">
+      <UniqueIdentifier>{747cd158-f37c-4321-817f-6a1af4239589}</UniqueIdentifier>
+    </Filter>
     <Filter Include="MScnf">
       <UniqueIdentifier>{3d96b33b-c197-4f2c-987a-2859c8473248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MScnf\Source">
+      <UniqueIdentifier>{bf50ba08-d050-465a-ba44-f67bad285a6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MScnf\Resource">
+      <UniqueIdentifier>{cc13f421-d666-4434-b5b5-f0d631201327}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MScnf\Header">
+      <UniqueIdentifier>{a917e6c8-2a78-42cd-b0ae-1ad7f2064c33}</UniqueIdentifier>
     </Filter>
     <Filter Include="MSdtmf">
       <UniqueIdentifier>{7abba80a-1694-431b-aaf1-6e7cf43ff23f}</UniqueIdentifier>
@@ -36,6 +54,15 @@
     </Filter>
     <Filter Include="MSmgcp">
       <UniqueIdentifier>{cc024d65-cca9-4fc9-abff-01098e99358f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSmgcp\Source">
+      <UniqueIdentifier>{6f41cc79-51a9-4822-abfe-bbeb6352fc3e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSmgcp\Resource">
+      <UniqueIdentifier>{69ff6fb7-4dae-441b-9810-15a062c2cd8d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MSmgcp\Header">
+      <UniqueIdentifier>{7792c5b5-8384-483e-b00d-197118a7576b}</UniqueIdentifier>
     </Filter>
     <Filter Include="MSsip">
       <UniqueIdentifier>{e0a6bb22-df57-48c3-b274-b355d8f58edd}</UniqueIdentifier>
@@ -81,8 +108,35 @@
     <ClCompile Include="SL_SockStorage.cpp">
       <Filter>SharedLib\Source</Filter>
     </ClCompile>
+    <ClCompile Include="MSann_Ann.cpp">
+      <Filter>MSann\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MSann_MusicStore.cpp">
+      <Filter>MSann\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Audio.cpp">
+      <Filter>MScnf\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Cnf.cpp">
+      <Filter>MScnf\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Filter.cpp">
+      <Filter>MScnf\Source</Filter>
+    </ClCompile>
     <ClCompile Include="MSdtmf_Point.cpp">
       <Filter>MSdtmf\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_Ann.cpp">
+      <Filter>MSmgcp\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_Cnf.cpp">
+      <Filter>MSmgcp\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_MGCPparser.cpp">
+      <Filter>MSmgcp\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MSmgcp_Point.cpp">
+      <Filter>MSmgcp\Source</Filter>
     </ClCompile>
     <ClCompile Include="MSsip_Cnf.cpp">
       <Filter>MSsip\Source</Filter>
@@ -93,6 +147,12 @@
     <ClCompile Include="MSsip_SIPparser.cpp">
       <Filter>MSsip\Source</Filter>
     </ClCompile>
+    <ClCompile Include="MSann.cpp">
+      <Filter>MSann\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf.cpp">
+      <Filter>MScnf\Resource</Filter>
+    </ClCompile>
     <ClCompile Include="MSdtmf.cpp">
       <Filter>MSdtmf\Resource</Filter>
     </ClCompile>
@@ -102,56 +162,20 @@
     <ClCompile Include="MSsip.cpp">
       <Filter>MSsip\Resource</Filter>
     </ClCompile>
+    <ClCompile Include="MSmgcp.cpp">
+      <Filter>MSmgcp\Resource</Filter>
+    </ClCompile>
     <ClCompile Include="SL_SDP.cpp">
       <Filter>SharedLib\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="MScnf_Point.cpp">
+      <Filter>MScnf\Source</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>MediaServer</Filter>
     </ClCompile>
     <ClCompile Include="MediaServer.cpp">
       <Filter>MediaServer</Filter>
-    </ClCompile>
-    <ClCompile Include="SL_Time.cpp">
-      <Filter>SharedLib\Source</Filter>
-    </ClCompile>
-    <ClCompile Include="MSann.cpp">
-      <Filter>MSann</Filter>
-    </ClCompile>
-    <ClCompile Include="MSann_Ann.cpp">
-      <Filter>MSann</Filter>
-    </ClCompile>
-    <ClCompile Include="MSann_MusicStore.cpp">
-      <Filter>MSann</Filter>
-    </ClCompile>
-    <ClCompile Include="MSmgcp_Point.cpp">
-      <Filter>MSmgcp</Filter>
-    </ClCompile>
-    <ClCompile Include="MSmgcp_Ann.cpp">
-      <Filter>MSmgcp</Filter>
-    </ClCompile>
-    <ClCompile Include="MSmgcp_Cnf.cpp">
-      <Filter>MSmgcp</Filter>
-    </ClCompile>
-    <ClCompile Include="MSmgcp_MGCPparser.cpp">
-      <Filter>MSmgcp</Filter>
-    </ClCompile>
-    <ClCompile Include="MSmgcp.cpp">
-      <Filter>MSmgcp</Filter>
-    </ClCompile>
-    <ClCompile Include="MScnf.cpp">
-      <Filter>MScnf</Filter>
-    </ClCompile>
-    <ClCompile Include="MScnf_Audio.cpp">
-      <Filter>MScnf</Filter>
-    </ClCompile>
-    <ClCompile Include="MScnf_Cnf.cpp">
-      <Filter>MScnf</Filter>
-    </ClCompile>
-    <ClCompile Include="MScnf_Filter.cpp">
-      <Filter>MScnf</Filter>
-    </ClCompile>
-    <ClCompile Include="MScnf_Point.cpp">
-      <Filter>MScnf</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -182,8 +206,35 @@
     <ClInclude Include="SL_SockStorage.h">
       <Filter>SharedLib\Header</Filter>
     </ClInclude>
+    <ClInclude Include="MSann_Ann.h">
+      <Filter>MSann\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MSann_MusicStore.h">
+      <Filter>MSann\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Audio.h">
+      <Filter>MScnf\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Cnf.h">
+      <Filter>MScnf\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf_Filter.h">
+      <Filter>MScnf\Header</Filter>
+    </ClInclude>
     <ClInclude Include="MSdtmf_Point.h">
       <Filter>MSdtmf\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_Ann.h">
+      <Filter>MSmgcp\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_Cnf.h">
+      <Filter>MSmgcp\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_MGCPparser.h">
+      <Filter>MSmgcp\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MSmgcp_Point.h">
+      <Filter>MSmgcp\Header</Filter>
     </ClInclude>
     <ClInclude Include="MSsip_Cnf.h">
       <Filter>MSsip\Header</Filter>
@@ -194,6 +245,12 @@
     <ClInclude Include="MSsip_SIPparser.h">
       <Filter>MSsip\Header</Filter>
     </ClInclude>
+    <ClInclude Include="MSann.h">
+      <Filter>MSann\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="MScnf.h">
+      <Filter>MScnf\Resource</Filter>
+    </ClInclude>
     <ClInclude Include="MSdtmf.h">
       <Filter>MSdtmf\Resource</Filter>
     </ClInclude>
@@ -203,53 +260,17 @@
     <ClInclude Include="MSsip.h">
       <Filter>MSsip\Resource</Filter>
     </ClInclude>
+    <ClInclude Include="MSmgcp.h">
+      <Filter>MSmgcp\Resource</Filter>
+    </ClInclude>
     <ClInclude Include="SL_SDP.h">
       <Filter>SharedLib\Header</Filter>
     </ClInclude>
+    <ClInclude Include="MScnf_Point.h">
+      <Filter>MScnf\Header</Filter>
+    </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>MediaServer</Filter>
-    </ClInclude>
-    <ClInclude Include="SL_Time.h">
-      <Filter>SharedLib\Header</Filter>
-    </ClInclude>
-    <ClInclude Include="MSann_Ann.h">
-      <Filter>MSann</Filter>
-    </ClInclude>
-    <ClInclude Include="MSann_MusicStore.h">
-      <Filter>MSann</Filter>
-    </ClInclude>
-    <ClInclude Include="MSann.h">
-      <Filter>MSann</Filter>
-    </ClInclude>
-    <ClInclude Include="MSmgcp.h">
-      <Filter>MSmgcp</Filter>
-    </ClInclude>
-    <ClInclude Include="MSmgcp_Point.h">
-      <Filter>MSmgcp</Filter>
-    </ClInclude>
-    <ClInclude Include="MSmgcp_MGCPparser.h">
-      <Filter>MSmgcp</Filter>
-    </ClInclude>
-    <ClInclude Include="MSmgcp_Cnf.h">
-      <Filter>MSmgcp</Filter>
-    </ClInclude>
-    <ClInclude Include="MSmgcp_Ann.h">
-      <Filter>MSmgcp</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf.h">
-      <Filter>MScnf</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf_Audio.h">
-      <Filter>MScnf</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf_Cnf.h">
-      <Filter>MScnf</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf_Filter.h">
-      <Filter>MScnf</Filter>
-    </ClInclude>
-    <ClInclude Include="MScnf_Point.h">
-      <Filter>MScnf</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

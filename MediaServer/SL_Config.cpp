@@ -3,7 +3,6 @@
 
 map<string, string> CFG::data = {};
 string CFG::error = "";
-string CFG::version = "2.1.1 23.01.2017";
 #ifdef WIN32
 string CFG::slash = "\\";
 #else
@@ -74,7 +73,7 @@ void CFG::ParseConfigFile()
 //*///------------------------------------------------------------------------------------------
 string CFG::GetParams()
 {
-	string result = "VERSION=" + version;
+	string result = "";
 	result += "\nParsed path to application(home folder for MGCP server):\n" + data["homePath"];
 	result += "\nMediaPath: " + data["mediaPath"];
 	result += "\nLogPath: " + data["logPath"];

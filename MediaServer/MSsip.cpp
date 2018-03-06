@@ -38,10 +38,10 @@ void Control::PreprocessingIN(string message_)
 }
 //*///------------------------------------------------------------------------------------------
 //*///------------------------------------------------------------------------------------------
-void Control::PreprocessingOUT()
+void Control::PreprocessingOUT(REQUEST message_)
 {
-	SHP_SIP sip = make_shared<SIP>(SIP(true));
-	//LOG::Log(LOG::info, "SIP", "MSSIP: Preproc sip:\n" + string(message_.data));
+	SHP_SIP sip = make_shared<SIP>(SIP(message_.data, message_.sender));
+	LOG::Log(LOG::info, "SIP", "MSSIP: Preproc sip:\n" + string(message_.data));
 
 	if (sip->outerError == "")
 	{

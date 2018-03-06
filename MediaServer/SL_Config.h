@@ -12,7 +12,6 @@ public:
 	static void ParseConfigFile();
 
 	//Data.
-	static string version;
 	static map<string, string> data;
 	static string error;
 	static string slash;

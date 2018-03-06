@@ -12,19 +12,19 @@ SDP::SDP(string sdp_) :sdp(sdp_)
 //*///------------------------------------------------------------------------------------------
 SDP::SDP(string port_, string call_id_)
 {
-	boost::format template_sdp = boost::format(string(
-			"v=0\n"
-			"o=- %3% 0 IN IP4 %1%\n"//3,1
-			"s=%4%\n"//4
-			"c=IN IP4 %1%\n"//1
-			"t=0 0\n"
-			"a=tool:libavformat 57.3.100\n"
-			"m=audio %2% RTP/AVP 8 101\n"//2
-			"a=rtpmap:8 PCMA/8000\n"
-			"a=rtpmap:101 telephone-event/8000\n"
-			"a=ptime:20\n"
-			"a=sendrecv\n"
-			));
+	auto template_sdp = boost::format(string(
+		"v=0\n"
+		"o=- %3% 0 IN IP4 %1%\n"//3,1
+		"s=%4%\n"//4
+		"c=IN IP4 %1%\n"//1
+		"t=0 0\n"
+		"a=tool:libavformat 57.3.100\n"
+		"m=audio %2% RTP/AVP 8 101\n"//2
+		"a=rtpmap:8 PCMA/8000\n"
+		"a=rtpmap:101 telephone-event/8000\n"
+		"a=ptime:20\n"
+		"a=sendrecv\n"
+		));
 	sdp = str(template_sdp
 		%CFG::data["outerIP"]
 		% port_

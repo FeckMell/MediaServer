@@ -34,11 +34,11 @@ namespace ann
 
 		SHP_MediaFile GetFile(string);
 
-		vector<SHP_MediaFile> data;
 	private:
 
 		SHP_MediaFile OpenNewFile(string);
 
+		vector<SHP_MediaFile> data;
 
 	};
 	typedef shared_ptr<MusicStore> SHP_MusicStore;

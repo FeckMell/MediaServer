@@ -12,11 +12,15 @@ Point::Point(SHP_IPL ipl_)
 	eventID = ipl_->data["EventID"];
 	
 	socket = SSTORAGE::GetSocket(serverPort);
-	socket->SetEndPoint(clientIP, clientPort);
+	endPoint = EP(boost::asio::ip::address::from_string(clientIP), stoi(clientPort));
 }
 void Point::Run()
 {
-	socket->AsyncReceive(boost::bind(&Point::Receive, this, _1, _2));
+	socket->s.async_receive_from(
+		boost::asio::buffer(rawBuf.data, 1000),
+		endPoint,
+		boost::bind(&Point::Receive, this, _1, _2)
+		);
 	th.reset(new thread(&Point::RunIO, this));
 }
 void Point::RunIO()
@@ -44,14 +48,18 @@ void Point::Receive(boost::system::error_code ec_, size_t size_)
 		{
 			uint8_t bytes[2];
 
-			memcpy(&bytes[0], socket->buffer + 1, 1);
-			memcpy(&bytes[1], socket->buffer + 12, 1);
+			memcpy(&bytes[0], rawBuf.data + 1, 1);
+			memcpy(&bytes[1], rawBuf.data + 12, 1);
 
 			result = Analyze(bytes);
 		}
 		if (result == false)
 		{
-			socket->AsyncReceive(boost::bind(&Point::Receive, this, _1, _2));
+			socket->s.async_receive_from(
+				boost::asio::buffer(rawBuf.data, 1000),
+				endPoint,
+				boost::bind(&Point::Receive, this, _1, _2)
+				);
 		}
 		else
 		{

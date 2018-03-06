@@ -47,7 +47,7 @@ void Control::DL(SHP_IPL ipl_)
 	}
 	else
 	{
-		//found_cnf->~Cnf();
+		found_cnf->~Cnf();
 		RemoveCnf(found_cnf);
 	}	
 }

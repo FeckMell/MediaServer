@@ -111,7 +111,7 @@ int Filter::InitFilterGraph(int for_client_)
 	err = avfilter_graph_config(filter_graph, NULL);
 	if (err < 0){ return err; }
 
-	//char* dump = avfilter_graph_dump(filter_graph, NULL);
+	char* dump = avfilter_graph_dump(filter_graph, NULL);
 
 	data.graphVec.push_back(filter_graph);
 	data.sinkVec.push_back(abuffersink_ctx);

@@ -15,7 +15,7 @@ namespace mgcp
 
 		Control();
 		void PreprocessingIN(string);
-		void PreprocessingOUT();
+		void PreprocessingOUT(REQUEST);
 
 	private:
 		//OUT
