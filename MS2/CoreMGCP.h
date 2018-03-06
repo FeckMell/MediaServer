@@ -10,7 +10,7 @@ public:
 
 	void ProceedMGCP(/*params*/);
 	void ProceedIPL(/*params*/);
-	void ProceedCTR(/*params*/);
+	void ProceedCTRL(/*params*/);
 
 private:
 

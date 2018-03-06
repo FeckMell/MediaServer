@@ -7,7 +7,7 @@ public:
 
 	static void Init(string path_);
 
-	static string Get(string name_);
+	static string Param(string name_);
 	static string PtintAll();
 
 private:

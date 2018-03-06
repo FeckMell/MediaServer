@@ -95,6 +95,7 @@
     <ClInclude Include="SL_Config.h" />
     <ClInclude Include="SL_DTMF.h" />
     <ClInclude Include="SL_FFmpeg.h" />
+    <ClInclude Include="SL_Functions.h" />
     <ClInclude Include="SL_IPL.h" />
     <ClInclude Include="SL_JitterBuffer.h" />
     <ClInclude Include="SL_Log.h" />
@@ -107,6 +108,11 @@
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="LogicAnn.cpp" />
+    <ClCompile Include="LogicAnnPoint.cpp" />
+    <ClCompile Include="LogicCnf.cpp" />
+    <ClCompile Include="LogicCnfPoint.cpp" />
+    <ClCompile Include="LogicCnfRoom.cpp" />
     <ClCompile Include="MS2.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

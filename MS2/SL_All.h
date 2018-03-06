@@ -14,3 +14,4 @@
 #include "SL_FFmpeg.h"
 #include "SL_JitterBuffer.h"
 #include "SL_Time.h"
+#include "SL_Functions.h"

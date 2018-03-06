@@ -49,6 +49,21 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>MAIN</Filter>
     </ClCompile>
+    <ClCompile Include="LogicAnn.cpp">
+      <Filter>CoreLogic\MGCP\Ann</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicAnnPoint.cpp">
+      <Filter>CoreLogic\MGCP\Ann</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicCnf.cpp">
+      <Filter>CoreLogic\MGCP\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicCnfPoint.cpp">
+      <Filter>CoreLogic\MGCP\Cnf</Filter>
+    </ClCompile>
+    <ClCompile Include="LogicCnfRoom.cpp">
+      <Filter>CoreLogic\MGCP\Cnf</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -119,6 +134,9 @@
     </ClInclude>
     <ClInclude Include="LogicCnfRoom.h">
       <Filter>CoreLogic\MGCP\Cnf</Filter>
+    </ClInclude>
+    <ClInclude Include="SL_Functions.h">
+      <Filter>SharedLib\Basics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

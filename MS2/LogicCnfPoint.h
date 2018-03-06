@@ -5,7 +5,7 @@ class LogicCnfPoint
 {
 public:
 
-	LogicCnfPoint(SHP_SDP s_SDP_);
+	LogicCnfPoint(SHP_SDP c_SDP_, SHP_SDP s_SDP_);
 
 	void ModifyClientSDP(SHP_SDP c_SDP_);
 

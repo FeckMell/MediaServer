@@ -11,15 +11,15 @@ public:
 
 	map<string, boost::any> RegisterMePlease();
 
-	void ProceedMGCP(/*params*/);
+	void ProceedMGCP(SHP_MGCP mgcp_);
 	void ProceedIPL(/*params*/);
-	void ProceedCTR(/*params*/);
+	void ProceedCTRL(/*params*/);
 
 private:
 
-	void MGCP_CRCX(/**/);
-	void MGCP_MDCX(/**/);
-	void MGCP_DLCX(/**/);
+	void MGCP_CRCX(SHP_MGCP mgcp_);
+	void MGCP_MDCX(SHP_MGCP mgcp_);
+	void MGCP_DLCX(SHP_MGCP mgcp_);
 
 	map<string, SHP_LogicCnfPoint> _mapcnfpoints;
 	map<string, SHP_LogicCnfRoom> _mapcnfrooms;

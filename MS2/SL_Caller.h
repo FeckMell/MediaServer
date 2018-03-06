@@ -44,6 +44,7 @@ public:
 	static void DeleteCaller(string s_port_);
 
 	static void CheckCallers(string c_ip_, string c_port_);
+	static bool CheckExistance(string callid_, string c_ip_, string c_port_);
 
 private:
 

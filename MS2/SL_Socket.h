@@ -38,13 +38,14 @@ class SOCKETSTORE
 {
 public:
 
-	static SHP_SOCKET GetSocket(string port_);
+	static SHP_SOCKET GetSocket(string port_); //if port_="" reserve port
+	static void DeleteSocket(string port_); //on point destructor
+	static string ReservePort();
 
 	static string PrintAll();
 
 private:
 
-	static string ReservePort();
 	static void FreePort(string port_);
 
 	static vector<int> _vecports;

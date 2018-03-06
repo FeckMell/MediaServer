@@ -15,8 +15,8 @@
 #ifdef WIN32
 #define _SCL_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
-#define snprintf _snprintf //use boost format or something else
-#include <tchar.h>
+//#define snprintf _snprintf //use boost format or something else
+//#include <tchar.h>
 #include <SDKDDKVer.h>
 #endif
 
@@ -25,12 +25,20 @@
 #include <stdio.h>
 #include <string>
 #include <vector>
+#include <map>
+
 #include <iostream>
+#include <fstream>
+
 #include <chrono>
 #include <thread>
-#include <map>
 #include <regex>
 /* </> C++ */
+/*
+#ifndef WIN32
+#include <fstream>
+#endif
+*/
 
 
 /* <\> BOOST*/
@@ -40,9 +48,14 @@
 #include <boost/signals2.hpp>
 #include <boost/circular_buffer.hpp>
 #include <boost/any.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 #undef BOOST_ASIO_ERROR_CATEGORY_NOEXCEPT 
 /* </> BOOST */
+/*
+#include <boost/function.hpp>
+//#include <boost/date_time/gregorian/gregorian.hpp>
+*/
 
 
 /* <\>FFMPEG */
