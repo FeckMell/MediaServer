@@ -1,5 +1,9 @@
 #pragma once
 #include "PackMGCP.h"
+#include "MGCPserver.h"
+//#include "Utils.h"
+#include "DestFusion.h"
+#include "SrcCommon.h"
 
 class CMGCPServer;
 class CDestFusion;
@@ -11,7 +15,7 @@ public:
 	~CMGCPConnection();
 	unsigned Id() const { return m_id; }
 	const MGCP::TSDP& sdpOUT() const { return m_sdpOUT; }
-	void sendMedia(const string& strFile);
+	void sendMedia(const string& strFile, string CallID);
 	unsigned short SrcPort() const { return m_srcPort; }
 	void stopMedia();
 	void newSubConnection(unsigned idConn, MGCP::TMGCP &mgcp);

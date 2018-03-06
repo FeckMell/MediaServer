@@ -1,9 +1,6 @@
 #include "stdafx.h"
 #include "Connection.h"
-#include "MGCPserver.h"
-#include "Utils.h"
-#include "DestFusion.h"
-#include "SrcCommon.h"
+
 
 using boost::asio::ip::udp;
 namespace asio = boost::asio;
@@ -38,7 +35,7 @@ CMGCPConnection::CMGCPConnection(const CMGCPServer& server, const MGCP::TMGCP& m
 		media.ptime
 	}*/
 
-	assert(mgcp.CMD == MGCP::TMGCP::CRCX);
+	assert(mgcp.CMD == MGCP::TMGCP::CRCX); //turnback
 	m_cllSDPs = mgcp.cllSDPs;
 	m_id = __id++;
 
@@ -52,7 +49,7 @@ CMGCPConnection::~CMGCPConnection()
 }
 
 //-----------------------------------------------------------------------
-void CMGCPConnection::sendMedia(const string& strFile)
+void CMGCPConnection::sendMedia(const string& strFile,string CallID)
 {
 	if (!m_cllSDPs.empty() && !m_cllSDPs.front()->cllMedia.empty())
 	{
@@ -60,11 +57,11 @@ void CMGCPConnection::sendMedia(const string& strFile)
 
 		if (shpDest_)
 			shpDest_->terminate();
-
+		
 		//TODO: need waiting for thread before deletion
 		shpDest_.reset(new CDestFusion);
-		auto shpSrc = std::make_shared<CSrcCommon>(strFile);
-		shpDest_->addSrcRef(shpSrc);
+		auto shpSrc = std::make_shared<CSrcCommon>(strFile, true);
+		shpDest_->addSrcRef(shpSrc, CallID);
 
 		shpDest_->openRTP({m_sdpOUT.connection.address, media.port, SrcPort(), media.ptime});
 		if (!shpDest_->LastError())

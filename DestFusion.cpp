@@ -1,32 +1,51 @@
 #include "stdafx.h"
 #include "DestFusion.h"
-#include "ISrcFusion.h"
+
 
 enum{ RTP_OUT_RATE = 8000 };
-
-
-
 //-----------------------------------------------------------------------
-int CDestFusion::addSrcRef(SHP_ISrcFusion shpSrc)
+int CDestFusion::remSrcRef(SHP_ISrcFusion shpSrc, string CallID)
 {
 	assert(shpSrc);
+	RETERR_ON_FALSE(gl_abuffer,
+		AVERROR_FILTER_NOT_FOUND, "Could not find the abuffer filter");
+	const AVCodecContext* pCodecCtx = shpSrc->CodecCTX();
+	TSrcRef srcRef;
+	srcRef.shpSrc = shpSrc;
+	srcRef.CallID = CallID;
+	//printf("DESTROY GRAPH\n");
+	/*srcRef->*/avfilter_free(ctxMix_);
+	/*srcRef->*/avfilter_free(ctxSink_);
+	//av_dump_format(ctxFormat_, 0, "memory.sdp", 0);
+	filtGraf_.DestroyGraph();
+	//cou << "\n    remove from: ";
+	/*for (auto &e : cllSrcRefs_)
+		cou <<" "<< e.CallID;*/
+	cllSrcRefs_.erase(std::remove(cllSrcRefs_.begin(), cllSrcRefs_.end(), srcRef), cllSrcRefs_.end());
+
+	return m_lastError;
+}
+//-----------------------------------------------------------------------
+//-----------------------------------------------------------------------
+int CDestFusion::addSrcRef(SHP_ISrcFusion shpSrc, string CallID)
+{
+	assert(shpSrc);
+	cout << "\naddSrcRef 1";
 	/* Create the abuffer filter;
 	* it will be used for feeding the data into the graph. */
 	RETERR_ON_FALSE(gl_abuffer, 
 		AVERROR_FILTER_NOT_FOUND, "Could not find the abuffer filter");
-
+	cout << "\naddSrcRef 2";
 	static auto frmtFilt = 
 		boost::format("sample_rate=%d:sample_fmt=%s:channel_layout=0x%" PRIx64);
 
-/*
-	if (!pCodecCtx->channel_layout)
-		pCodecCtx->channel_layout = av_get_default_channel_layout(pCodecCtx->channels);*/
-
+	cout << "\naddSrcRef 3";
 	const AVCodecContext* pCodecCtx = shpSrc->CodecCTX();
 
 	TSrcRef srcRef;
 	srcRef.shpSrc = shpSrc;
-
+	srcRef.CallID = CallID;
+	cout << "\naddSrcRef 4";
 	RETURN_AVERROR(
 		avfilter_graph_create_filter(&srcRef.pctxFilter, gl_abuffer,
 			str(boost::format("%1% (%2%)") %  shpSrc->Name() % cllSrcRefs_.size()
@@ -39,34 +58,33 @@ int CDestFusion::addSrcRef(SHP_ISrcFusion shpSrc)
 			nullptr,
 			filtGraf_),
 		"Cannot create audio buffer source"
-		);
-
+		);//stoped here 
+	cout << "\naddSrcRef 5";
 	cllSrcRefs_.push_back(srcRef);
-
 	return m_lastError;
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 {
+	cout << "\n RTP OPENED";
 	_cleanup();
-
+	cout << "\n888888888888888888888888888888888888888888888888888888888888888888\n\n";
+	cout << "rtpdest.strAddr=" << rtpdest.strAddr << "rtpdest.portDest=" << rtpdest.portDest << "rtpdest.portSrc=" << rtpdest.portSrc;
+	cout << "\n\n888888888888888888888888888888888888888888888888888888888888888888\n";
 	isRTP_ = true;
 	ptimeRTP_ = rtpdest.ptimeRTP;
 
 	const auto strRTP = str(boost::format("rtp://%1%:%2%?localport=%3%")
 		% rtpdest.strAddr % rtpdest.portDest %  rtpdest.portSrc);
-
+	cout << "\n--OPENRTP BIND NEXT";
 	RETURN_AVERROR(
-		avformat_alloc_output_context2(&ctxFormat_, NULL, "rtp", strRTP.c_str()),
+		avformat_alloc_output_context2(&ctxFormat_, nullptr, "rtp", strRTP.c_str()),
 		boost::format("Cannot open RTP output context for %1%") % strRTP);
-
-	cout << "avformat_alloc_output: " << strRTP << '\n';
-
+	cout << "\n--OPENRTP BIND END";
 	RETURN_AVERROR(
 		avio_open(&ctxFormat_->pb, strRTP.c_str(), AVIO_FLAG_WRITE),
 		boost::format("avio_open error on %1%") % strRTP);
-
+	cout << "\n--OPENRTP BIND end 2";
 	const AVCodecID idCodec =  AV_CODEC_ID_PCM_ALAW;
 	AVCodec *output_codec = avcodec_find_encoder(idCodec);
 	RETERR_ON_FALSE(output_codec, AVERROR_EXIT, 
@@ -89,17 +107,16 @@ int CDestFusion::openRTP(const TRTP_Dest& rtpdest)
 	codecctxOUT->bit_rate		= RTP_OUT_RATE;
 	codecctxOUT->time_base		= { 1, codecctxOUT->sample_rate };
 
-	RETURN_AVERROR(avcodec_open2(strmOut->codec, output_codec, NULL),
+	RETURN_AVERROR(avcodec_open2(strmOut->codec, output_codec, nullptr),
 		"Could not open output codec");
 
-	char buffSDP[2048] = { 0 };
+	/*char buffSDP[2048] = { 0 };
 	av_sdp_create(&ctxFormat_, 1, buffSDP, sizeof(buffSDP)-1);
-	cout << "-------------ffmpeg SDP-------------\n" << buffSDP <<
-		"\n-----------------------------\n";
+	cou << "-------------ffmpeg SDP-------------\n" << buffSDP <<
+		"\n-----------------------------\n";*/
 
 	return m_lastError;
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::openFile(const char *filename)
 {
@@ -110,7 +127,7 @@ int CDestFusion::openFile(const char *filename)
 		if (this->m_lastError < 0)
 			this->_cleanup();
 	};
-
+	//printf("\nTEST! If falls here it is a problem.\n");
 	AVIOContext *output_io_context = nullptr;
 	RETURN_AVERROR(
 		avio_open(&output_io_context, filename, AVIO_FLAG_WRITE),
@@ -125,7 +142,7 @@ int CDestFusion::openFile(const char *filename)
 	ctxFormat_->pb = output_io_context;
 
 	/** Guess the desired container format based on the file extension. */
-	ctxFormat_->oformat = av_guess_format(NULL, filename, NULL);
+	ctxFormat_->oformat = av_guess_format(nullptr, filename, nullptr);
 	RETERR_ON_FALSE(ctxFormat_->oformat, AVERROR_EXIT, "Could not find output file format");
 
 	av_strlcpy(ctxFormat_->filename, filename,
@@ -163,31 +180,29 @@ int CDestFusion::openFile(const char *filename)
 
 	/** Open the encoder for the audio stream to use it later. */
 	RETURN_AVERROR(
-		avcodec_open2(ctxCodecOut, encoder, NULL),
+		avcodec_open2(ctxCodecOut, encoder, nullptr),
 		"Could not open output codec"
 		);
 
 	return m_lastError;
 }
-
 //-----------------------------------------------------------------------
 void CDestFusion::_finalizeRTPThread()
 {
 	if (pRTPThread_)
 	{
+		//printf("\n_finalizeRTPThread()\n");
 		buffRTP_.terminate();
 		pRTPThread_->join();
 		delete pRTPThread_;
 		pRTPThread_ = nullptr;
 	}
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::runBegin()
 {
 	if (!isValid())
 		return LastError();
-
 	_reinitFilters();
 
 	RETURN_AVERROR(
@@ -198,30 +213,28 @@ int CDestFusion::runBegin()
 	if (isValid())
 	{
 		_finalizeRTPThread();
+		//cou << "\nCall from runBegin _finalizeRTPThread(); done";
 		if (isRTP_)
 			pRTPThread_ = new std::thread (&CDestFusion::_threadRTPfunction, this);
 	}
-
+	cout << "\n    1 Exit from runBegin";
 	return LastError();
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::runEnd()
 {
 	assert(ctxFormat_);
-
+	cout << "\n    _finalizeRTPThread();";
 	_finalizeRTPThread();
+	//cou << "\ncall from runEnd: _finalizeRTPThread(); done";
 
 	RETURN_AVERROR(
 		av_write_trailer(ctxFormat_),
 		"Could not write output file trailer"
 		);
-
-
-
+	cout << "\n    exit from runEnd;";
 	return LastError();
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::run()
 {
@@ -247,19 +260,18 @@ int CDestFusion::run()
 	{		
 		_proceedIO();
 	}*/
-
+	cout << "\n   1 runBegin();";
 	runBegin();
 	if (isValid())
 	{
-		printf("\nRUN_proceedIO?\n");
+		cout << "\n   1 _proceedIO();";
 		_proceedIO();
-		printf("\n RAN\n");
+		cout << "\n   1 runEnd();";
 		runEnd();
 	}
-
+	cout << "\n   1 Exit from run";
 	return LastError();
 }
-
 //-----------------------------------------------------------------------
 void CDestFusion::_cleanup()
 {
@@ -271,20 +283,18 @@ void CDestFusion::_cleanup()
 		m_lastError = 0;
 	}
 }
-
 //-----------------------------------------------------------------------
 void CDestFusion::_dumpGraph()
 {
 	cout << "============ dumpGraph ======================\n";
-	char* dump = avfilter_graph_dump(filtGraf_, NULL);
+	char* dump = avfilter_graph_dump(filtGraf_, nullptr);
 	if (dump)
 	{
 		//test222
-		//av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
+		av_log(NULL, AV_LOG_ERROR, "Graph :\n%s\n", dump);
 		av_free(dump);
 	}
 }
-
 //-----------------------------------------------------------------------
 /** Encode one frame worth of audio to the output file. */
 int CDestFusion::_encode_audio_frame(AVFrame *frame, int *data_present)
@@ -315,7 +325,6 @@ int CDestFusion::_encode_audio_frame(AVFrame *frame, int *data_present)
 
 	return 0;
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::_initGraph()
 {
@@ -350,7 +359,7 @@ int CDestFusion::_initGraph()
 		"Configuring graph"
 		);
 
-	_dumpGraph();
+	//_dumpGraph();//медиа печать
 
 	return m_lastError;
 }
@@ -376,8 +385,6 @@ int CDestFusion::_initMixFilter()
 
 	return m_lastError;
 }
-
-
 //-----------------------------------------------------------------------
 int CDestFusion::_initSink()
 {
@@ -435,13 +442,11 @@ int CDestFusion::_initSink()
 
 	return m_lastError;
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::proceedIO_step()
 {
 	if (!isActive())
 		return AVERROR_EXIT;
-
 	bool data_present_in_graph = false;
 
 	/************************************************************************
@@ -450,13 +455,13 @@ int CDestFusion::proceedIO_step()
 	for (auto& srcRef : cllSrcRefs_)
 	{
 		if (srcRef.finished || !srcRef.to_read){
-			//printf("\n test333\n");
 			continue;}
-
 		srcRef.to_read = false;
 		bool bEOF = false;
+		//cout << "\n     1 IN STEP BEFORE GETNEXTDECODED";
 		/** Decode one frame worth of audio samples. */
 		SHP_CScopedPFrame shpFrame = srcRef.shpSrc->getNextDecoded(bEOF);
+		//cout << "\n     1 IN STEP AFTER GETNEXTDECODED";
 		const AVFrame * const frame = shpFrame ? shpFrame->frame : nullptr;
 
 
@@ -465,12 +470,13 @@ int CDestFusion::proceedIO_step()
 		* in the decoder which are delayed, we are actually finished.
 		* This must not be treated as an error.
 		*/
+		//cout<<"\nHI I`M IN STEP 2\n";
 		if (bEOF && !frame) {
 			srcRef.finished = true;
 			av_log(NULL, AV_LOG_INFO, "Input n#%s finished. Write NULL frame \n", srcRef.name());
 
 			RETURN_AVERROR(
-				av_buffersrc_write_frame(srcRef.pctxFilter, NULL),
+				av_buffersrc_write_frame(srcRef.pctxFilter, nullptr),
 				"Writing EOF null frame for input %d\n"
 				);
 		}
@@ -498,10 +504,11 @@ int CDestFusion::proceedIO_step()
 
 		data_present_in_graph = frame || data_present_in_graph;
 	}
-
+	//cout<<"\nHI I`M IN STEP 3\n";
 	/************************************************************************
 	Pull from FilterGraph and encode
 	************************************************************************/
+	//cout<<"\nHI I`M IN STEP TOO\n";
 	if (data_present_in_graph)
 	{
 		RETURN_AVERROR(
@@ -516,22 +523,23 @@ int CDestFusion::proceedIO_step()
 	}
 	//printf("\n test222\n");
 
-
+	//cout << "\n     1 Exit from proceed io step";
 	return LastError();
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::_proceedIO()
 {
+	cout << "\n    1 Call from _proceedIO()";
 	do
 	{
+		//cout << "PIOS-";
 		proceedIO_step();
+		//cout << "PIOSend ";
 	} 
 	while (isValid() && isActive() && ExistsNotFinishedSrc() );
-
+	cout << "\n    1 Exit from _proceedIO()";
 	return LastError();
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::_pullAndEncode()
 {
@@ -582,16 +590,17 @@ int CDestFusion::_pullAndEncode()
 
 	return m_lastError;
 }
-
 //-----------------------------------------------------------------------
 void CDestFusion::_reinitFilters()
 {
+	//printf("\n_initMixFilter();\n");
 	_initMixFilter();
+	//printf("\n__initSink();\n");
 	_initSink();
 	//test222
+	//printf("\n__initGraph();\n");
 	_initGraph();
 }
-
 //-----------------------------------------------------------------------
 void CDestFusion::_threadRTPfunction()
 {
@@ -663,20 +672,16 @@ void CDestFusion::_threadRTPfunction()
 			break;
 	}
 }
-
 //-----------------------------------------------------------------------
 int CDestFusion::_writeRTPpacket(time_point& tp, CAVPacket& pktRTP)
 {
 	std::this_thread::sleep_until(tp);
-
 	//timestamp следующего пакета
 	tp += /*CRTPMedia::time_point::clock::now() + */
 		chrono::microseconds((long long)(10000.*pktRTP.size / 80.));
-
-//	cout << boost::format("%1% rtpthread send %2% bytes\n") % std::this_thread::get_id() % pktRTP.size;
+//	cou << boost::format("%1% rtpthread send %2% bytes\n") % std::this_thread::get_id() % pktRTP.size;
 	return av_interleaved_write_frame(ctxFormat_, &pktRTP);
 }
-
 //-----------------------------------------------------------------------
 bool CDestFusion::ExistsNotFinishedSrc() const
 {

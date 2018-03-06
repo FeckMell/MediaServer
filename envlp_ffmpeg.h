@@ -93,6 +93,7 @@ public:
 		avfilter_graph_free(&pGraph_);
 	}
 	bool isValid()const{ return pGraph_ != nullptr; }
+	void DestroyGraph(){ avfilter_graph_free(&pGraph_);}//
 	AVFilterGraph* operator ->()const{ return pGraph_; }
 	operator AVFilterGraph*()const{ return pGraph_; }
 private:

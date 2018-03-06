@@ -70,7 +70,36 @@ namespace MGCP
 	{
 		return TMGCP_Param::ParamName(m_type);
 	}
+	string TMGCP::getsdpparam()
+	{
+		//////
+		return "";
+	}
+	string TMGCP::getCallID()
+	{
+		/*string strResult();
+		for (const auto& param : cllParams)
+			strResult += str(param.m_value);*/
+		static auto frmHeader = boost::format("");
+		static auto frmParam = boost::format("%1%");
 
+		string strResult(str(frmHeader));
+		for (const auto& param : cllParams)
+		if (param.name()=="C")
+				strResult += str(frmParam % param.m_value);
+		return strResult;
+	}
+	string TMGCP::ResponseBAD(unsigned short code) const
+	{
+		static auto frmHeader = boost::format("%1% %2% BAD");
+		static auto frmParam = boost::format("\n%1%: %2%");
+
+		string strResult(str(frmHeader % code % IdTransact));
+		for (const auto& param : cllResponseParams)
+			strResult += str(frmParam % param->name() % param->m_value);
+
+		return strResult;
+	}
 	string TMGCP::ResponseOK(unsigned short code /*=200*/) const
 	{
 		static auto frmHeader = boost::format("%1% %2% OK");
@@ -157,7 +186,7 @@ namespace MGCP
 
 	string TEndPoint::toString() const
 	{
-		printf("\n test333\n");
+		//printf("\n test333\n");
 		return str(boost::format("%1%@%2%") % m_point % m_addr);
 	}
 

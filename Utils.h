@@ -1,9 +1,13 @@
 #pragma once
 #include <condition_variable>
-
-template<typename _T>class ThreadedSet
+template<typename _T>
+class ThreadedSet
 {
 public:
+	_T find(const _T& key)
+	{
+		return *cll_.find(key);
+	}
 	_T regnew(const _T& keyBase, const _T& inc)
 	{
 		lock lk(mutex_);
@@ -49,6 +53,7 @@ public:
 		return cll_.size();
 	}
 
+
 private:
 	std::set<_T>		cll_;
 	mutable std::mutex	mutex_;
@@ -66,19 +71,22 @@ public:
 	//-----------------------------------------------------------------------
 	void push(const _T& val)
 	{
+		//cout << "\n     Call from push 1 rand:";
 		ulocker lk(mutex_);
+		//cout << "\n     Call from push 2 rand:";
 		if (bBlockIN_)
 		{
 			condNotFull_.wait(lk,
 				[this]{return !buffer_.full() || bTerminated_; });
 		}
-
+		//cout << "\n     Call from push 3 rand:";
 		if (!bTerminated_)
 		{
 			assert(!bBlockIN_ || !buffer_.full());
 			buffer_.push_back(val);
 			condNotEmpty_.notify_one();
 		}
+		//cout << "\n     exit from push 4 rand:";
 	}
 	//-----------------------------------------------------------------------
 	bool try_pop(_T& retVal)
@@ -98,12 +106,11 @@ public:
 	_T pop()
 	{
 		_T retVal;
+		//cout << "\n        Call from pop() 1 rand:";
 		ulocker lk(mutex_);
-		condNotEmpty_.wait(lk,
-			[this]{
-			return !buffer_.empty() || bTerminated_;
-		});
-
+		//cout << "\n        Call from pop() 2 rand:";
+		condNotEmpty_.wait(lk,[this]{return (!buffer_.empty() || bTerminated_); } );// тут
+		//cout << "\n        Call from pop() 3 rand:";
 
 		if (!bTerminated_)
 		{
@@ -113,7 +120,7 @@ public:
 			buffer_.pop_front();
 			condNotFull_.notify_one();
 		}
-
+		//cout << "\n        exit from pop() rand:";
 		return retVal;
 	}
 
@@ -141,7 +148,9 @@ private:
 	boost::circular_buffer<_T>	buffer_;
 	std::condition_variable		condNotEmpty_;
 	std::condition_variable		condNotFull_;
-	std::atomic<bool>			bTerminated_;
+	std::atomic<bool>			bcondNotEmpty_ = true;//1
+	std::atomic<bool>			bcondNotFull_=true;//1
+	std::atomic<bool>			bTerminated_=true;
 	const bool	bBlockIN_;
 
 };

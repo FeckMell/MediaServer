@@ -1,6 +1,9 @@
 #pragma once
-#include "envlp_ffmpeg.h"
-#include "Utils.h"
+
+//#include "envlp_ffmpeg.h"
+//#include "Utils.h"
+//#include "ISrcFusion.h"
+#include "SrcCash.h"
 
 class ISrcFusion;
 typedef std::shared_ptr<ISrcFusion> SHP_ISrcFusion;
@@ -24,7 +27,9 @@ class CDestFusion : public boost::noncopyable
 {
 public:
 	CDestFusion() { ; }
-	CDestFusion(const TRTP_Dest& dest){
+	CDestFusion(const TRTP_Dest& dest)
+	{
+		cout << "\nOPEN RTP(dest)\n";
 		openRTP(dest);
 	}
 	CDestFusion(const char *filename) {
@@ -40,7 +45,8 @@ public:
 	int openRTP(const TRTP_Dest&);
 	int openFile(const char *filename);
 
-	int addSrcRef(SHP_ISrcFusion shpSrc);
+	int addSrcRef(SHP_ISrcFusion shpSrc, string CallID);
+	int remSrcRef(SHP_ISrcFusion shpSrc, string CallID);
 
 	void terminate(){ buffRTP_.terminate(); }
 
@@ -49,23 +55,31 @@ public:
 	bool ExistsNotFinishedSrc() const;
 	bool isValid() const{ return m_lastError >= 0; }
 	int LastError() const { return m_lastError; }
+	void SayStopThread(bool val){ nonstop = val; }
+	bool nonstop;
 
 private:
 	typedef chrono::time_point<chrono::high_resolution_clock> time_point;
 
 	struct TSrcRef
 	{
+		bool operator ==(const TSrcRef &rhv) const //перегрузка оператора присваивания и здесь же ошибка 
+		{
+			return CallID == rhv.CallID;
+		}
+
 		const char* name()const{
 			assert(pctxFilter);
 			return pctxFilter->name;
 		}
-		
+		string CallID;
 		SHP_ISrcFusion shpSrc;
 		AVFilterContext* pctxFilter = nullptr;
 		bool finished		= false;
 		bool to_read		= true;
 		size_t total_samples= 0;
 	};
+
 	AVCodecContext* CodecCTX() const{
 		assert(ctxFormat_->nb_streams > 0);
 		return ctxFormat_->streams[0]->codec;
@@ -96,4 +110,6 @@ private:
 	std::vector<TSrcRef> cllSrcRefs_;
 	CThreadedCircular<SHP_CAVPacket> buffRTP_{ 5 };
 };
+
+
 

@@ -165,6 +165,10 @@ struct TmplMGCPparser : qi::grammar<Iterator>
 		auto setSDP_Name = [&](const std::string& str){
 			m_MGCP.cllSDPs.back()->name = str;
 		};
+		//setCallID - для callID
+		/*auto setCallID = [&](const std::string& str){
+			m_MGCP.CallID.back()->name = str;
+		};*/
 		auto addSDP = [&](){
 			m_MGCP.cllSDPs.push_back(SHP_TSDP(new TSDP));
 		};
@@ -243,6 +247,8 @@ struct TmplMGCPparser : qi::grammar<Iterator>
 		_MGCP_Param		= _return >> (MGCP_Param_symb::instance() >> ':' >> _trimLStrLine)[newMGCPParam];
 		_MGCP_ParMode	= _return >> "M: "  >> Conn_Mode_symb::instance()[ref(m_MGCP.parMode) = _1];
 		_MGCP_ParConnId = _return >> "I: "  >> uint_[ref(m_MGCP.idConn) = _1];
+		//
+		//_MGCP_ParCallID = _return >> "C: " >> setCallID;//
 
 		_MGCP_version = no_case["mgcp"] >> +blank
 			>> uint_[ref(m_MGCP.verMajor) = _1] >> '.' >> uint_[ref(m_MGCP.verMinor) = _1];
@@ -344,6 +350,7 @@ private:
 	qi::rule<Iterator> _MGCP_Param;
 	qi::rule<Iterator> _MGCP_ParMode;
 	qi::rule<Iterator> _MGCP_ParConnId;
+	qi::rule<Iterator> _MGCP_ParCallID;
 	qi::rule<Iterator, SHP_TSDP_Param> _SDP_Session;
 	qi::rule<Iterator> _sdpLevelSession, _sdpLevelMedia;
 	qi::rule<Iterator> _SDP_Param;
@@ -367,14 +374,15 @@ private:
 
 bool parseMGCP(const char* pCh, TMGCP& mgcp)
 {
+		
 	TmplMGCPparser<const char*> parserMGCP(mgcp);
-	
 	auto pBegin = pCh;
 	auto pEnd	= pCh + strlen(pCh);
 	//printf("\n parsertest\n");
 	//bool b = parse(pBegin, pEnd, parserMGCP, ascii::space);
 	bool b = qi::phrase_parse(pBegin, pEnd, parserMGCP, ascii::space)
 		&& pBegin == pEnd;
+
 	printf("Parser %s\n", b ? "OK" : "false");
 
 

@@ -135,6 +135,9 @@ namespace MGCP
 			loopback, conttest, netwloop, netwtest};
 		enum MGCPCmd { NON, EPCF, CRCX, MDCX, DLCX, RQNT, NTFY, AUEP, AUCX, RSIP };
 		string ResponseOK(unsigned short code = 200) const;
+		string ResponseBAD(unsigned short code) const;
+		string getCallID(); // "вытаскивает" CALLID
+		string getsdpparam();// "вытаскивает" из SDP
 
 		MGCPCmd			CMD;
 		unsigned		IdTransact;
@@ -148,6 +151,7 @@ namespace MGCP
 		std::set<TMGCP_Param> cllParams;
 		CLL_MGCP_Params cllResponseParams;
 		CLL_SDPs		cllSDPs;
+		std::vector<string> ID;
 
 		void addResponseParam(const TMGCP_Param& param)
 		{

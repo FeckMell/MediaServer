@@ -4,7 +4,8 @@
 //
 
 #pragma once
-
+#define _SCL_SECURE_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 //#ifdef WIN32
 //#include "targetver.h"
 //#endif // _WIN32_

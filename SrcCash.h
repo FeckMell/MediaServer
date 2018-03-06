@@ -1,4 +1,5 @@
 #pragma once
+
 #include "Utils.h"
 #include "ISrcFusion.h"
 class CSrcCashEntry;
@@ -15,19 +16,24 @@ public:
 	{
 		boost::circular_buffer<SHP_CScopedPFrame>	frames;
 	};
-	SHP_CSrcCashEntry newEntry();
-	SHP_CSrcCashEntry removeEntry();
+	SHP_CSrcCashEntry newEntry(string CallID);
+	SHP_CSrcCashEntry removeEntry(string CallID);
+	SHP_CSrcCashEntry ShowEntry(string CallID);
+	SHP_CSrcCashEntry findEntry(string CallID);
 	SHP_CScopedPFrame pendingData(const CSrcCashEntry*, bool& bEOF);
+	
 	//std::mutex& Mutex() const { return mutex_; }
 	const AVCodecContext *CodecCTX()const { return src_->CodecCTX(); };
 	const string& Name() const { return src_->Name(); };
 	void run();
+	
 private:
 
 	SHP_ISrcFusion src_;
 	ThreadedSet<SHP_CSrcCashEntry> cllEntries_;
 	//	std::map <SHP_ISrcFusion, boost::circular_buffer<SHP_CScopedPFrame> > mapEntries_;
 	mutable std::mutex			mutex_;
+	std::vector<SHP_CSrcCashEntry> cllEntriesVec_;
 };
 
 /************************************************************************
@@ -52,6 +58,7 @@ private:
 	//boost::circular_buffer<SHP_CScopedPFrame>	buffer_{ 150 };
 	CThreadedCircular<SHP_CScopedPFrame> buffFrames_{ 30};
 	string strName_;
+	string CallID;
 };
 
 

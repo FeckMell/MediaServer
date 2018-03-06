@@ -16,7 +16,7 @@ void log(const _T& val)
 ************************************************************************/
 SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 {
-	
+	cout << "\nCall from getNextDecoded(CSrcCash)";
 #if 1
 /*
 	bEOF = false;
@@ -51,12 +51,11 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 
 	//lock lk(pCash_.Mutex());
 	// ; - whatfor?
-	printf("\nGetNextDecoded(SrcCash)\n");
 	SHP_CScopedPFrame frame;//  ;
-	
 	if (!buffFrames_.try_pop(frame))
 	{
 		//log(boost::format("%1% before pop %2%\n") % Name() % buffFrames_.size());
+		cout << "\nCall from getNextDecoded(CSrcCash) 2(pendingData)";
 		pCash_.pendingData(this, bEOF);
 		buffFrames_.try_pop(frame);
 
@@ -93,7 +92,7 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 
 	}*/
 
-
+	cout << "\nExit from getNextDecoded(CSrcCash)";
 	return frame;
 #else 
 	lock lk(pCash_.Mutex());
@@ -123,16 +122,18 @@ SHP_CScopedPFrame CSrcCashEntry::getNextDecoded(bool& bEOF)
 ************************************************************************/
 SHP_CScopedPFrame CSrcCash::pendingData(const CSrcCashEntry* pEntry, bool& bEOF)
 {
+	cout << "\ncall from pendingData 1";
 	SHP_CScopedPFrame frameNext;
 
 	{
 		lock lk(mutex_);
+		cout << "\ncall from pendingData 2 (getNextDecoded(CSrcCash) )";
 		frameNext = src_->getNextDecoded(bEOF);
 	}
 
 	if (frameNext)
 	{
-		cllEntries_.for_each([&](SHP_CSrcCashEntry entry)
+		cllEntries_.for_each([&](SHP_CSrcCashEntry entry)// oldSet
 		{
 			//if (pEntry != entry.get())
 			{
@@ -146,8 +147,7 @@ SHP_CScopedPFrame CSrcCash::pendingData(const CSrcCashEntry* pEntry, bool& bEOF)
 			}
 		});
 	}
-	printf("\n pendingdata finished\n");
-
+	cout << "\nexit from pendingData 1";
 	return frameNext;
 }
 
@@ -155,7 +155,7 @@ SHP_CScopedPFrame CSrcCash::pendingData(const CSrcCashEntry* pEntry, bool& bEOF)
 void CSrcCash::run()
 {
 	bool bEOF = false;
-	if (cllEntries_.empty())
+	if (cllEntries_.empty()) // oldSet
 		return;
 
 	while (!bEOF)
@@ -168,7 +168,7 @@ void CSrcCash::run()
 
 		if (frame)
 		{
-			cllEntries_.for_each([&](SHP_CSrcCashEntry entry)
+			cllEntries_.for_each([&](SHP_CSrcCashEntry entry)//oldset
 			{
 				CSrcCashEntry* p = entry.get();
 				if (p->buffFrames_.full())
@@ -180,21 +180,38 @@ void CSrcCash::run()
 		}
 	}
 }
-
-//-----------------------------------------------------------------------
-SHP_CSrcCashEntry CSrcCash::newEntry()
+SHP_CSrcCashEntry CSrcCash::ShowEntry(string CallID)
 {
 	SHP_CSrcCashEntry shpResult = std::make_shared<CSrcCashEntry>(*this);
-	cllEntries_.reg(shpResult);
-	//mapEntries_
+	cout << "\nfor CallID= " << CallID << " cllEntriesVec=";
+	for (auto &e : cllEntriesVec_) cout << " " << e->CallID;
 	return shpResult;
 }
-//должно удалять из списка рассылки
-SHP_CSrcCashEntry CSrcCash::removeEntry()
+//-----------------------------------------------------------------------
+SHP_CSrcCashEntry CSrcCash::newEntry(string CallID)
 {
 	SHP_CSrcCashEntry shpResult = std::make_shared<CSrcCashEntry>(*this);
-	cllEntries_.unreg(shpResult);
-	//mapEntries_
+	shpResult->CallID = CallID;
+	cllEntries_.reg(shpResult);//oldset
+	cllEntriesVec_.push_back(shpResult);
 	return shpResult;
+}
+SHP_CSrcCashEntry CSrcCash::findEntry(string CallID)
+{
+	auto it = std::find_if(cllEntriesVec_.begin(),
+		cllEntriesVec_.end(),
+		[CallID](const SHP_CSrcCashEntry& current) { return current->CallID == CallID; }
+	);
+	if (it != cllEntriesVec_.end()) return *it;
+	else return nullptr;
+}
+//должно удалять из списка рассылки
+SHP_CSrcCashEntry CSrcCash::removeEntry(string CallID)
+{
+	auto shpRemove = findEntry(CallID);
+	assert(shpRemove);
+	cllEntries_.unreg(shpRemove);//oldset
+	cllEntriesVec_.erase(std::remove(cllEntriesVec_.begin(), cllEntriesVec_.end(), shpRemove), cllEntriesVec_.end());
+	return shpRemove;
 }
 

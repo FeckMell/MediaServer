@@ -1,7 +1,10 @@
 #pragma once
+
 #include "SrcCommon.h"
 #include "Utils.h"
 #include <boost/scoped_ptr.hpp>
+
+
 
 /************************************************************************
 	CSrcAsio
@@ -9,8 +12,9 @@
 class CSrcAsio : public CSrcCommon
 {
 public:
-	CSrcAsio(const string& sdp_file, 
-		boost::asio::io_service& io_service, unsigned short port);
+	CSrcAsio(const string& sdp_string,
+		boost::asio::io_service& io_service, unsigned short port, string IP);
+
 	~CSrcAsio()	{
 		avcodec_free_context(&codecRTP_);
 	}
@@ -18,8 +22,9 @@ public:
 	SHP_CScopedPFrame getNextDecoded(bool& bEOF) override;
 
 private:
-	void _do_receive();
+	void _do_receive();//2
 	SHP_CAVPacket popEncoded();
+
 	boost::scoped_ptr<udp::socket> pSocket_;
 	AVCodecContext * codecRTP_ = nullptr;
 
@@ -31,4 +36,7 @@ private:
 	char data_[max_length];
 	//boost::circular_buffer<SHP_CAVPacket> circular_;
 	CThreadedCircular<SHP_CAVPacket> circular_{ 50, false };
+	unsigned int port;
+	string IP_;
+	asio::io_service &io_service__;
 };
